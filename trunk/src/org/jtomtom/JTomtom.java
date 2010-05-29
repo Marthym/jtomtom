@@ -160,6 +160,9 @@ public class JTomtom {
 		
 		// - Mise à jour du niveau de log
 		Logger.getLogger(JTomtom.class.getPackage().getName()).setLevel(Level.toLevel(m_props.getProperty("org.jtomtom.logLevel", "INFO")));
+		
+		// - Ré-initialisation du proxy
+		m_proxy = null;
 	}
 
 	/**

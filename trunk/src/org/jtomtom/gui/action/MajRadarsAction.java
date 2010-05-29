@@ -130,7 +130,11 @@ public class MajRadarsAction extends AbstractAction {
 	public boolean miseAJourRadars(GlobalPositioningSystem theGPS) throws JTomtomException {	
 		// Téléchargement du fichier de mise à jour
 		LOGGER.info("Téléchargement de la mise à jour Radar ...");
+		
 		Map<String, String> infosTomtomax = TomTomax.getRemoteDbInfos(JTomtom.getApplicationProxy());
+		if (infosTomtomax == null) {
+			throw new JTomtomException("Impossible se connecter au site de Tomtomax.\nVérifiez les paramètres du proxy.");
+		}
 		
 		HttpURLConnection conn = null;
 		FileOutputStream fout = null;
@@ -181,14 +185,10 @@ public class MajRadarsAction extends AbstractAction {
             }
 			
 		} catch (MalformedURLException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			return false;
+			throw new JTomtomException(e);
 			
 		} catch (IOException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			return false;
+			throw new JTomtomException(e);
 			
 		} finally {
 			LOGGER.debug("Fermeture des tout les flux de téléchargement");

@@ -1,7 +1,7 @@
 package net.sf.jcablib;
 /*
 * CabLib, a library for extracting MS cabinets
-* Copyright (C) 1999, 2002  David V. Himelright
+* Copyright (C) 1999, 2002, 2010  David V. Himelright, Frédéric Combes
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Library General Public
