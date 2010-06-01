@@ -43,6 +43,14 @@ public class TestTomtomax {
 	}
 	
 	@Test
+	public void testConnexion() {
+		Proxy proxy = JTomtom.getApplicationProxy();
+		assertFalse(TomTomax.connexion(proxy, "marthym", "prout"));
+		assertFalse(TomTomax.connexion(proxy, "martm", "myhtram"));
+		assertTrue(TomTomax.connexion(proxy, "marthym", "myhtram"));
+	}
+	
+	@Test
 	public void testGetRemoteDbInfos() {
 		
 		Proxy proxy = JTomtom.getApplicationProxy();

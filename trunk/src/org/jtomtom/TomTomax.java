@@ -21,13 +21,16 @@
 package org.jtomtom;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +43,9 @@ public final class TomTomax {
 	 * URL du fichier de base contennat les informations sur la base courante
 	 */
 	public static final String TOMTOMAX_DB_URL = "http://www.tomtomax.fr/upload/tomtomax_radars.db";
+	public static final String TOMTOMAX_LOGIN_URL = "http://www.tomtomax.fr/forum/ucp.php?mode=login";
+	
+	public static final String TOMTOMAX_COOKIE_CONNECT = "phpbb3_e1wj8_u";
 	
 	/**
 	 * User Agent de la MaxBox
@@ -138,6 +144,82 @@ public final class TomTomax {
 		} 
 		
 		return infos;
+	}
+	
+	/**
+	 * Effectue la connexion au site Tomtomax pour télécharger les mises à jours !
+	 * @param p_proxy		Proxy à utiliser
+	 * @param p_user		Utilisateur sur forum Tomtomax
+	 * @param p_password	Mot de pas de l'utilisateur
+	 * @return				True si l'utilisateur à le droit de se connecter
+	 */
+	public static final boolean connexion(Proxy p_proxy, String p_user, String p_password) {
+		Map<String, String> cookies = null;
+		String urlParameters = "";
+		try {
+			urlParameters =
+			    "mode=login&username=" + URLEncoder.encode(p_user, "UTF-8") +
+			    "&password=" + URLEncoder.encode(p_password, "UTF-8") +
+			    "&login=Connexion"+
+			    "&redirect=index.php";
+		} catch (UnsupportedEncodingException e1) {
+			e1.printStackTrace();
+		}
+
+		HttpURLConnection conn = null;
+		DataOutputStream wr = null;
+		try {
+			URL tomtomaxUrl = new URL(TOMTOMAX_LOGIN_URL);
+			conn = (HttpURLConnection) tomtomaxUrl.openConnection(p_proxy);
+			
+			conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
+	        conn.setUseCaches(false);
+	        conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
+	        conn.setRequestMethod("POST");
+	        conn.setDoOutput(true);
+	        conn.setDoInput(true);
+	        
+	        wr = new DataOutputStream (conn.getOutputStream ());
+	        wr.writeBytes(urlParameters);
+	        wr.flush ();
+	        wr.close ();
+	        
+	        conn.connect();
+	
+			if (LOGGER.isDebugEnabled()) LOGGER.debug("conn.getResponseCode() = "+conn.getResponseCode());
+			
+	        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+	        	cookies = new HashMap<String, String>();
+	        	String headerName=null;
+	        	for (int i=1; (headerName = conn.getHeaderFieldKey(i))!=null; i++) {
+	        	 	if (headerName.equals("Set-Cookie")) {                  
+	        	 		String cookie = conn.getHeaderField(i);
+	        	 		cookie = cookie.substring(0, cookie.indexOf(";"));
+	        	        String cookieName = cookie.substring(0, cookie.indexOf("="));
+	        	        String cookieValue = cookie.substring(cookie.indexOf("=") + 1, cookie.length());
+	        	 		cookies.put(cookieName, cookieValue);
+	        	        
+	        	        LOGGER.debug(cookieName+" = "+cookieValue);
+	        	 	}
+	        	}
+	        }
+	        
+		} catch (IOException e) {
+			LOGGER.error(e.getLocalizedMessage());
+			if (LOGGER.isDebugEnabled()) e.printStackTrace();
+			
+		} finally {
+			try {wr.close();} catch (Exception e){}
+		}
+		
+		if (cookies != null && 
+				!cookies.isEmpty() && 
+				cookies.containsKey(TOMTOMAX_COOKIE_CONNECT) && 
+				!cookies.get(TOMTOMAX_COOKIE_CONNECT).equals("1")) {
+			return true;
+		}
+		
+		return false;
 	}
 
 }

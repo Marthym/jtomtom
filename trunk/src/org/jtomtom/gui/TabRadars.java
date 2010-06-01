@@ -26,6 +26,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -40,7 +41,9 @@ import javax.swing.SwingWorker.StateValue;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtom;
+import org.jtomtom.JTomtomException;
 import org.jtomtom.TomTomax;
+import org.jtomtom.gui.action.ActionResult;
 import org.jtomtom.gui.action.MajRadarsAction;
 
 /**
@@ -67,9 +70,9 @@ public class TabRadars extends JPanel {
 	 * 		en dehors de l'EDT
 	 *
 	 */
-	class LoadInformationsWorker extends SwingWorker<StringBuffer, Void> {
+	class LoadInformationsWorker extends SwingWorker<ActionResult, Void> {
 		@Override
-        public StringBuffer doInBackground() {
+        public ActionResult doInBackground() {
 			LOGGER.debug("Enter in LoadInformationsWorker.doInBackground ...");
             return loadInBackground();
         }
@@ -77,15 +80,13 @@ public class TabRadars extends JPanel {
 		@Override
 		protected void done() {
 			try {
-				StringBuffer infos = get();
-				if (infos == null) {
+				ActionResult infos = get();
+				if (!infos.status) {
 					JOptionPane.showMessageDialog(null, 
-							"Une erreur s'est produite à la lecture des informations.\n"+
-							"Cette fonction n'est pas accessible.\n\n"+
-							"Vérifier vos paramètres de configuration", 
+							infos.exception.getLocalizedMessage(), 
 							"Erreur ! ", JOptionPane.ERROR_MESSAGE);
 				} else {
-					radarsInfos.setText(infos.toString());
+					radarsInfos.setText(infos.parameters.get(0));
 					radarsButton.setEnabled(true);
 				}
 				LOGGER.debug("Exécution de LoadInformationsWorker terminé.");
@@ -100,7 +101,7 @@ public class TabRadars extends JPanel {
 			}
 		}
 	}
-	private SwingWorker<StringBuffer, Void> m_loadWorker;
+	private SwingWorker<ActionResult, Void> m_loadWorker;
 
 	
 	/**
@@ -162,7 +163,8 @@ public class TabRadars extends JPanel {
 	 * Récupération en background des éléments nécessaires à l'affichage de l'interface
 	 * @return	Chaine HTML à affiché contenant les infos
 	 */
-	private StringBuffer loadInBackground() {
+	private ActionResult loadInBackground() {
+		ActionResult result = new ActionResult();
 		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
 		StringBuffer infos = new StringBuffer();
 		
@@ -170,8 +172,9 @@ public class TabRadars extends JPanel {
 		if (infosTomtomax == null) {
 			infosTomtomax = TomTomax.getRemoteDbInfos(JTomtom.getApplicationProxy());
 			if (infosTomtomax == null) {
-				LOGGER.error("Erreur lors de la récupération des informations Tomtomax !");
-				return null;
+				result.exception = new JTomtomException("Erreur lors de la récupération des informations Tomtomax !");
+				result.status = false;
+				return result;
 			}
 		}
 		
@@ -208,12 +211,28 @@ public class TabRadars extends JPanel {
 			infos.append("<br/><br/><br/><font size=\"2\"><p><i>Les radars sont fournis par le site <a href=\"http://www.tomtomax.fr/\">&copy;TomtomMax</a></i></p></font>");
 			infos.append("</html>");
 			
+			if (result.parameters == null) {
+				result.parameters = new LinkedList<String>();
+			}
+			result.parameters.add(infos.toString());
 		} else {
-			LOGGER.error("Une erreur s'est produite à la lecture des informations sur le GPS !");
-			return null;
+			result.exception = new JTomtomException("Une erreur s'est produite à la lecture des informations sur le GPS !");
+			result.status = false;
+			return result;
 		} 
 		
-		return infos;
+		// - Enfin, on teste la connexion à Tomtomax pour vérifier que le user ai un compte
+		result.status = TomTomax.connexion(
+				JTomtom.getApplicationProxy(), 
+				JTomtom.getApplicationPropertie("org.tomtomax.user"), 
+				JTomtom.getApplicationPropertie("org.tomtomax.password"));
+		if (!result.status) {
+			result.exception = new JTomtomException("Votre compte utilisateur Tomtomax n'est pas valide !\nVérifier vos paramètre.\nSi vous n'avez pas de compte, vous devez vous en créer un d'abord !");
+			return result;
+		}
+		
+		result.status = true;
+		return result;
 	}
 
 }
