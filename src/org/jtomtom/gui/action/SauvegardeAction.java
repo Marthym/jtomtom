@@ -50,7 +50,7 @@ import de.tu_darmstadt.informatik.rbg.mhartle.sabre.StreamHandler;
  */
 public class SauvegardeAction extends AbstractAction {
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger(MajRadarsAction.class);
+	private static final Logger LOGGER = Logger.getLogger(SauvegardeAction.class);
 	
 	private PatienterDialog m_waitingDialog = null;
 	private JTextField m_fichierDestination;
