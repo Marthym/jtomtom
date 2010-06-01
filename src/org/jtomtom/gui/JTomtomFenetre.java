@@ -22,6 +22,7 @@ package org.jtomtom.gui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -54,6 +55,7 @@ public class JTomtomFenetre extends JFrame implements ChangeListener {
 		setLocationRelativeTo(null); 	//On centre la fenêtre sur l'écran
 		setResizable(false); 			//On interdit la redimensionnement de la fenêtre
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //On dit à l'application de se fermer lors du clic sur la croix
+		setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("resources/icon.png"))); 
 		
 		setContentPane(buildContentPane());
 	}
