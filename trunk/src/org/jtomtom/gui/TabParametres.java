@@ -60,6 +60,7 @@ public class TabParametres extends JPanel implements ActionListener {
 
 	
 	private JComboBox  	m_logLevel;
+	private JTextField 	m_logFile;
 	
 	private JButton		m_enregistrer;
 	
@@ -106,6 +107,7 @@ public class TabParametres extends JPanel implements ActionListener {
 		logsPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, 23));
 		logsPanel.add(new JLabel("Niveau de log :"));
 		logsPanel.add(m_logLevel);
+		logsPanel.add(m_logFile);
 		centerPanel.add(logsPanel);
 		centerPanel.add(Box.createRigidArea(new Dimension(0,10)));
 
@@ -183,6 +185,13 @@ public class TabParametres extends JPanel implements ActionListener {
 				Arrays.binarySearch(
 						logLevelStrings, 
 						Level.toLevel(JTomtom.getApplicationPropertie("org.jtomtom.logLevel")).toString()));
+
+		// - Fichier de log
+		m_logFile = new JTextField();
+		m_logFile.setColumns(21);
+		m_logFile.setPreferredSize(new Dimension(0,25));
+		m_logFile.setToolTipText("Fichier de destination des log");
+		m_logFile.setText(JTomtom.getApplicationPropertie("org.jtomtom.logFile"));
 	}
 
 	@Override
@@ -192,6 +201,7 @@ public class TabParametres extends JPanel implements ActionListener {
 			JTomtom.setApplicationPropertie("net.proxy.name", ((String)m_proxyHost.getText()));
 			JTomtom.setApplicationPropertie("net.proxy.port", ((String)m_proxyPort.getText()));
 			JTomtom.setApplicationPropertie("org.jtomtom.logLevel", ((String)m_logLevel.getSelectedItem()));
+			JTomtom.setApplicationPropertie("org.jtomtom.logFile", ((String)m_logFile.getText()));
 			JTomtom.setApplicationPropertie("org.tomtomax.user", ((String)m_ttmaxUser.getText()));
 			JTomtom.setApplicationPropertie("org.tomtomax.password", ((String)m_ttmaxPassword.getText()));
 			

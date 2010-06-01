@@ -28,12 +28,16 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Proxy.Type;
+import java.util.Enumeration;
 import java.util.Properties;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Appender;
+import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
 import org.jtomtom.gui.JTomtomFenetre;
 
@@ -160,6 +164,27 @@ public class JTomtom {
 		
 		// - Mise à jour du niveau de log
 		Logger.getLogger(JTomtom.class.getPackage().getName()).setLevel(Level.toLevel(m_props.getProperty("org.jtomtom.logLevel", "INFO")));
+		
+		// Suppression des FileAppender potentiellement déjà ajouté
+		Enumeration<?> enu = Logger.getLogger(JTomtom.class.getPackage().getName()).getAllAppenders();
+		while (enu.hasMoreElements()) {
+			Appender logApp = (Appender)enu.nextElement();
+			if (FileAppender.class.isAssignableFrom(logApp.getClass())) {
+				Logger.getLogger(JTomtom.class.getPackage().getName()).removeAppender(logApp);
+			}
+		}
+		
+		// Ajout du FileAppender avec le bon nom si besoin
+		if (m_props.getProperty("org.jtomtom.logFile") != null && !m_props.getProperty("org.jtomtom.logFile").isEmpty()) {
+			try {
+				Logger.getLogger(JTomtom.class.getPackage().getName()).addAppender(
+						new FileAppender(new PatternLayout("%d{ABSOLUTE} %5p %m%n"),  
+						m_props.getProperty("org.jtomtom.logFile")));
+			} catch (IOException e) {
+				LOGGER.error(e.getLocalizedMessage());
+				if (LOGGER.isDebugEnabled()) e.printStackTrace();
+			}
+		} 
 		
 		// - Ré-initialisation du proxy
 		m_proxy = null;
