@@ -523,6 +523,9 @@ public class GlobalPositioningSystem {
 			}
 		}
 		
+		// - Mise à jour des infos
+		readRadarsInfos();
+		
 		return true;
 	}
 	
