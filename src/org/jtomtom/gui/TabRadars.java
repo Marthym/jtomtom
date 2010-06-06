@@ -148,7 +148,7 @@ public class TabRadars extends JPanel {
 		infos.append("<tr><td>Mise à jour installé : </td><td><i>Chargement...</i></td></tr>");
 		infos.append("<tr><td>Nombre de radar : </td><td><i>Chargement...</i></td></tr>");
 		infos.append("</table>");
-		infos.append("<br/><br/><br/><font size=\"2\"><p><i>Les radars sont fournis par le site <a href=\"http://www.tomtomax.fr/\">&copy;TomtomMax</a></i></p></font>");
+		infos.append("<br/><br/><br/><font size=\"2\"><p><i>Les radars sont fournis par le site <a href=\"http://www.tomtomax.fr/\">&copy;Tomtomax</a></i></p></font>");
 		infos.append("</html>");
 		radarsInfos.setText(infos.toString());
 		

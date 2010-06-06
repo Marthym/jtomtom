@@ -100,7 +100,7 @@ public class TabSauvegarde extends JPanel implements MouseListener {
 		
 		buffer.append("<html><h1>Sauvegarde &amp; Restauration</h1>");
 		buffer.append("<p>Cette fonction vous permet de faire une sauvegarde du contenu de votre GPS.</p>");
-		buffer.append("<p>La sauvegarde se fait sous la forme d'un fichier ISO standard qu'il vous est possible de graver");
+		buffer.append("<p>La sauvegarde se fait sous la forme d'un fichier ISO standard qu'il vous est possible de graver ");
 		buffer.append("sur CD par la suite.</p>");
 		
 		return buffer;
