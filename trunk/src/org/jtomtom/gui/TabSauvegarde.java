@@ -25,6 +25,7 @@ import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -65,6 +66,7 @@ public class TabSauvegarde extends JPanel implements MouseListener {
 		// Création du paneau central
 		JPanel centerPanel = new JPanel();
 		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.PAGE_AXIS));
+		centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
 		
 		// Création du texte de présentation
 		JLabel infos = new JLabel(loadSauvegardeInfos().toString());

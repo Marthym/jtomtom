@@ -21,13 +21,16 @@
 package org.jtomtom.gui;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -54,7 +57,8 @@ public class TabGeneral extends JPanel implements ActionListener {
 		setLayout(new BorderLayout());
 		
 		JPanel centerPanel = new JPanel();
-		centerPanel.setLayout(new FlowLayout());
+		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.PAGE_AXIS));
+		centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
 		
 		// Ecriture des informations pour l'onglet General
 		StringBuffer infos = new StringBuffer();
@@ -74,9 +78,11 @@ public class TabGeneral extends JPanel implements ActionListener {
 		centerPanel.add(label);
 		
 		JLabel image = new JLabel(new ImageIcon(getClass().getResource("resources/general.png"), "jTT"));
-
+		
+		centerPanel.add(Box.createRigidArea(new Dimension(0, 15)), TOP_ALIGNMENT);
+		
 		m_btCopier = new JButton("Copier");
-		m_btCopier.setToolTipText("Copie les informations ci-contre dans le presse-papier.");
+		m_btCopier.setToolTipText("Copie les informations ci-dessus dans le presse-papier.");
 		m_btCopier.addActionListener(this);
 		centerPanel.add(m_btCopier);
 		

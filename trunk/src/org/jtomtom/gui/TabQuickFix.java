@@ -21,11 +21,12 @@
 package org.jtomtom.gui;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -58,7 +59,8 @@ public class TabQuickFix extends JPanel {
 		setLayout(new BorderLayout());
 		
 		JPanel centerPanel = new JPanel();
-		centerPanel.setLayout(new FlowLayout());
+		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.PAGE_AXIS));
+		centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
 
 		JLabel image = new JLabel(new ImageIcon(getClass().getResource("resources/quickfix.png"), "QFx"));
 		add(image, BorderLayout.LINE_START);

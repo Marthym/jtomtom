@@ -21,7 +21,6 @@
 package org.jtomtom.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -82,10 +81,13 @@ public class TabParametres extends JPanel implements ActionListener {
 		// Création du paneau central
 		JPanel centerPanel = new JPanel();
 		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.PAGE_AXIS));
+		centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
 		
 		// Création du texte de présentation
 		JLabel label = new JLabel("<html><h1>Paramètres</h1></html>");
-		centerPanel.add(label, Component.TOP_ALIGNMENT);
+		label.setPreferredSize(new Dimension(Short.MAX_VALUE, (int) label.getPreferredSize().getHeight()));
+		label.setAlignmentX(RIGHT_ALIGNMENT);
+		centerPanel.add(label);
 		
 		// Paramètres du proxy
 		buildProxyFields();
@@ -162,14 +164,14 @@ public class TabParametres extends JPanel implements ActionListener {
 	private void buildConnexionFields() {
 		// - User tomtomax
 		m_ttmaxUser = new JTextField();
-		m_ttmaxUser.setColumns(12);
+		m_ttmaxUser.setColumns(11);
 		m_ttmaxUser.setPreferredSize(new Dimension(0,25));
 		m_ttmaxUser.setToolTipText("Utilisateur Tomtomax");
 		m_ttmaxUser.setText(JTomtom.getApplicationPropertie("org.tomtomax.user"));
 
 		// - Password Tomtomax
 		m_ttmaxPassword = new JPasswordField();
-		m_ttmaxPassword.setColumns(12);
+		m_ttmaxPassword.setColumns(11);
 		m_ttmaxPassword.setPreferredSize(new Dimension(0,25));
 		m_ttmaxPassword.setToolTipText("Password Tomtomax");
 		m_ttmaxPassword.setText(JTomtom.getApplicationPropertie("org.tomtomax.password"));
@@ -188,9 +190,9 @@ public class TabParametres extends JPanel implements ActionListener {
 
 		// - Fichier de log
 		m_logFile = new JTextField();
-		m_logFile.setColumns(21);
+		m_logFile.setColumns(19);
 		m_logFile.setPreferredSize(new Dimension(0,25));
-		m_logFile.setToolTipText("Fichier de destination des log");
+		m_logFile.setToolTipText("Fichier de destination des logs, laisser vide si pas de fichier.");
 		m_logFile.setText(JTomtom.getApplicationPropertie("org.jtomtom.logFile"));
 	}
 
