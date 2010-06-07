@@ -21,7 +21,9 @@
 package org.jtomtom.gui;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,6 +33,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -52,12 +57,13 @@ import org.jtomtom.gui.action.MajRadarsAction;
  * Onglet de mise à jour des radars
  * La mise à jour se fait grâce au site Tomtomax qui fourni les POIs
  */
-public class TabRadars extends JPanel {
+public class TabRadars extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(TabRadars.class);
 	
 	private JLabel radarsInfos;
 	private JButton radarsButton;
+	private JButton refreshButton;
 	
 	private Map<String, String> infosTomtomax;
 
@@ -88,6 +94,7 @@ public class TabRadars extends JPanel {
 				} else {
 					radarsInfos.setText(infos.parameters.get(0));
 					radarsButton.setEnabled(true);
+					refreshButton.setEnabled(true);
 				}
 				LOGGER.debug("Exécution de LoadInformationsWorker terminé.");
 				
@@ -120,13 +127,22 @@ public class TabRadars extends JPanel {
 		setLayout(new BorderLayout());
 		
 		JPanel centerPanel = new JPanel();
-		centerPanel.setLayout(new FlowLayout());
-
+		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.PAGE_AXIS));
+		centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
+		
 		JLabel image = new JLabel(new ImageIcon(getClass().getResource("resources/radars.png"), "Rds"));
 		add(image, BorderLayout.LINE_START);
 		
 		radarsInfos = new JLabel("");
-		centerPanel.add(radarsInfos);
+		centerPanel.add(radarsInfos, TOP_ALIGNMENT);
+		
+		centerPanel.add(Box.createRigidArea(new Dimension(0, 15)), TOP_ALIGNMENT);
+		refreshButton = new JButton("Rafraichir");
+		refreshButton.setToolTipText("Rafraichir les informations de cette page");
+		refreshButton.setEnabled(false);
+		refreshButton.addActionListener(this);
+		centerPanel.add(refreshButton, TOP_ALIGNMENT);
+		
 		add(centerPanel, BorderLayout.CENTER);
 		
 		radarsButton = new JButton(new MajRadarsAction("Mettre à jour les radars"));
@@ -139,6 +155,10 @@ public class TabRadars extends JPanel {
 	 * Récupération et affichage des élements texte de l'interface
 	 */
 	public void loadRadarsInfos() {
+		// Pour ne pas faire ça à chaque passage sur l'onglet
+		if (refreshButton.isEnabled()) {
+			return;
+		}
 		LOGGER.info("Récupération des informations sur les Radars");
 		
 		StringBuffer infos = new StringBuffer();
@@ -208,7 +228,7 @@ public class TabRadars extends JPanel {
 				.append(Integer.parseInt(infosTomtomax.get(TomTomax.TAG_RADARS)) - JTomtom.getTheGPS().getRadarsNombre())
 				.append(" radars manquants]</td></tr>");
 			infos.append("</table>");
-			infos.append("<br/><br/><br/><font size=\"2\"><p><i>Les radars sont fournis par le site <a href=\"http://www.tomtomax.fr/\">&copy;TomtomMax</a></i></p></font>");
+			infos.append("<br/><br/><br/><font size=\"2\"><p><i>Les radars sont fournis par le site <a href=\"http://www.tomtomax.fr/\">&copy;Tomtomax</a></i></p></font>");
 			infos.append("</html>");
 			
 			if (result.parameters == null) {
@@ -233,6 +253,16 @@ public class TabRadars extends JPanel {
 		
 		result.status = true;
 		return result;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == refreshButton) {
+			// Rafraichissement manuel des infos de la page
+			refreshButton.setEnabled(false);
+			loadRadarsInfos();
+		}
+		
 	}
 
 }
