@@ -28,7 +28,6 @@ import java.awt.event.ActionListener;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -41,6 +40,7 @@ import javax.swing.JTextField;
 
 import org.apache.log4j.Level;
 import org.jtomtom.JTomtom;
+import org.jtomtom.gui.utilities.HeaderTitleBorder;
 
 /**
  * @author marthym
@@ -81,50 +81,39 @@ public class TabParametres extends JPanel implements ActionListener {
 		// Création du paneau central
 		JPanel centerPanel = new JPanel();
 		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.PAGE_AXIS));
-		centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
 		
-		// Création du texte de présentation
-		JLabel label = new JLabel("<html><h1>Paramètres</h1></html>");
-		label.setPreferredSize(new Dimension(Short.MAX_VALUE, (int) label.getPreferredSize().getHeight()));
-		label.setAlignmentX(RIGHT_ALIGNMENT);
-		centerPanel.add(label);
+		// Entête de l'onglet
+		centerPanel.setBorder(new HeaderTitleBorder("Paramètres"));
 		
 		// Paramètres du proxy
 		buildProxyFields();
 		JPanel proxyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		proxyPanel.setBorder(BorderFactory.createTitledBorder("Réseau"));
-		proxyPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, 23));
 		proxyPanel.add(new JLabel("Proxy :"));
 		proxyPanel.add(m_proxyType);
 		proxyPanel.add(m_proxyHost);
 		proxyPanel.add(new JLabel(":"));
 		proxyPanel.add(m_proxyPort);
 		centerPanel.add(proxyPanel);
-		centerPanel.add(Box.createRigidArea(new Dimension(0,10)));
 		
 		// Paramètres des log
 		buildLogsFields();
 		JPanel logsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		logsPanel.setBorder(BorderFactory.createTitledBorder("Traces"));
-		logsPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, 23));
 		logsPanel.add(new JLabel("Niveau de log :"));
 		logsPanel.add(m_logLevel);
 		logsPanel.add(m_logFile);
 		centerPanel.add(logsPanel);
-		centerPanel.add(Box.createRigidArea(new Dimension(0,10)));
 
 		// Paramètres des log
 		buildConnexionFields();
 		JPanel tomtomaxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		tomtomaxPanel.setBorder(BorderFactory.createTitledBorder("Tomtomax"));
-		tomtomaxPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, 23));
 		tomtomaxPanel.add(new JLabel("User :"));
 		tomtomaxPanel.add(m_ttmaxUser);
 		tomtomaxPanel.add(new JLabel("  Password :"));
 		tomtomaxPanel.add(m_ttmaxPassword);
 		centerPanel.add(tomtomaxPanel);
-
-		centerPanel.add(Box.createVerticalGlue());
 		
 		// Création du panneau de bouton
 		m_enregistrer = new JButton("Enregistrer");
@@ -145,7 +134,7 @@ public class TabParametres extends JPanel implements ActionListener {
 
 		// - Serveur Proxy
 		m_proxyHost = new JTextField();
-		m_proxyHost.setColumns(17);
+		m_proxyHost.setColumns(16);
 		m_proxyHost.setPreferredSize(new Dimension(0,25));
 		m_proxyHost.setToolTipText("Nom du serveur ou adresse IP");
 		m_proxyHost.setText(JTomtom.getApplicationPropertie("net.proxy.name"));

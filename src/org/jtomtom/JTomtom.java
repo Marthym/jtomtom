@@ -32,6 +32,8 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.FileAppender;
@@ -68,7 +70,7 @@ public class JTomtom {
 		LOGGER.warn("This program comes with ABSOLUTELY NO WARRANTY.");
 		LOGGER.warn("This is free software, and you are welcome to redistribute it");
 		LOGGER.warn("under certain conditions.");
-		
+				
 		// Le premier truc à faire c'est initialiser le GPS
 		try {
 			theGPS = new GlobalPositioningSystem();
@@ -83,6 +85,10 @@ public class JTomtom {
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
 				
+				// Changement du Look And Feel
+				changeLookAndFeel(m_props.getProperty("org.jtomtom.lookandfeel", UIManager.getSystemLookAndFeelClassName()));
+				
+				// Création de l'interface
 				JTomtomFenetre fenetre = new JTomtomFenetre();
 				fenetre.setVisible(true);
 				
@@ -91,6 +97,21 @@ public class JTomtom {
 
 	}
 	
+	/**
+	 * Initialise le thème de l'application
+	 * @param p_lafName	Nom du thème à mettre
+	 */
+	private static void changeLookAndFeel(String p_lafName) {
+		try {
+		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+		        if (p_lafName.equals(info.getName())) {
+		            UIManager.setLookAndFeel(info.getClassName());
+		            break;
+		        }
+		    }
+		} catch (Exception e) {}
+	}
+
 	public static final GlobalPositioningSystem getTheGPS() {
 		return theGPS;
 	}
