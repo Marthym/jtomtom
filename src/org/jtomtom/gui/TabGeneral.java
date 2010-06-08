@@ -20,7 +20,6 @@
  */
 package org.jtomtom.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -28,66 +27,54 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.jtomtom.JTomtom;
+import org.jtomtom.gui.utilities.JTTabPanel;
 
 /**
  * @author marthym
  *
  */
-public class TabGeneral extends JPanel implements ActionListener {
-	private static final long serialVersionUID = -3308369793048494387L;
-
+public class TabGeneral extends JTTabPanel implements ActionListener {
+	private static final long serialVersionUID = 1L;
+	
 	private JButton m_btCopier;
 	
 	public TabGeneral() {
-		super();
+		super("Informations sur le GPS");
 		
 		build();
 	}
 	
 	private void build() {
-		setLayout(new BorderLayout());
-		
-		JPanel centerPanel = new JPanel();
-		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.PAGE_AXIS));
-		centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
+		super.build(getClass().getResource("resources/general.png"));
+		add(Box.createRigidArea(new Dimension(0,5)));
 		
 		// Ecriture des informations pour l'onglet General
 		StringBuffer infos = new StringBuffer();
-		infos.append("<html><h1>Informations sur le GPS</h1>");
-		infos.append("<table>");
-		infos.append("<tr><td>Nom : </td><td><i>").append(JTomtom.getTheGPS().getDeviceName()).append("</i></td></tr>");
-		infos.append("<tr><td>UNID : </td><td><i>").append(JTomtom.getTheGPS().getDeviceUniqueID()).append("</i></td></tr>");
-		infos.append("<tr><td>BootLoader : </td><td><i>").append(JTomtom.getTheGPS().getBootloaderVersion()).append("</i></td></tr>");
-		infos.append("<tr><td>Version GPS : </td><td><i>").append(JTomtom.getTheGPS().getGpsVersion()).append("</i></td></tr>");
-		infos.append("<tr><td>App Version : </td><td><i>").append(JTomtom.getTheGPS().getAppVersion()).append("</i></td></tr>");
-		infos.append("<tr><td>Map : </td><td><i>").append(JTomtom.getTheGPS().getMapName()).append("</i></td></tr>");
-		infos.append("<tr><td>Map Version : </td><td><i>").append(JTomtom.getTheGPS().getMapVersion()).append("</i></td></tr>");
+		infos.append("<html><table>");
+		infos.append("<tr><td><strong>Nom : </strong></td><td><i>").append(JTomtom.getTheGPS().getDeviceName()).append("</i></td></tr>");
+		infos.append("<tr><td><strong>UNID : </strong></td><td><i>").append(JTomtom.getTheGPS().getDeviceUniqueID()).append("</i></td></tr>");
+		infos.append("<tr><td><strong>BootLoader : </strong></td><td><i>").append(JTomtom.getTheGPS().getBootloaderVersion()).append("</i></td></tr>");
+		infos.append("<tr><td><strong>Version GPS : </strong></td><td><i>").append(JTomtom.getTheGPS().getGpsVersion()).append("</i></td></tr>");
+		infos.append("<tr><td><strong>App Version : </strong></td><td><i>").append(JTomtom.getTheGPS().getAppVersion()).append("</i></td></tr>");
+		infos.append("<tr><td><strong>Map : </strong></td><td><i>").append(JTomtom.getTheGPS().getMapName()).append("</i></td></tr>");
+		infos.append("<tr><td><strong>Map Version : </strong></td><td><i>").append(JTomtom.getTheGPS().getMapVersion()).append("</i></td></tr>");
 		infos.append("</table>");
 		infos.append("</html>");
 		
 		JLabel label = new JLabel(infos.toString());
-		centerPanel.add(label);
+		add(label);
 		
-		JLabel image = new JLabel(new ImageIcon(getClass().getResource("resources/general.png"), "jTT"));
-		
-		centerPanel.add(Box.createRigidArea(new Dimension(0, 15)), TOP_ALIGNMENT);
+		add(Box.createRigidArea(new Dimension(0, 15)));
 		
 		m_btCopier = new JButton("Copier");
 		m_btCopier.setToolTipText("Copie les informations ci-dessus dans le presse-papier.");
 		m_btCopier.addActionListener(this);
-		centerPanel.add(m_btCopier);
-		
-		add(centerPanel, BorderLayout.CENTER);
-		add(image, BorderLayout.LINE_START);		
+		add(m_btCopier);	
 	}
 
 	@Override

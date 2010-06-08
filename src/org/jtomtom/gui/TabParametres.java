@@ -20,7 +20,6 @@
  */
 package org.jtomtom.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -28,8 +27,6 @@ import java.awt.event.ActionListener;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -40,13 +37,13 @@ import javax.swing.JTextField;
 
 import org.apache.log4j.Level;
 import org.jtomtom.JTomtom;
-import org.jtomtom.gui.utilities.HeaderTitleBorder;
+import org.jtomtom.gui.utilities.JTTabPanel;
 
 /**
  * @author marthym
  *
  */
-public class TabParametres extends JPanel implements ActionListener {
+public class TabParametres extends JTTabPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	//private static final Logger LOGGER = Logger.getLogger(TabParametres.class);
 	
@@ -64,8 +61,7 @@ public class TabParametres extends JPanel implements ActionListener {
 	private JButton		m_enregistrer;
 	
 	public TabParametres() {
-		super();
-		
+		super("Paramètres");
 		build();
 	}
 	
@@ -73,17 +69,7 @@ public class TabParametres extends JPanel implements ActionListener {
 	 * Construction de l'interface graphique
 	 */
 	private void build() {
-		setLayout(new BorderLayout());
-		
-		JLabel image = new JLabel(new ImageIcon(getClass().getResource("resources/parametres.png"), "Paramètres"));
-		add(image, BorderLayout.LINE_START);
-		
-		// Création du paneau central
-		JPanel centerPanel = new JPanel();
-		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.PAGE_AXIS));
-		
-		// Entête de l'onglet
-		centerPanel.setBorder(new HeaderTitleBorder("Paramètres"));
+		super.build(getClass().getResource("resources/parametres.png"));
 		
 		// Paramètres du proxy
 		buildProxyFields();
@@ -94,7 +80,7 @@ public class TabParametres extends JPanel implements ActionListener {
 		proxyPanel.add(m_proxyHost);
 		proxyPanel.add(new JLabel(":"));
 		proxyPanel.add(m_proxyPort);
-		centerPanel.add(proxyPanel);
+		add(proxyPanel);
 		
 		// Paramètres des log
 		buildLogsFields();
@@ -103,7 +89,7 @@ public class TabParametres extends JPanel implements ActionListener {
 		logsPanel.add(new JLabel("Niveau de log :"));
 		logsPanel.add(m_logLevel);
 		logsPanel.add(m_logFile);
-		centerPanel.add(logsPanel);
+		add(logsPanel);
 
 		// Paramètres des log
 		buildConnexionFields();
@@ -113,14 +99,12 @@ public class TabParametres extends JPanel implements ActionListener {
 		tomtomaxPanel.add(m_ttmaxUser);
 		tomtomaxPanel.add(new JLabel("  Password :"));
 		tomtomaxPanel.add(m_ttmaxPassword);
-		centerPanel.add(tomtomaxPanel);
+		add(tomtomaxPanel);
 		
 		// Création du panneau de bouton
 		m_enregistrer = new JButton("Enregistrer");
 		m_enregistrer.addActionListener(this);
-		add(m_enregistrer, BorderLayout.PAGE_END);
-		
-		add(centerPanel, BorderLayout.CENTER);
+		addActionButton(m_enregistrer);
 	}	
 	
 	/**

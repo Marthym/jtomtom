@@ -39,17 +39,37 @@ import javax.swing.border.Border;
 
 public class HeaderTitleBorder implements Border {
     private String 			m_title;
-    private Font			m_titleFont = UIManager.getFont("Label.font").deriveFont(Font.BOLD, 14);
-	private final float 	m_hsb[] = Color.RGBtoHSB(36, 54, 127, null);
-    private final Color		m_titleLeftColor = Color.getHSBColor(m_hsb[0]-.013f, .15f, .85f);
-    private final Color		m_titleRightColor = Color.getHSBColor(m_hsb[0]-.005f, .24f, .80f);
+    private Font			m_titleFont;
+    
+    /**
+     * Teinte de la couleur du fond d'entête
+     */
+	public static final float 	TEINTE = (float) 0.63369966;
+	
+	/**
+	 * Couleur de gauche (partie foncé du dégradé)
+	 */
+    public static final Color	LEFT_COLOR = Color.getHSBColor(TEINTE-.013f, .15f, .85f);
+    
+    /**
+     * Couleur de droite (partie transparente du dégradé)
+     */
+    public static final Color	RIGHT_COLOR = Color.getHSBColor(TEINTE-.005f, .24f, .80f);
+    
+    private static final Color   OPAQUE_COLOR = new Color(0.0f, 0.0f, 0.0f, 1.0f);
+    private static final Color   TRANSPARENT_COLOR = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+    
+    /**
+     * Police par défault de l'entête
+     */
+    public static final Font	DEFAULT_FONT = UIManager.getFont("Label.font").deriveFont(Font.BOLD, 20);
 	
     /**
      * Constructeur initialisant le titre de mon bloc
      * @param title	Titre du bloc (en général un panel
      */
     public HeaderTitleBorder(String pTitle) {
-    	this(pTitle, UIManager.getFont("Label.font").deriveFont(Font.BOLD, 20));
+    	this(pTitle, DEFAULT_FONT);
     } 
     
     /**
@@ -84,19 +104,15 @@ public class HeaderTitleBorder implements Border {
         
         // - On crée le dégradé
         GradientPaint gradient = new GradientPaint(0, 0, 
-                m_titleLeftColor, 0, titleHeight, 
-                m_titleRightColor, false);
+                LEFT_COLOR, 0, titleHeight, 
+                RIGHT_COLOR, false);
         
         // - On dessine l'entête de cadre avec le dégradé
         Graphics2D theGraph2D = (Graphics2D)titleImage.getGraphics();
         theGraph2D.setPaint(gradient);
-        theGraph2D.fillRect(x, y, width, height);
-        theGraph2D.setColor(GUITools.deriveColorHSB(m_titleRightColor, 0, 0, -.2f));
-        theGraph2D.drawLine(x + 1, titleHeight - 1, width - 2, titleHeight - 1);
-        theGraph2D.setColor(GUITools.deriveColorHSB(m_titleRightColor, 0, -.5f, .5f));
-        theGraph2D.drawLine(x + 1, titleHeight, width - 2, titleHeight);
-        theGraph2D.setPaint(new GradientPaint(0, 0, new Color(0.0f, 0.0f, 0.0f, 1.0f),
-                			width, 0, new Color(0.0f, 0.0f, 0.0f, 0.0f)));        
+        theGraph2D.fillRect(x, y, width, titleHeight);
+        theGraph2D.setPaint(
+        		new GradientPaint(0, 0, OPAQUE_COLOR, width, 0, TRANSPARENT_COLOR));        
         theGraph2D.setComposite(AlphaComposite.DstIn);
         theGraph2D.fillRect(x, y, width, titleHeight);
         theGraph2D.dispose();
@@ -106,7 +122,8 @@ public class HeaderTitleBorder implements Border {
         
         // Maintenant on dessine le titre
         theGraph2D = (Graphics2D)g.create();
-        theGraph2D.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, 
+        theGraph2D.setRenderingHint(
+        		RenderingHints.KEY_TEXT_ANTIALIASING, 
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         theGraph2D.setColor(c.getForeground());
         theGraph2D.setFont(m_titleFont);
@@ -122,7 +139,7 @@ public class HeaderTitleBorder implements Border {
 	 */
 	@Override
 	public Insets getBorderInsets(Component c) {
-        Insets borderInsets = new Insets(0,0,0,0);        
+        Insets borderInsets = new Insets(0,10,0,5);        
         borderInsets.top = getTitleHeight(c);
         return borderInsets;
 	}

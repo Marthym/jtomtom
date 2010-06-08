@@ -20,36 +20,32 @@
  */
 package org.jtomtom.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.gui.action.SauvegardeAction;
+import org.jtomtom.gui.utilities.JTTabPanel;
 
 /**
  * @author marthym
  *
  */
-public class TabSauvegarde extends JPanel implements MouseListener {
+public class TabSauvegarde extends JTTabPanel implements MouseListener {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(TabSauvegarde.class);
 	
 	private JTextField m_isoFileChooser;
 
 	public TabSauvegarde() {
-		super();
+		super("Sauvegarde");
 		
 		build();
 	}
@@ -58,22 +54,15 @@ public class TabSauvegarde extends JPanel implements MouseListener {
 	 * Construction de l'interface graphique
 	 */
 	private void build() {
-		setLayout(new BorderLayout());
-		
-		JLabel image = new JLabel(new ImageIcon(getClass().getResource("resources/sauvegarde.png"), "Sauvegarde"));
-		add(image, BorderLayout.LINE_START);
-		
-		// Création du paneau central
-		JPanel centerPanel = new JPanel();
-		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.PAGE_AXIS));
-		centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
+		super.build(getClass().getResource("resources/sauvegarde.png"));
+		add(Box.createRigidArea(new Dimension(0,5)));
 		
 		// Création du texte de présentation
 		JLabel infos = new JLabel(loadSauvegardeInfos().toString());
-		centerPanel.add(infos);
-		centerPanel.add(Box.createRigidArea(new Dimension(0,20)));
+		add(infos);
+		add(Box.createRigidArea(new Dimension(0,20)));
 		infos = new JLabel("Fichiers d'entrée / sortie :");
-		centerPanel.add(infos);
+		add(infos);
 		
 		// Création du champ de saisie pour le fichier d'entrée/sortie
 		m_isoFileChooser = new JTextField();
@@ -82,15 +71,13 @@ public class TabSauvegarde extends JPanel implements MouseListener {
 		m_isoFileChooser.setAlignmentX(LEFT_ALIGNMENT);
 		m_isoFileChooser.setToolTipText("Double-clicker pour afficher une fenêtre de sélection de fichier ...");
 		m_isoFileChooser.addMouseListener(this);
-		centerPanel.add(m_isoFileChooser);
-		centerPanel.add(Box.createRigidArea(new Dimension(0,10)));
+		add(m_isoFileChooser);
+		add(Box.createRigidArea(new Dimension(0,10)));
 		
 		// Création du panneau de bouton
 		JButton bouton = new JButton(new SauvegardeAction("Sauvegarder le GPS", m_isoFileChooser));
-		add(bouton, BorderLayout.PAGE_END);
-		
-		add(centerPanel, BorderLayout.CENTER);
-		
+		addActionButton(bouton);
+				
 	}
 
 	/**
@@ -100,8 +87,7 @@ public class TabSauvegarde extends JPanel implements MouseListener {
 	private final static StringBuffer loadSauvegardeInfos() {
 		StringBuffer buffer = new StringBuffer();
 		
-		buffer.append("<html><h1>Sauvegarde &amp; Restauration</h1>");
-		buffer.append("<p>Cette fonction vous permet de faire une sauvegarde du contenu de votre GPS.</p>");
+		buffer.append("<html><p>Cette fonction vous permet de faire une sauvegarde du contenu de votre GPS.</p>");
 		buffer.append("<p>La sauvegarde se fait sous la forme d'un fichier ISO standard qu'il vous est possible de graver ");
 		buffer.append("sur CD par la suite.</p>");
 		
