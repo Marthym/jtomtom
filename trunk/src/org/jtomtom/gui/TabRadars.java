@@ -20,7 +20,6 @@
  */
 package org.jtomtom.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,14 +32,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 
@@ -50,6 +45,7 @@ import org.jtomtom.JTomtomException;
 import org.jtomtom.TomTomax;
 import org.jtomtom.gui.action.ActionResult;
 import org.jtomtom.gui.action.MajRadarsAction;
+import org.jtomtom.gui.utilities.JTTabPanel;
 
 /**
  * @author marthym
@@ -57,7 +53,7 @@ import org.jtomtom.gui.action.MajRadarsAction;
  * Onglet de mise à jour des radars
  * La mise à jour se fait grâce au site Tomtomax qui fourni les POIs
  */
-public class TabRadars extends JPanel implements ActionListener {
+public class TabRadars extends JTTabPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(TabRadars.class);
 	
@@ -115,7 +111,7 @@ public class TabRadars extends JPanel implements ActionListener {
 	 * Initialise l'affichage et instancie le woker
 	 */
 	public TabRadars() {
-		super();
+		super("Informations Radars");
 		m_loadWorker = new LoadInformationsWorker();
 		build();
 	}
@@ -124,30 +120,22 @@ public class TabRadars extends JPanel implements ActionListener {
 	 * Fabrication de l'interface
 	 */
 	private void build() {
-		setLayout(new BorderLayout());
-		
-		JPanel centerPanel = new JPanel();
-		centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.PAGE_AXIS));
-		centerPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
-		
-		JLabel image = new JLabel(new ImageIcon(getClass().getResource("resources/radars.png"), "Rds"));
-		add(image, BorderLayout.LINE_START);
+		super.build(getClass().getResource("resources/radars.png"));
+		add(Box.createRigidArea(new Dimension(0,5)));
 		
 		radarsInfos = new JLabel("");
-		centerPanel.add(radarsInfos, TOP_ALIGNMENT);
+		add(radarsInfos);
 		
-		centerPanel.add(Box.createRigidArea(new Dimension(0, 15)), TOP_ALIGNMENT);
+		add(Box.createRigidArea(new Dimension(0, 5)));
 		refreshButton = new JButton("Rafraichir");
 		refreshButton.setToolTipText("Rafraichir les informations de cette page");
 		refreshButton.setEnabled(false);
 		refreshButton.addActionListener(this);
-		centerPanel.add(refreshButton, TOP_ALIGNMENT);
-		
-		add(centerPanel, BorderLayout.CENTER);
+		add(refreshButton);
 		
 		radarsButton = new JButton(new MajRadarsAction("Mettre à jour les radars"));
 		radarsButton.setEnabled(false);
-		add(radarsButton, BorderLayout.PAGE_END);
+		addActionButton(radarsButton);
 
 	}
 	
@@ -162,13 +150,12 @@ public class TabRadars extends JPanel implements ActionListener {
 		LOGGER.info("Récupération des informations sur les Radars");
 		
 		StringBuffer infos = new StringBuffer();
-		infos.append("<html><h1>Informations Radars</h1>");
-		infos.append("<table>");
-		infos.append("<tr><td>Mise à jour disponible  : </td><td><i>Chargement ...</i></td></tr>");
-		infos.append("<tr><td>Mise à jour installé : </td><td><i>Chargement...</i></td></tr>");
-		infos.append("<tr><td>Nombre de radar : </td><td><i>Chargement...</i></td></tr>");
+		infos.append("<html><table>");
+		infos.append("<tr><td><strong>Mise à jour disponible  : </strong></td><td><i>Chargement ...</i></td></tr>");
+		infos.append("<tr><td><strong>Mise à jour installé : </strong></td><td><i>Chargement...</i></td></tr>");
+		infos.append("<tr><td><strong>Nombre de radar : </strong></td><td><i>Chargement...</i></td></tr>");
 		infos.append("</table>");
-		infos.append("<br/><br/><br/><font size=\"2\"><p><i>Les radars sont fournis par le site <a href=\"http://www.tomtomax.fr/\">&copy;Tomtomax</a></i></p></font>");
+		infos.append("<br/><br/><font size=\"2\"><p><i>Les radars sont fournis par le site <a href=\"http://www.tomtomax.fr/\">&copy;Tomtomax</a></i></p></font>");
 		infos.append("</html>");
 		radarsInfos.setText(infos.toString());
 		
@@ -210,25 +197,24 @@ public class TabRadars extends JPanel implements ActionListener {
 		
 		if (JTomtom.getTheGPS().getRadarsDbVersion() >= 0) {
 			// Les radars sont déjà installé
-			infos.append("<html><h1>Informations Radars</h1>");
-			infos.append("<table>");
-			infos.append("<tr><td>Mise à jour disponible  : </td><td><i>")
+			infos.append("<html><table>");
+			infos.append("<tr><td><strong>Mise à jour disponible  : </strong></td><td><i>")
 					.append(dateFormat.format(remoteDbDate))
 					.append("</i></td></tr>");
 			if (JTomtom.getTheGPS().getRadarsDbDate() != null) {
-				infos.append("<tr><td>Mise à jour installé : </td><td><i>")
+				infos.append("<tr><td><strong>Mise à jour installé : </strong></td><td><i>")
 					.append(dateFormat.format(JTomtom.getTheGPS().getRadarsDbDate()))
 					.append("</i></td></tr>");
 			} else {
-				infos.append("<tr><td>Mise à jour installé : </td><td><i>Aucune</i></td></tr>");
+				infos.append("<tr><td><strong>Mise à jour installé : </strong></td><td><i>Aucune</i></td></tr>");
 			}
-			infos.append("<tr><td>Nombre de radar : </td><td><i>")
+			infos.append("<tr><td><strong>Nombre de radar : </strong></td><td><i>")
 				.append(JTomtom.getTheGPS().getRadarsNombre())
 				.append("</i> [")
 				.append(Integer.parseInt(infosTomtomax.get(TomTomax.TAG_RADARS)) - JTomtom.getTheGPS().getRadarsNombre())
 				.append(" radars manquants]</td></tr>");
 			infos.append("</table>");
-			infos.append("<br/><br/><br/><font size=\"2\"><p><i>Les radars sont fournis par le site <a href=\"http://www.tomtomax.fr/\">&copy;Tomtomax</a></i></p></font>");
+			infos.append("<br/><br/><font size=\"2\"><p><i>Les radars sont fournis par le site <a href=\"http://www.tomtomax.fr/\">&copy;Tomtomax</a></i></p></font>");
 			infos.append("</html>");
 			
 			if (result.parameters == null) {
