@@ -118,6 +118,7 @@ public class MajRadarsAction extends AbstractAction {
             	
             	// Finalement on rafraichit l'onglet
             	if (m_tabRadars != null && (result == null || result.status)) {
+            		m_tabRadars.disableRefreshButton();
             		m_tabRadars.loadRadarsInfos();
             	}
             }

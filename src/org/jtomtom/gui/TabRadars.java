@@ -167,6 +167,14 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	}
 	
 	/**
+	 * Désactive le bouton de refresh et ainsi impose
+	 * Un rafraichissment des infos lors de l'appel à loadRadarsInfos
+	 */
+	public void disableRefreshButton() {
+		refreshButton.setEnabled(false);
+	}
+	
+	/**
 	 * Récupération en background des éléments nécessaires à l'affichage de l'interface
 	 * @return	Chaine HTML à affiché contenant les infos
 	 */
