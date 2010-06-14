@@ -27,8 +27,8 @@ import java.io.FilenameFilter;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
@@ -36,6 +36,7 @@ import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.gui.PatienterDialog;
+import org.jtomtom.gui.TabSauvegarde;
 
 import de.tu_darmstadt.informatik.rbg.hatlak.iso9660.ConfigException;
 import de.tu_darmstadt.informatik.rbg.hatlak.iso9660.ISO9660Directory;
@@ -56,11 +57,11 @@ public class SauvegardeAction extends AbstractAction {
 	private static final Logger LOGGER = Logger.getLogger(SauvegardeAction.class);
 	
 	private PatienterDialog m_waitingDialog = null;
-	private JTextField m_fichierDestination;
+	private String m_fichierDestination;
+	private boolean m_makeTestISO = false;
 
-	public SauvegardeAction (String p_label, JTextField p_iso) {
+	public SauvegardeAction (String p_label) {
 		super(p_label);
-		m_fichierDestination = p_iso;
 	}
 	
 	/* (non-Javadoc)
@@ -68,6 +69,14 @@ public class SauvegardeAction extends AbstractAction {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent event) {
+		if (JButton.class.isAssignableFrom(event.getSource().getClass())) {
+			JButton bp = (JButton)event.getSource();
+			if (TabSauvegarde.class.isAssignableFrom(bp.getParent().getClass())) {
+				TabSauvegarde tabSauvegarde = (TabSauvegarde)bp.getParent();
+				m_fichierDestination = tabSauvegarde.getFichierDestination();
+				m_makeTestISO = tabSauvegarde.getMakeTestISO();
+			} 
+		}
 		
         SwingWorker<ActionResult, Void> worker = new SwingWorker<ActionResult, Void>() {
 
@@ -123,7 +132,7 @@ public class SauvegardeAction extends AbstractAction {
 	 * @param p_fichier	Chemin complet du fichier destination
 	 */
 	public void setFichierDestination(String p_fichier) {
-		m_fichierDestination.setText(p_fichier);
+		m_fichierDestination = p_fichier;
 	}
 	
     /**
@@ -200,7 +209,7 @@ public class SauvegardeAction extends AbstractAction {
 			throw new JTomtomException(e);
 		}
 		
-		if (m_fichierDestination == null || m_fichierDestination.getText() == null || m_fichierDestination.getText().isEmpty()) {
+		if (m_fichierDestination == null || m_fichierDestination == null || m_fichierDestination.isEmpty()) {
 			throw new JTomtomException("Le chemin du fichier destination est obligatoire !");
 		}
     	
@@ -228,7 +237,7 @@ public class SauvegardeAction extends AbstractAction {
 		}
 
 		// Create ISO
-		File outputIsoFile = new File(m_fichierDestination.getText());
+		File outputIsoFile = new File(m_fichierDestination);
 		StreamHandler streamHandler = null;
 		try {
 			streamHandler = new ISOImageFileHandler(outputIsoFile);
@@ -257,7 +266,7 @@ public class SauvegardeAction extends AbstractAction {
      * 			Si la création de l'ISO ne se passe pas bien
      */
     public boolean createGpsBackup(GlobalPositioningSystem p_GPS) throws JTomtomException {
-    	return createGpsBackup(p_GPS, false);
+    	return createGpsBackup(p_GPS, m_makeTestISO);
     }
 
 }

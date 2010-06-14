@@ -20,6 +20,7 @@
  */
 package org.jtomtom.gui;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -154,6 +155,7 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 	 * Initialise les champs de configuration des logs
 	 */
 	private void buildLogsFields() {
+		// Le tableau est trié par ordre alphabétique pour que le binarySearch fonctionne
 		String[] logLevelStrings = {"DEBUG", "ERROR", "INFO", "WARN"};
 		m_logLevel = new JComboBox(logLevelStrings);
 		m_logLevel.setSelectedIndex(
@@ -182,6 +184,12 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 			
 			JTomtom.saveApplicationProperties();
 			JTomtom.loadProperties();
+			for (Component currTab : getParent().getComponents()) {
+				if (TabSauvegarde.class.isAssignableFrom(currTab.getClass())) {
+					((TabSauvegarde)currTab).refreshISOType();
+					break;
+				}
+			}
 			JOptionPane.showMessageDialog(this, 
 					"Propriétées enregistrée avec succès !", 
 					"Information", JOptionPane.INFORMATION_MESSAGE);
