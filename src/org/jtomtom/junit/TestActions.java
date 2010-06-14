@@ -23,8 +23,6 @@ package org.jtomtom.junit;
 import java.io.File;
 import java.io.FilenameFilter;
 
-import javax.swing.JTextField;
-
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -99,7 +97,7 @@ public class TestActions {
 		}
 		assertNotNull(theGPS);
 		
-		SauvegardeAction action = new SauvegardeAction("test TTM", new JTextField());
+		SauvegardeAction action = new SauvegardeAction("test TTM");
 		action.setFichierDestination("/tmp/testgpsbackup.iso");
 		try {
 			action.createGpsBackup(theGPS);
@@ -119,7 +117,7 @@ public class TestActions {
 		}
 		assertNotNull(theGPS);
 		
-		SauvegardeAction action = new SauvegardeAction("test TTM", new JTextField());
+		SauvegardeAction action = new SauvegardeAction("test TTM");
 		action.setFichierDestination("/tmp/testgpsbackup.iso");
 		try {
 			action.createGpsBackup(theGPS, true);

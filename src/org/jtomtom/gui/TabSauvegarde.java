@@ -26,6 +26,7 @@ import java.awt.event.MouseListener;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -42,7 +43,8 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(TabSauvegarde.class);
 	
-	private JTextField m_isoFileChooser;
+	private JTextField 	m_isoFileChooser;
+	private JCheckBox 	m_makeTestISO;
 
 	public TabSauvegarde() {
 		super("Sauvegarde");
@@ -66,16 +68,21 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 		
 		// Création du champ de saisie pour le fichier d'entrée/sortie
 		m_isoFileChooser = new JTextField();
-		m_isoFileChooser.setMaximumSize(new Dimension(Short.MAX_VALUE,23));
-		m_isoFileChooser.setMinimumSize(new Dimension(20,23));
+		m_isoFileChooser.setMaximumSize(new Dimension(Short.MAX_VALUE,25));
+		m_isoFileChooser.setMinimumSize(new Dimension(20,25));
 		m_isoFileChooser.setAlignmentX(LEFT_ALIGNMENT);
 		m_isoFileChooser.setToolTipText("Double-clicker pour afficher une fenêtre de sélection de fichier ...");
 		m_isoFileChooser.addMouseListener(this);
 		add(m_isoFileChooser);
+		
+		m_makeTestISO = new JCheckBox("Créer une ISO pour test");
+		m_makeTestISO.setToolTipText("Si cette case est coché, l'ISO créée sera réduite afin de ne contenir que les données nécessaire à des tests de compatibilité ou de reproduction de bug.");
+		m_makeTestISO.setVisible(LOGGER.isDebugEnabled());
+		add(m_makeTestISO);
 		add(Box.createRigidArea(new Dimension(0,10)));
 		
 		// Création du panneau de bouton
-		JButton bouton = new JButton(new SauvegardeAction("Sauvegarder le GPS", m_isoFileChooser));
+		JButton bouton = new JButton(new SauvegardeAction("Sauvegarder le GPS"));
 		addActionButton(bouton);
 				
 	}
@@ -100,6 +107,23 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 	 */
 	public final String getFichierDestination() {
 		return m_isoFileChooser.getText();
+	}
+	
+	/**
+	 * Retourne la valeur de l'option de génération d'ISO de test
+	 * @return	Vrai ou faux
+	 */
+	public final boolean getMakeTestISO() {
+		return m_makeTestISO.isSelected();
+	}
+	
+	public void refreshISOType() {
+		if (LOGGER.isDebugEnabled()) {
+			m_makeTestISO.setVisible(true);
+		} else {
+			m_makeTestISO.setSelected(false);
+			m_makeTestISO.setVisible(false);
+		}
 	}
 
 	@Override
