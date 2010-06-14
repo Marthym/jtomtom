@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
@@ -32,7 +33,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -85,7 +88,7 @@ public class GlobalPositioningSystem {
 	/**
 	 * Nom de la carte installé
 	 */
-	private String m_mapName;
+	private String m_activeMapName;
 	
 	/**
 	 * Version de la carte installé
@@ -204,7 +207,7 @@ public class GlobalPositioningSystem {
 		m_bootloaderVersion = Integer.parseInt(props.getProperty("BootLoaderVersion"));
 		m_deviceUniqueID = props.getProperty("DeviceUniqueID");
 		m_gpsVersion = props.getProperty("GPSFirmwareVersion");
-		m_mapName = props.getProperty("CurrentMap");
+		m_activeMapName = props.getProperty("CurrentMap");
 		m_mapVersion = Float.parseFloat(props.getProperty("CurrentMapVersion"));
 		m_systemVersion = Integer.parseInt(props.getProperty("LinuxVersion"));
 		
@@ -215,7 +218,7 @@ public class GlobalPositioningSystem {
 			LOGGER.debug("m_appVersion = "+m_appVersion);
 			LOGGER.debug("m_bootloaderVersion = "+m_bootloaderVersion);
 			LOGGER.debug("m_deviceUniqueID = "+m_deviceUniqueID);
-			LOGGER.debug("m_mapName = "+m_mapName);
+			LOGGER.debug("m_mapName = "+m_activeMapName);
 			LOGGER.debug("m_mapVersion = "+m_mapVersion);
 			LOGGER.debug("m_systemVersion = "+m_systemVersion);
 		}
@@ -391,13 +394,13 @@ public class GlobalPositioningSystem {
 		}
 		
 		// On cherche le répertoire de la carte actuelle
-		File mapDirectory = new File(m_mountPoint+File.separator+getMapName());
+		File mapDirectory = new File(m_mountPoint+File.separator+getActiveMapName());
 		if (!mapDirectory.exists()) {
-			mapDirectory = new File(m_mountPoint+File.separator+getMapName().toLowerCase());
+			mapDirectory = new File(m_mountPoint+File.separator+getActiveMapName().toLowerCase());
 		}
 		if (!mapDirectory.exists() || !mapDirectory.isDirectory() || !mapDirectory.canRead()) {
 			m_radarsDbVersion = -1; // Erreur concernant la carte
-			throw new JTomtomException("Impossible de trouver le répertoire de la carte courrante : "+getMapName());
+			throw new JTomtomException("Impossible de trouver le répertoire de la carte courrante : "+getActiveMapName());
 		}
 		
 		// On cherche le fichier de mise à jour TomtomMax
@@ -500,9 +503,9 @@ public class GlobalPositioningSystem {
 		}
 		
 		// On cherche le répertoire de la carte actuelle
-		File mapDirectory = new File(m_mountPoint+File.separator+getMapName());
+		File mapDirectory = new File(m_mountPoint+File.separator+getActiveMapName());
 		if (!mapDirectory.exists()) {
-			mapDirectory = new File(m_mountPoint+File.separator+getMapName().toLowerCase());
+			mapDirectory = new File(m_mountPoint+File.separator+getActiveMapName().toLowerCase());
 		}
 		
 		if (!mapDirectory.exists()) {
@@ -527,6 +530,32 @@ public class GlobalPositioningSystem {
 		readRadarsInfos();
 		
 		return true;
+	}
+	
+	/**
+	 * Retourne la liste des Cartes présentes sur le GPS avec le chemin absolue
+	 * pour les accéder
+	 * @return	Liste des cartes
+	 */
+	public final Map<String, String> getMapsList() {
+		Map<String, String> mapsList = new HashMap<String, String>();
+		for (String currentFileName : m_mountPoint.list()) {
+			File current = new File(m_mountPoint, currentFileName);
+			if (current.isDirectory()) {
+				int mapsettingsCount = current.listFiles(new FilenameFilter() {
+					
+					@Override
+					public boolean accept(File dir, String name) {
+						return name.equalsIgnoreCase("mapsettings.cfg");
+					}
+				}).length;
+				
+				if (mapsettingsCount > 0) {
+					mapsList.put(current.getName(), current.getAbsolutePath());
+				}
+			}
+		}
+		return mapsList;
 	}
 	
 	public final String getDeviceName() {
@@ -556,8 +585,8 @@ public class GlobalPositioningSystem {
 		return Integer.toString(m_bootloaderVersion);
 	}
 
-	public final String getMapName() {
-		return m_mapName;
+	public final String getActiveMapName() {
+		return m_activeMapName;
 	}
 
 	public final String getMapVersion() {
