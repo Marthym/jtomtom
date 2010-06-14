@@ -109,4 +109,17 @@ public class TestGPS {
 			fail(e.getLocalizedMessage());
 		}
 	}
+	
+	@Test
+	public void testGetMapsList() {
+		try {
+			GlobalPositioningSystem myGPS = new GlobalPositioningSystem();
+			java.util.Map<String, String> maps = myGPS.getMapsList();
+			assertNotNull(maps);
+			assertFalse(maps.isEmpty());
+			
+		} catch (JTomtomException e) {
+			fail(e.getLocalizedMessage());
+		}
+	}
 }

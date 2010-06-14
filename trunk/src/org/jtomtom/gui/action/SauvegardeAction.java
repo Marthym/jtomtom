@@ -23,6 +23,7 @@ package org.jtomtom.gui.action;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
@@ -31,11 +32,13 @@ import javax.swing.JTextField;
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.gui.PatienterDialog;
 
 import de.tu_darmstadt.informatik.rbg.hatlak.iso9660.ConfigException;
+import de.tu_darmstadt.informatik.rbg.hatlak.iso9660.ISO9660Directory;
 import de.tu_darmstadt.informatik.rbg.hatlak.iso9660.ISO9660RootDirectory;
 import de.tu_darmstadt.informatik.rbg.hatlak.iso9660.impl.CreateISO;
 import de.tu_darmstadt.informatik.rbg.hatlak.iso9660.impl.ISO9660Config;
@@ -76,7 +79,7 @@ public class SauvegardeAction extends AbstractAction {
                 	if (mountPoint.isEmpty()) {
                 		throw new JTomtomException("Pas de point de montage !");
                 	}
-                	result.status = createGpsBackup(mountPoint);
+                	result.status = createGpsBackup(JTomtom.getTheGPS());
 					
 				} catch (JTomtomException e) {
 					LOGGER.error(e.getLocalizedMessage());
@@ -126,20 +129,73 @@ public class SauvegardeAction extends AbstractAction {
     /**
      * Crée un fichier ISO du GPS
      * @param p_mountPoint	Point de montage du GPS, source de l'ISO
-     * @param isoFile		Destination de la sauvegarde, nom du fichier ISO
+     * @param p_forTest		Vrai si l'ISO est un fichier pour test (option caché coché), il sera alors réduit
      * @return				true si OK
      * @throws JTomtomException
      * 			Retourne une exception si la source n'existe pas
      * 			Si la création de l'ISO ne se passe pas bien
      */
-    public boolean createGpsBackup(String p_mountPoint) throws JTomtomException {
-    	File gpsDir = new File(p_mountPoint);
+    public boolean createGpsBackup(GlobalPositioningSystem p_GPS, boolean p_forTest) throws JTomtomException {
+    	File gpsDir = new File(p_GPS.getMountedPoint(false));
     	if (!gpsDir.exists() || !gpsDir.canRead()) {
     		throw new JTomtomException("Le répertoire du GPS n'existe pas ou ne peut pas être lu !");
     	}
     	ISO9660RootDirectory isoRoot = new ISO9660RootDirectory();
     	try {
-			isoRoot.addContentsRecursively(gpsDir);
+    		if (!p_forTest) {
+    			isoRoot.addContentsRecursively(gpsDir);
+    			
+    		} else {
+    			LOGGER.debug("Restriction du contenu de l'ISO pour fichier de test");
+    			// - Si on fait un ISO pour test, on ne mets que le nécessaire dedans ...
+    			java.util.Map<String, String> mapsList = p_GPS.getMapsList();
+    			isoRoot.addDirectory(gpsDir);
+    			for (String currFileName: gpsDir.list()) {
+    				File current = new File(gpsDir, currFileName);
+    				
+    				if (mapsList.containsKey(current.getName())) {
+    					LOGGER.debug("Suppression des fichiers DAT de la carte "+current.getName());
+    					// On nettoie les répertoires de cartes pour enlever le gros fichiers
+    					ISO9660Directory isoCurrDir = isoRoot.addDirectory(current);
+    					String[] mapFileList = current.list(new FilenameFilter() {
+							@Override
+							public boolean accept(File dir, String name) {
+								return !name.endsWith(".dat");
+							}
+						});
+    					
+    					for (String currMapFileName : mapFileList) {
+    						isoCurrDir.addRecursively(new File(current, currMapFileName));
+    					}
+    					
+    				} else if ("voices".equalsIgnoreCase(current.getName()) ) {
+    					LOGGER.debug("Suppression des fichiers CHK du répertoire voices");
+    					// On enlève les fichiers chk du répertoire des voies
+    					ISO9660Directory isoCurrDir = isoRoot.addDirectory(current);
+    					String[] notchkFileList = current.list(new FilenameFilter() {
+							@Override
+							public boolean accept(File dir, String name) {
+								return !name.endsWith(".chk");
+							}
+						});
+    					
+    					for (String currMapFileName : notchkFileList) {
+    						isoCurrDir.addRecursively(new File(current, currMapFileName));
+    					}
+    					
+    				} else if ("helpme".equalsIgnoreCase(current.getName()) ) {
+    					LOGGER.debug("Vidage du répertoire helpme");
+    					// On vire carrément le contenu du répertoire d'aide
+    					// on le laisse quand même à vide
+    					isoRoot.addDirectory(current);
+    					
+    				} else {
+    					isoRoot.addRecursively(current);
+    				}
+    			} // for (String currFileName: gpsDir.list())
+    			
+    		} // end if (!p_forTest)
+			
 		} catch (HandlerException e) {
 			throw new JTomtomException(e);
 		}
@@ -191,5 +247,17 @@ public class SauvegardeAction extends AbstractAction {
 		LOGGER.debug("Fin de la création de l'ISO.");
 		return true;
 	}
+    
+    /**
+     * Crée un fichier ISO du GPS
+     * @param p_mountPoint	Point de montage du GPS, source de l'ISO
+     * @return				true si OK
+     * @throws JTomtomException
+     * 			Retourne une exception si la source n'existe pas
+     * 			Si la création de l'ISO ne se passe pas bien
+     */
+    public boolean createGpsBackup(GlobalPositioningSystem p_GPS) throws JTomtomException {
+    	return createGpsBackup(p_GPS, false);
+    }
 
 }

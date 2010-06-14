@@ -61,7 +61,7 @@ public class TabGeneral extends JTTabPanel implements ActionListener {
 		infos.append("<tr><td><strong>BootLoader : </strong></td><td><i>").append(JTomtom.getTheGPS().getBootloaderVersion()).append("</i></td></tr>");
 		infos.append("<tr><td><strong>Version GPS : </strong></td><td><i>").append(JTomtom.getTheGPS().getGpsVersion()).append("</i></td></tr>");
 		infos.append("<tr><td><strong>App Version : </strong></td><td><i>").append(JTomtom.getTheGPS().getAppVersion()).append("</i></td></tr>");
-		infos.append("<tr><td><strong>Map : </strong></td><td><i>").append(JTomtom.getTheGPS().getMapName()).append("</i></td></tr>");
+		infos.append("<tr><td><strong>Map : </strong></td><td><i>").append(JTomtom.getTheGPS().getActiveMapName()).append("</i></td></tr>");
 		infos.append("<tr><td><strong>Map Version : </strong></td><td><i>").append(JTomtom.getTheGPS().getMapVersion()).append("</i></td></tr>");
 		infos.append("</table>");
 		infos.append("</html>");
@@ -88,7 +88,7 @@ public class TabGeneral extends JTTabPanel implements ActionListener {
 			infos.append("BootLoader :").append(JTomtom.getTheGPS().getBootloaderVersion()).append("\n");
 			infos.append("Version GPS : ").append(JTomtom.getTheGPS().getGpsVersion()).append("\n");
 			infos.append("App Version : ").append(JTomtom.getTheGPS().getAppVersion()).append("\n");
-			infos.append("Map : ").append(JTomtom.getTheGPS().getMapName()).append("\n");
+			infos.append("Map : ").append(JTomtom.getTheGPS().getActiveMapName()).append("\n");
 			infos.append("Map Version : ").append(JTomtom.getTheGPS().getMapVersion()).append("\n");
 			
 			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();

@@ -102,7 +102,27 @@ public class TestActions {
 		SauvegardeAction action = new SauvegardeAction("test TTM", new JTextField());
 		action.setFichierDestination("/tmp/testgpsbackup.iso");
 		try {
-			action.createGpsBackup(theGPS.getMountedPoint(false));
+			action.createGpsBackup(theGPS);
+		} catch (JTomtomException e) {
+			fail(e.getLocalizedMessage());
+		}
+		assertTrue((new File("/tmp/testgpsbackup.iso")).exists());
+	}
+	
+	@Test
+	public void testCreateBackupfortestAction() {
+		GlobalPositioningSystem theGPS = null;
+		try {
+			theGPS = new GlobalPositioningSystem();
+		} catch (JTomtomException e) {
+			fail(e.getLocalizedMessage());
+		}
+		assertNotNull(theGPS);
+		
+		SauvegardeAction action = new SauvegardeAction("test TTM", new JTextField());
+		action.setFichierDestination("/tmp/testgpsbackup.iso");
+		try {
+			action.createGpsBackup(theGPS, true);
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
