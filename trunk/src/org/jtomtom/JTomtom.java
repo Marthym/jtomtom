@@ -42,6 +42,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
 import org.jtomtom.gui.JTomtomFenetre;
+import org.jtomtom.gui.action.CheckUpdateAction;
 
 /**
  * @author marthym
@@ -70,7 +71,15 @@ public class JTomtom {
 		LOGGER.warn("This program comes with ABSOLUTELY NO WARRANTY.");
 		LOGGER.warn("This is free software, and you are welcome to redistribute it");
 		LOGGER.warn("under certain conditions.");
-				
+		
+		// En premier, on initialise le thème histoire que les messages d'erreur en profitent
+		SwingUtilities.invokeLater(new Runnable(){
+			public void run(){
+				// Changement du Look And Feel
+				changeLookAndFeel(m_props.getProperty("org.jtomtom.lookandfeel", UIManager.getSystemLookAndFeelClassName()));				
+			}
+		});
+		
 		// Le premier truc à faire c'est initialiser le GPS
 		try {
 			theGPS = new GlobalPositioningSystem();
@@ -82,19 +91,24 @@ public class JTomtom {
 			return;
 		}
 		
+		// Ensuite, on crée et on affiche l'interface
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
-				
-				// Changement du Look And Feel
-				changeLookAndFeel(m_props.getProperty("org.jtomtom.lookandfeel", UIManager.getSystemLookAndFeelClassName()));
-				
-				// Création de l'interface
 				JTomtomFenetre fenetre = new JTomtomFenetre();
 				fenetre.setVisible(true);
-				
 			}
 		});
 
+		// On vérifie les mises à jour si nécessaire
+		if ("true".equals(m_props.getProperty("org.jtomtom.checkupdate"))) {
+			SwingUtilities.invokeLater(new Runnable(){
+				public void run(){
+					CheckUpdateAction check = new CheckUpdateAction();
+					check.execute();
+				}
+			});
+		}
+		
 	}
 	
 	/**
@@ -199,7 +213,7 @@ public class JTomtom {
 		if (m_props.getProperty("org.jtomtom.logFile") != null && !m_props.getProperty("org.jtomtom.logFile").isEmpty()) {
 			try {
 				Logger.getLogger(JTomtom.class.getPackage().getName()).addAppender(
-						new FileAppender(new PatternLayout("%d{ABSOLUTE} %5p %m%n"),  
+						new FileAppender(new PatternLayout("%d{ABSOLUTE} %5p %c{1}:%L %m%n"),  
 						m_props.getProperty("org.jtomtom.logFile")));
 			} catch (IOException e) {
 				LOGGER.error(e.getLocalizedMessage());

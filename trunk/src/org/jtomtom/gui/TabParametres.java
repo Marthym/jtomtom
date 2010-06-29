@@ -193,7 +193,7 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		m_checkUpdate.setToolTipText("A chaque démarrage jTomtom vérifie s'il existe une mise à jour disponible et vous en informe.");
 		
 		// Initialisation
-		boolean checkUpdate = "true".equals(JTomtom.getApplicationPropertie("org.jtomtom.checkUpdate"));
+		boolean checkUpdate = "true".equals(JTomtom.getApplicationPropertie("org.jtomtom.checkupdate"));
 		m_checkUpdate.setSelected(checkUpdate);
 	}
 
@@ -207,7 +207,7 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 			JTomtom.setApplicationPropertie("org.jtomtom.logFile", m_logFile.getText());
 			JTomtom.setApplicationPropertie("org.tomtomax.user", m_ttmaxUser.getText());
 			JTomtom.setApplicationPropertie("org.tomtomax.password", m_ttmaxPassword.getText());
-			JTomtom.setApplicationPropertie("org.jtomtom.checkUpdate", Boolean.toString(m_checkUpdate.isSelected()));
+			JTomtom.setApplicationPropertie("org.jtomtom.checkupdate", Boolean.toString(m_checkUpdate.isSelected()));
 			
 			JTomtom.saveApplicationProperties();
 			JTomtom.loadProperties();
