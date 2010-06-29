@@ -29,6 +29,7 @@ import java.util.Arrays;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -58,6 +59,8 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 	
 	private JComboBox  	m_logLevel;
 	private JTextField 	m_logFile;
+	
+	private JCheckBox	m_checkUpdate;
 	
 	private JButton		m_enregistrer;
 	
@@ -92,7 +95,7 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		logsPanel.add(m_logFile);
 		add(logsPanel);
 
-		// Paramètres des log
+		// Paramètres Tomtomax
 		buildConnexionFields();
 		JPanel tomtomaxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		tomtomaxPanel.setBorder(BorderFactory.createTitledBorder("Tomtomax"));
@@ -102,10 +105,19 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		tomtomaxPanel.add(m_ttmaxPassword);
 		add(tomtomaxPanel);
 		
+		// Paramètres divers
+		buildDummyFields();
+		JPanel dummyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		dummyPanel.setBorder(BorderFactory.createTitledBorder("Divers"));
+		dummyPanel.add(m_checkUpdate);
+		add(dummyPanel);
+		
 		// Création du panneau de bouton
 		m_enregistrer = new JButton("Enregistrer");
 		m_enregistrer.addActionListener(this);
 		addActionButton(m_enregistrer);
+		
+		addScrollVerticalBar();
 	}	
 	
 	/**
@@ -116,17 +128,18 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		String[] proxyTypeStrings = {"DIRECT", "HTTP", "SOCKS"};
 		m_proxyType = new JComboBox(proxyTypeStrings);
 		m_proxyType.setSelectedIndex(Arrays.binarySearch(proxyTypeStrings, JTomtom.getApplicationPropertie("net.proxy.type")));
+		m_proxyType.setPrototypeDisplayValue("DIRECTI");	// Initialise la taille de la combo
 
 		// - Serveur Proxy
 		m_proxyHost = new JTextField();
-		m_proxyHost.setColumns(16);
+		m_proxyHost.setColumns(15);
 		m_proxyHost.setPreferredSize(new Dimension(0,25));
 		m_proxyHost.setToolTipText("Nom du serveur ou adresse IP");
 		m_proxyHost.setText(JTomtom.getApplicationPropertie("net.proxy.name"));
 
 		// - Port du proxy
 		m_proxyPort = new JTextField();
-		m_proxyPort.setColumns(5);
+		m_proxyPort.setColumns(4);
 		m_proxyPort.setPreferredSize(new Dimension(0,25));
 		m_proxyPort.setToolTipText("Port d'écoute du proxy");
 		m_proxyPort.setText(JTomtom.getApplicationPropertie("net.proxy.port"));
@@ -138,14 +151,14 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 	private void buildConnexionFields() {
 		// - User tomtomax
 		m_ttmaxUser = new JTextField();
-		m_ttmaxUser.setColumns(11);
+		m_ttmaxUser.setColumns(10);
 		m_ttmaxUser.setPreferredSize(new Dimension(0,25));
 		m_ttmaxUser.setToolTipText("Utilisateur Tomtomax");
 		m_ttmaxUser.setText(JTomtom.getApplicationPropertie("org.tomtomax.user"));
 
 		// - Password Tomtomax
 		m_ttmaxPassword = new JPasswordField();
-		m_ttmaxPassword.setColumns(11);
+		m_ttmaxPassword.setColumns(10);
 		m_ttmaxPassword.setPreferredSize(new Dimension(0,25));
 		m_ttmaxPassword.setToolTipText("Password Tomtomax");
 		m_ttmaxPassword.setText(JTomtom.getApplicationPropertie("org.tomtomax.password"));
@@ -162,25 +175,39 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 				Arrays.binarySearch(
 						logLevelStrings, 
 						Level.toLevel(JTomtom.getApplicationPropertie("org.jtomtom.logLevel")).toString()));
-
+		m_logLevel.setPrototypeDisplayValue("DEBUGI");
+		
 		// - Fichier de log
 		m_logFile = new JTextField();
-		m_logFile.setColumns(19);
+		m_logFile.setColumns(17);
 		m_logFile.setPreferredSize(new Dimension(0,25));
 		m_logFile.setToolTipText("Fichier de destination des logs, laisser vide si pas de fichier.");
 		m_logFile.setText(JTomtom.getApplicationPropertie("org.jtomtom.logFile"));
+	}
+
+	/**
+	 * Crée et initialise les champs de paramètre divers
+	 */
+	private void buildDummyFields() {
+		m_checkUpdate = new JCheckBox("Vérifier les mises à jour");
+		m_checkUpdate.setToolTipText("A chaque démarrage jTomtom vérifie s'il existe une mise à jour disponible et vous en informe.");
+		
+		// Initialisation
+		boolean checkUpdate = "true".equals(JTomtom.getApplicationPropertie("org.jtomtom.checkUpdate"));
+		m_checkUpdate.setSelected(checkUpdate);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == m_enregistrer) {
 			JTomtom.setApplicationPropertie("net.proxy.type", ((String)m_proxyType.getSelectedItem()));
-			JTomtom.setApplicationPropertie("net.proxy.name", ((String)m_proxyHost.getText()));
-			JTomtom.setApplicationPropertie("net.proxy.port", ((String)m_proxyPort.getText()));
+			JTomtom.setApplicationPropertie("net.proxy.name", m_proxyHost.getText());
+			JTomtom.setApplicationPropertie("net.proxy.port", m_proxyPort.getText());
 			JTomtom.setApplicationPropertie("org.jtomtom.logLevel", ((String)m_logLevel.getSelectedItem()));
-			JTomtom.setApplicationPropertie("org.jtomtom.logFile", ((String)m_logFile.getText()));
-			JTomtom.setApplicationPropertie("org.tomtomax.user", ((String)m_ttmaxUser.getText()));
-			JTomtom.setApplicationPropertie("org.tomtomax.password", ((String)m_ttmaxPassword.getText()));
+			JTomtom.setApplicationPropertie("org.jtomtom.logFile", m_logFile.getText());
+			JTomtom.setApplicationPropertie("org.tomtomax.user", m_ttmaxUser.getText());
+			JTomtom.setApplicationPropertie("org.tomtomax.password", m_ttmaxPassword.getText());
+			JTomtom.setApplicationPropertie("org.jtomtom.checkUpdate", Boolean.toString(m_checkUpdate.isSelected()));
 			
 			JTomtom.saveApplicationProperties();
 			JTomtom.loadProperties();
