@@ -71,6 +71,7 @@ public class JTomtomFenetre extends JFrame implements ChangeListener {
 		tabbedPane.addTab("Radars", new TabRadars());
 		tabbedPane.addTab("Sauvegarde", new TabSauvegarde());
 		tabbedPane.addTab("Paramètres", new TabParametres());
+		tabbedPane.addTab("A Propos", new TabAbout());
 		tabbedPane.addChangeListener(this);
 		
 		panel.add(tabbedPane, BorderLayout.CENTER);
