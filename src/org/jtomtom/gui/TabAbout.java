@@ -21,12 +21,17 @@
 package org.jtomtom.gui;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
 import org.jtomtom.gui.utilities.JTTabPanel;
 
 /**
@@ -36,6 +41,10 @@ import org.jtomtom.gui.utilities.JTTabPanel;
  */
 public class TabAbout extends JTTabPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
+	
+	private static final Logger LOGGER = Logger.getLogger(TabAbout.class);
+	
+	public static final String LICENCE_URL = "http://www.gnu.org/licenses/gpl.html";
 	
 	/**
 	 * Initialise l'affichage et instancie le woker
@@ -53,24 +62,35 @@ public class TabAbout extends JTTabPanel implements ActionListener {
 		add(Box.createRigidArea(new Dimension(0,5)));
 		
 		// Ecriture des informations pour l'onglet General
+		JPanel htmlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		StringBuffer infos = new StringBuffer();
 		infos.append("<html><table>");
 		infos.append("<tr><td><strong>Version</strong></td><td>build 01-07-2010</td></tr>");
 		infos.append("<tr><td><strong>Développeur</strong></td><td>Frédéric Combes @ <a href=\"mailto:belz12@yahoo.fr\">belz12@yahoo.fr</a></td></tr>");
 		infos.append("<tr><td><strong>Site web</strong></td><td><a href=\"http://jtomtom.sourceforge.net\">http://jtomtom.sourceforge.net</a></td></tr>");
-		infos.append("<tr><td><strong>Licence</strong></td><td>GPLv3</td></tr>");
 		infos.append("</table>");
 		infos.append("</html>");
 		
 		JLabel label = new JLabel(infos.toString());
-		add(label);
-		
-		add(Box.createRigidArea(new Dimension(0, 15)));
+		htmlPanel.add(label);
+		add(htmlPanel);
+				
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		JButton bpLicence = new JButton("Licence GPLv3");
+		bpLicence.addActionListener(this);
+		buttonPanel.add(bpLicence);
+		add(buttonPanel);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
+		try {
+			java.awt.Desktop.getDesktop().browse(java.net.URI.create(LICENCE_URL));
+			
+		} catch (IOException e) {
+			LOGGER.error(e.getLocalizedMessage());
+			if (LOGGER.isDebugEnabled()) e.printStackTrace();
+		} 
 		
 	}
 	
