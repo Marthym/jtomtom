@@ -41,7 +41,7 @@ public class InitialErrorRun implements Runnable {
 	public void run() {
 		JOptionPane.showMessageDialog(null, 
 				m_error.getLocalizedMessage(), 
-				"Erreur ! ", JOptionPane.ERROR_MESSAGE);
+				JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.default.error.title"), JOptionPane.ERROR_MESSAGE);
 	}
 
 }

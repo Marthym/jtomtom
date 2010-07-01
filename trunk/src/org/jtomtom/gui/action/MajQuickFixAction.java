@@ -107,7 +107,8 @@ public class MajQuickFixAction extends AbstractAction {
             		result = get();
 	            	if (!result.status) {
 	            		// En cas d'erreur on affiche un message
-		            	JOptionPane.showMessageDialog(null, result.exception.getLocalizedMessage(), "Erreur ! ", JOptionPane.ERROR_MESSAGE);
+		            	JOptionPane.showMessageDialog(null, result.exception.getLocalizedMessage(), 
+		            			JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.default.error.title"), JOptionPane.ERROR_MESSAGE);
 	            	}
             	} catch (ExecutionException e) {
             		LOGGER.warn(e.getLocalizedMessage());

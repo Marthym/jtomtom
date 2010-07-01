@@ -56,7 +56,8 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 			ActionResult result = get();
 			if (result.status) {
 				LinkedList<String> messages = (LinkedList<String>)result.parameters;
-				JOptionPane.showMessageDialog(null, messages.getFirst(), "Mise à jour disponible ! ", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(null, messages.getFirst(), 
+						JTomtom.theMainTranslator.getString("org.jtomtom.main.action.checkupdate.updateavailable"), JOptionPane.INFORMATION_MESSAGE);
 			}
 			
 		} catch (Exception e) {
@@ -102,7 +103,7 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 			}
 			
 			if (conn.getLastModified()/1000 >= jttJarFile.lastModified()/1000) {
-				message = "Une nouvelle version est disponible depuis le "+new Date(conn.getLastModified());
+				message = JTomtom.theMainTranslator.getString("org.jtomtom.main.action.checkupdate.newversion")+new Date(conn.getLastModified());
 			}
 			
 		} catch (IOException e) {

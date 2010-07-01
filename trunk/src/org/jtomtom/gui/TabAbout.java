@@ -50,7 +50,7 @@ public class TabAbout extends JTTabPanel implements ActionListener {
 	 * Initialise l'affichage et instancie le woker
 	 */
 	public TabAbout() {
-		super("A Propos de jTomtom");
+		super(m_rbControls.getString("org.jtomtom.tab.about.title"));
 		build();
 	}
 	
@@ -65,9 +65,9 @@ public class TabAbout extends JTTabPanel implements ActionListener {
 		JPanel htmlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		StringBuffer infos = new StringBuffer();
 		infos.append("<html><table>");
-		infos.append("<tr><td><strong>Version</strong></td><td>build 01-07-2010</td></tr>");
-		infos.append("<tr><td><strong>Développeur</strong></td><td>Frédéric Combes @ <a href=\"mailto:belz12@yahoo.fr\">belz12@yahoo.fr</a></td></tr>");
-		infos.append("<tr><td><strong>Site web</strong></td><td><a href=\"http://jtomtom.sourceforge.net\">http://jtomtom.sourceforge.net</a></td></tr>");
+		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.about.version")).append("</strong></td><td>build 01-07-2010</td></tr>");
+		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.about.developer")).append("</strong></td><td>Frédéric Combes @ <a href=\"mailto:belz12@yahoo.fr\">belz12@yahoo.fr</a></td></tr>");
+		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.about.website")).append("</strong></td><td><a href=\"http://jtomtom.sourceforge.net\">http://jtomtom.sourceforge.net</a></td></tr>");
 		infos.append("</table>");
 		infos.append("</html>");
 		
@@ -76,7 +76,7 @@ public class TabAbout extends JTTabPanel implements ActionListener {
 		add(htmlPanel);
 				
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		JButton bpLicence = new JButton("Licence GPLv3");
+		JButton bpLicence = new JButton(m_rbControls.getString("org.jtomtom.tab.about.license")+" GPLv3");
 		bpLicence.addActionListener(this);
 		buttonPanel.add(bpLicence);
 		add(buttonPanel);
