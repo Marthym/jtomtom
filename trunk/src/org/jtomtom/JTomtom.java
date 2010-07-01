@@ -80,6 +80,19 @@ public class JTomtom {
 			}
 		});
 		
+		// Test de la version de java
+		String version = System.getProperty("java.version", "0.0");
+		String[] javaVersion = version.split("\\.");
+		if (Integer.parseInt(javaVersion[0]) < 1) {
+			SwingUtilities.invokeLater(new InitialErrorRun(
+					new JTomtomException("Version de Java ("+version+") non compatible ! 1.6 minimum !")));
+			return;
+		} else if (Integer.parseInt(javaVersion[0]) == 1 && Integer.parseInt(javaVersion[1]) < 6) {
+			SwingUtilities.invokeLater(new InitialErrorRun(
+					new JTomtomException("Version de Java ("+version+") non compatible ! 1.6 minimum !")));
+			return;
+		}
+		
 		// Le premier truc à faire c'est initialiser le GPS
 		try {
 			theGPS = new GlobalPositioningSystem();
