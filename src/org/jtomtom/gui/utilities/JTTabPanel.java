@@ -24,6 +24,8 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.net.URL;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -40,6 +42,8 @@ import javax.swing.JScrollPane;
  */
 public class JTTabPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
+	
+	protected static final ResourceBundle m_rbControls = ResourceBundle.getBundle("org.jtomtom.gui.resources.lang.jTomtom-tab", Locale.getDefault());
 	
 	private JLabel m_image;
 	

@@ -47,7 +47,7 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 	private JCheckBox 	m_makeTestISO;
 
 	public TabSauvegarde() {
-		super("Sauvegarde");
+		super(m_rbControls.getString("org.jtomtom.tab.backup.title"));
 		
 		build();
 	}
@@ -63,7 +63,7 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 		JLabel infos = new JLabel(loadSauvegardeInfos().toString());
 		add(infos);
 		add(Box.createRigidArea(new Dimension(0,20)));
-		infos = new JLabel("Fichiers d'entrée / sortie :");
+		infos = new JLabel(m_rbControls.getString("org.jtomtom.tab.backup.label.infos.text"));
 		add(infos);
 		
 		// Création du champ de saisie pour le fichier d'entrée/sortie
@@ -71,18 +71,18 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 		m_isoFileChooser.setMaximumSize(new Dimension(Short.MAX_VALUE,25));
 		m_isoFileChooser.setMinimumSize(new Dimension(20,25));
 		m_isoFileChooser.setAlignmentX(LEFT_ALIGNMENT);
-		m_isoFileChooser.setToolTipText("Double-clicker pour afficher une fenêtre de sélection de fichier ...");
+		m_isoFileChooser.setToolTipText(m_rbControls.getString("org.jtomtom.tab.backup.textfield.filechooser.hint"));
 		m_isoFileChooser.addMouseListener(this);
 		add(m_isoFileChooser);
 		
-		m_makeTestISO = new JCheckBox("Créer une ISO pour test");
-		m_makeTestISO.setToolTipText("Si cette case est coché, l'ISO créée sera réduite afin de ne contenir que les données nécessaire à des tests de compatibilité ou de reproduction de bug.");
+		m_makeTestISO = new JCheckBox(m_rbControls.getString("org.jtomtom.tab.backup.checkbox.isotest.label"));
+		m_makeTestISO.setToolTipText(m_rbControls.getString("org.jtomtom.tab.backup.checkbox.isotest.hint"));
 		m_makeTestISO.setVisible(LOGGER.isDebugEnabled());
 		add(m_makeTestISO);
 		add(Box.createRigidArea(new Dimension(0,10)));
 		
 		// Création du panneau de bouton
-		JButton bouton = new JButton(new SauvegardeAction("Sauvegarder le GPS"));
+		JButton bouton = new JButton(new SauvegardeAction(m_rbControls.getString("org.jtomtom.tab.backup.button.createiso.label")));
 		addActionButton(bouton);
 				
 	}
@@ -94,9 +94,8 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 	private final static StringBuffer loadSauvegardeInfos() {
 		StringBuffer buffer = new StringBuffer();
 		
-		buffer.append("<html><p>Cette fonction vous permet de faire une sauvegarde du contenu de votre GPS.</p>");
-		buffer.append("<p>La sauvegarde se fait sous la forme d'un fichier ISO standard qu'il vous est possible de graver ");
-		buffer.append("sur CD par la suite.</p>");
+		buffer.append("<html><p>").append(m_rbControls.getString("org.jtomtom.tab.backup.text.1")).append("</p>");
+		buffer.append("<p>").append(m_rbControls.getString("org.jtomtom.tab.backup.text.2")).append("</p>");
 		
 		return buffer;
 	}

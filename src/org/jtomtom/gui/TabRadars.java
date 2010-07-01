@@ -86,7 +86,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 				if (!infos.status) {
 					JOptionPane.showMessageDialog(null, 
 							infos.exception.getLocalizedMessage(), 
-							"Erreur ! ", JOptionPane.ERROR_MESSAGE);
+							m_rbControls.getString("org.jtomtom.tab.radars.sw.error.title"), JOptionPane.ERROR_MESSAGE);
 				} else {
 					radarsInfos.setText(infos.parameters.get(0));
 					radarsButton.setEnabled(true);
@@ -111,7 +111,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	 * Initialise l'affichage et instancie le woker
 	 */
 	public TabRadars() {
-		super("Informations Radars");
+		super(m_rbControls.getString("org.jtomtom.tab.radars.title"));
 		m_loadWorker = new LoadInformationsWorker();
 		build();
 	}
@@ -127,13 +127,13 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		add(radarsInfos);
 		
 		add(Box.createRigidArea(new Dimension(0, 5)));
-		refreshButton = new JButton("Rafraichir");
-		refreshButton.setToolTipText("Rafraichir les informations de cette page");
+		refreshButton = new JButton(m_rbControls.getString("org.jtomtom.tab.radars.button.refresh.label"));
+		refreshButton.setToolTipText(m_rbControls.getString("org.jtomtom.tab.radars.button.refresh.hint"));
 		refreshButton.setEnabled(false);
 		refreshButton.addActionListener(this);
 		add(refreshButton);
 		
-		radarsButton = new JButton(new MajRadarsAction("Mettre à jour les radars"));
+		radarsButton = new JButton(new MajRadarsAction(m_rbControls.getString("org.jtomtom.tab.radars.button.update.label")));
 		radarsButton.setEnabled(false);
 		addActionButton(radarsButton);
 
@@ -151,11 +151,15 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		
 		StringBuffer infos = new StringBuffer();
 		infos.append("<html><table>");
-		infos.append("<tr><td><strong>Mise à jour disponible  : </strong></td><td><i>Chargement ...</i></td></tr>");
-		infos.append("<tr><td><strong>Mise à jour installé : </strong></td><td><i>Chargement...</i></td></tr>");
-		infos.append("<tr><td><strong>Nombre de radar : </strong></td><td><i>Chargement...</i></td></tr>");
+		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.availableupdate")).append(" : </strong></td><td><i>Chargement ...</i></td></tr>");
+		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>Chargement...</i></td></tr>");
+		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>Chargement...</i></td></tr>");
 		infos.append("</table>");
-		infos.append("<br/><br/><font size=\"2\"><p><i>Les radars sont fournis par le site <a href=\"http://www.tomtomax.fr/\">&copy;Tomtomax</a></i></p></font>");
+		infos.append("<br/><br/><font size=\"2\"><p><i>")
+			.append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))
+			.append(" <a href=\"").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.url")).append("\">")
+			.append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.label"))
+			.append("</a></i></p></font>");
 		infos.append("</html>");
 		radarsInfos.setText(infos.toString());
 		
@@ -206,23 +210,26 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		if (JTomtom.getTheGPS().getRadarsDbVersion() >= 0) {
 			// Les radars sont déjà installé
 			infos.append("<html><table>");
-			infos.append("<tr><td><strong>Mise à jour disponible  : </strong></td><td><i>")
+			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.availableupdate")).append(" : </strong></td><td><i>")
 					.append(dateFormat.format(remoteDbDate))
 					.append("</i></td></tr>");
 			if (JTomtom.getTheGPS().getRadarsDbDate() != null) {
-				infos.append("<tr><td><strong>Mise à jour installé : </strong></td><td><i>")
+				infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
 					.append(dateFormat.format(JTomtom.getTheGPS().getRadarsDbDate()))
 					.append("</i></td></tr>");
 			} else {
-				infos.append("<tr><td><strong>Mise à jour installé : </strong></td><td><i>Aucune</i></td></tr>");
+				infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>Aucune</i></td></tr>");
 			}
-			infos.append("<tr><td><strong>Nombre de radar : </strong></td><td><i>")
+			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>")
 				.append(JTomtom.getTheGPS().getRadarsNombre())
 				.append("</i> [")
 				.append(Integer.parseInt(infosTomtomax.get(TomTomax.TAG_RADARS)) - JTomtom.getTheGPS().getRadarsNombre())
-				.append(" radars manquants]</td></tr>");
+				.append(m_rbControls.getString("org.jtomtom.tab.radars.missingradar")).append("]</td></tr>");
 			infos.append("</table>");
-			infos.append("<br/><br/><font size=\"2\"><p><i>Les radars sont fournis par le site <a href=\"http://www.tomtomax.fr/\">&copy;Tomtomax</a></i></p></font>");
+			infos.append("<br/><br/><font size=\"2\"><p><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))
+				.append(" <a href=\"").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.url"))
+				.append("\">").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.label"))
+				.append("</a></i></p></font>");
 			infos.append("</html>");
 			
 			if (result.parameters == null) {
