@@ -48,7 +48,7 @@ public class TabQuickFix extends JTTabPanel {
 	private JButton quickFixButton;
 	
 	public TabQuickFix() {
-		super("Informations QuickFix");
+		super(m_rbControls.getString("org.jtomtom.tab.quickfix.title"));
 		
 		build();
 	}
@@ -60,7 +60,7 @@ public class TabQuickFix extends JTTabPanel {
 		quickFixInfos = new JLabel("");
 		add(quickFixInfos);
 		
-		quickFixButton = new JButton(new MajQuickFixAction("Mettre à jour QuickFix"));
+		quickFixButton = new JButton(new MajQuickFixAction(m_rbControls.getString("org.jtomtom.tab.quickfix.button.update.label")));
 		addActionButton(quickFixButton);
 		
 	}
@@ -74,17 +74,17 @@ public class TabQuickFix extends JTTabPanel {
 		StringBuffer infos = new StringBuffer();
 		try {
 			infos.append("<html><table>");
-			infos.append("<tr><td><strong>Chipset : </strong></td><td><i>").append(JTomtom.getTheGPS().getChipset()).append("</i></td></tr>");
-			infos.append("<tr><td><strong>Dernière MAJ : </strong></td><td><i>")
+			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.chipset")).append(" : </strong></td><td><i>").append(JTomtom.getTheGPS().getChipset()).append("</i></td></tr>");
+			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.lastupdate")).append(" : </strong></td><td><i>")
 				.append(dateFormat.format(new Date(JTomtom.getTheGPS().getQuickFixLastUpdate())))
 				.append("</i></td></tr>");
-			infos.append("<tr><td><strong>Expire le : </strong></td><td><i>")
+			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.expirency")).append(" : </strong></td><td><i>")
 				.append(dateFormat.format(new Date(JTomtom.getTheGPS().getQuickFixExpiry())))
 				.append("</i></td></tr>");
 			if ((new Date()).getTime() > JTomtom.getTheGPS().getQuickFixExpiry()) {
-				infos.append("<tr><td></td><td><i>L'éphémeride est obsolète !</i></td></tr>");
+				infos.append("<tr><td></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.ephemtoold")).append("</i></td></tr>");
 			} else {
-				infos.append("<tr><td></td><td><i>Il n'est pas nécessaire de mettre à jour</i></td></tr>");
+				infos.append("<tr><td></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.ephemuptodate")).append("</i></td></tr>");
 			}
 			infos.append("</table>");
 			infos.append("</html>");
@@ -95,7 +95,7 @@ public class TabQuickFix extends JTTabPanel {
 			
 			JOptionPane.showMessageDialog(this, e.getLocalizedMessage());
 			infos.delete(0, infos.length());
-			infos.append("<html><h1>Informations QuickFix</h1>");
+			infos.append("<html>");
 			infos.append("<p>"+e.getLocalizedMessage()+"</p>");
 			infos.append("</html>");
 			
