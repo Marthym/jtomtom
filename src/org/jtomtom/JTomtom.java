@@ -29,7 +29,9 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Proxy.Type;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -55,7 +57,8 @@ public class JTomtom {
 	private static Proxy m_proxy = null;
 	private static Properties m_props;
 
-	
+	public static final ResourceBundle theMainTranslator = ResourceBundle.getBundle("org.jtomtom.gui.resources.lang.jTomtom-main", Locale.getDefault());
+
 	/**
 	 * @param args
 	 */

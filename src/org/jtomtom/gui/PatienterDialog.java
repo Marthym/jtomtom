@@ -33,6 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
+import org.jtomtom.JTomtom;
+
 /**
  * @author marthym
  *
@@ -55,7 +57,7 @@ public class PatienterDialog extends JDialog implements ActionListener {
 	
 	private void build() {
 		// - Définition des propriétés
-		setTitle("Patienter...");
+		setTitle(JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.wait.title"));
 		setSize(300, 110);
 		setModal(true);
 		setLocationRelativeTo(null);
@@ -70,7 +72,7 @@ public class PatienterDialog extends JDialog implements ActionListener {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		
-		JLabel label = new JLabel("Mise à jour en cours ...");
+		JLabel label = new JLabel(JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.wait.message"));
 		panel.add(label, BorderLayout.PAGE_START);
 		
 		m_progressBar = new JProgressBar();
@@ -85,7 +87,7 @@ public class PatienterDialog extends JDialog implements ActionListener {
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		m_annuler = new JButton("Annuler");
+		m_annuler = new JButton(JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.wait.button.cancel.label"));
 		m_annuler.addActionListener(this);
 		buttonPanel.add(m_annuler);
 		panel.add(buttonPanel, BorderLayout.PAGE_END);
