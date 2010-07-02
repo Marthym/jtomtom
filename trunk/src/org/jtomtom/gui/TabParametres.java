@@ -36,10 +36,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SpringLayout;
 
 import org.apache.log4j.Level;
 import org.jtomtom.JTomtom;
 import org.jtomtom.gui.utilities.JTTabPanel;
+import org.jtomtom.gui.utilities.SpringUtilities;
 
 /**
  * @author marthym
@@ -97,12 +99,19 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 
 		// Paramètres Tomtomax
 		buildConnexionFields();
-		JPanel tomtomaxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel tomtomaxPanel = new JPanel(new SpringLayout());
 		tomtomaxPanel.setBorder(BorderFactory.createTitledBorder(m_rbControls.getString("org.jtomtom.tab.parameters.border.tomtomax.label")));
+		//Dimension dim = tomtomaxPanel.getPreferredSize();
+		//tomtomaxPanel.setPreferredSize(new Dimension((int)dim.getWidth(), 150));
 		tomtomaxPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.user.label")));
 		tomtomaxPanel.add(m_ttmaxUser);
 		tomtomaxPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.password.label")));
 		tomtomaxPanel.add(m_ttmaxPassword);
+		SpringUtilities.makeCompactGrid(tomtomaxPanel,
+                2, 2, 		 //rows, cols
+                6, 6,        //initX, initY
+                6, 6);       //xPad, yPad
+
 		add(tomtomaxPanel);
 		
 		// Paramètres divers
@@ -151,14 +160,14 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 	private void buildConnexionFields() {
 		// - User tomtomax
 		m_ttmaxUser = new JTextField();
-		m_ttmaxUser.setColumns(10);
+		m_ttmaxUser.setColumns(20);
 		m_ttmaxUser.setPreferredSize(new Dimension(0,25));
 		m_ttmaxUser.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.user.hint"));
 		m_ttmaxUser.setText(JTomtom.getApplicationPropertie("org.tomtomax.user"));
 
 		// - Password Tomtomax
 		m_ttmaxPassword = new JPasswordField();
-		m_ttmaxPassword.setColumns(10);
+		m_ttmaxPassword.setColumns(20);
 		m_ttmaxPassword.setPreferredSize(new Dimension(0,25));
 		m_ttmaxPassword.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.password.hint"));
 		m_ttmaxPassword.setText(JTomtom.getApplicationPropertie("org.tomtomax.password"));

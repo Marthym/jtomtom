@@ -218,12 +218,12 @@ public class JTomtom {
 			try {
 				String[] jttLocale = m_props.getProperty("org.jtomtom.locale").split("_");
 				Locale.setDefault(new Locale(jttLocale[0], jttLocale[1]));
-				theMainTranslator = ResourceBundle.getBundle("org.jtomtom.gui.resources.lang.jTomtom-main", Locale.getDefault());
 			} catch (Exception e) {
 				// On fait pas dans le détail si ça marche pas on touche à rien
 				LOGGER.warn(e.getLocalizedMessage());
 			}
 		}
+		theMainTranslator = ResourceBundle.getBundle("org.jtomtom.gui.resources.lang.jTomtom-main", Locale.getDefault());
 		
 		// - Mise à jour du niveau de log
 		Logger.getLogger(JTomtom.class.getPackage().getName()).setLevel(Level.toLevel(m_props.getProperty("org.jtomtom.logLevel", "INFO")));
