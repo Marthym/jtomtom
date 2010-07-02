@@ -513,7 +513,7 @@ public class GlobalPositioningSystem {
 		}
 		
 		if (!mapDirectory.canWrite()) {
-			throw new JTomtomException("org.jtomtom.errors.gps.map.directoryreadonly");
+			throw new JTomtomException("org.jtomtom.errors.gps.map.directoryreadonly", new String[]{mapDirectory.getAbsolutePath()});
 		}
 		
 		// On déplace les fichiers dans le TT
