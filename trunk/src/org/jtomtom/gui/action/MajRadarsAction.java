@@ -135,7 +135,7 @@ public class MajRadarsAction extends AbstractAction {
 		
 		Map<String, String> infosTomtomax = TomTomax.getRemoteDbInfos(JTomtom.getApplicationProxy());
 		if (infosTomtomax == null) {
-			throw new JTomtomException("Impossible se connecter au site de Tomtomax.\nVérifiez les paramètres du proxy.");
+			throw new JTomtomException("org.jtomtom.errors.radars.tomtomaxfail");
 		}
 		
 		HttpURLConnection conn = null;
@@ -183,7 +183,8 @@ public class MajRadarsAction extends AbstractAction {
                 }
 
             } else {
-            	throw new JTomtomException("Connexion échoué : ("+conn.getResponseCode()+") "+conn.getResponseMessage());
+            	throw new JTomtomException("org.jtomtom.errors.connexion.fail", 
+            			new String[]{Integer.toString(conn.getResponseCode()),conn.getResponseMessage()});
             }
 			
 		} catch (MalformedURLException e) {

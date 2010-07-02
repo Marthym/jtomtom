@@ -30,7 +30,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	TestTomtomax.class,
 	TestJTTUtils.class,
 	TestGPS.class,
-	TestActions.class
+	TestActions.class,
+	TestJTomtomException.class
 })
 public class AllTests{
 	@BeforeClass
