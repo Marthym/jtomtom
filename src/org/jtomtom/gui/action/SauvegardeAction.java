@@ -86,7 +86,7 @@ public class SauvegardeAction extends AbstractAction {
                 try {
                 	String mountPoint = JTomtom.getTheGPS().getMountedPoint(false);
                 	if (mountPoint.isEmpty()) {
-                		throw new JTomtomException("Pas de point de montage !");
+                		throw new JTomtomException("org.jtomtom.errors.gps.nomountpoint");
                 	}
                 	result.status = createGpsBackup(JTomtom.getTheGPS());
 					
@@ -148,7 +148,7 @@ public class SauvegardeAction extends AbstractAction {
     public boolean createGpsBackup(GlobalPositioningSystem p_GPS, boolean p_forTest) throws JTomtomException {
     	File gpsDir = new File(p_GPS.getMountedPoint(false));
     	if (!gpsDir.exists() || !gpsDir.canRead()) {
-    		throw new JTomtomException("Le répertoire du GPS n'existe pas ou ne peut pas être lu !");
+    		throw new JTomtomException("org.jtomtom.errors.gps.directorycannotberead");
     	}
     	ISO9660RootDirectory isoRoot = new ISO9660RootDirectory();
     	try {
@@ -211,7 +211,7 @@ public class SauvegardeAction extends AbstractAction {
 		}
 		
 		if (m_fichierDestination == null || m_fichierDestination == null || m_fichierDestination.isEmpty()) {
-			throw new JTomtomException("Le chemin du fichier destination est obligatoire !");
+			throw new JTomtomException("org.jtomtom.errors.backup.destmustexist");
 		}
     	
 		

@@ -124,7 +124,7 @@ public class GlobalPositioningSystem {
 		if (m_mountPoint.exists() && m_mountPoint.canRead())
 			readInformations();
 		
-		throw new JTomtomException("Point de montage incorrect !");
+		throw new JTomtomException("org.jtomtom.errors.gps.incorrectmountpoint");
 	}
 	
 	/**
@@ -175,7 +175,7 @@ public class GlobalPositioningSystem {
 			}
 		}
 		
-		throw new JTomtomException("Point de montage ou lecteur du GPS non trouvé !");
+		throw new JTomtomException("org.jtomtom.errors.gps.gpsnotfound");
 	}
 	
 	public void readInformations() throws JTomtomException {
@@ -294,7 +294,7 @@ public class GlobalPositioningSystem {
 			}
 			
 			if (m_chipset == null)
-				throw new JTomtomException("Chipset non reconnu !");
+				throw new JTomtomException("org.jtomtom.errors.gps.unknownchipset");
 		}
 		
 		return m_chipset;
@@ -368,7 +368,7 @@ public class GlobalPositioningSystem {
 		for (File current : ephemFiles) {
 			File destination = new File(destDir+current.getName());
 			if (!JTomTomUtils.deplacer(current, destination, true)) {
-				throw new JTomtomException("Erreur de copie des fichiers éphéméride !");
+				throw new JTomtomException("org.jtomtom.errors.gps.ephem.copyerror");
 			} else {
 				LOGGER.debug("Copie de "+current.getName()+" ... OK");
 			}
@@ -400,7 +400,7 @@ public class GlobalPositioningSystem {
 		}
 		if (!mapDirectory.exists() || !mapDirectory.isDirectory() || !mapDirectory.canRead()) {
 			m_radarsDbVersion = -1; // Erreur concernant la carte
-			throw new JTomtomException("Impossible de trouver le répertoire de la carte courrante : "+getActiveMapName());
+			throw new JTomtomException("org.jtomtom.errors.gps.map.notfound", new String[]{getActiveMapName()});
 		}
 		
 		// On cherche le fichier de mise à jour TomtomMax
@@ -509,11 +509,11 @@ public class GlobalPositioningSystem {
 		}
 		
 		if (!mapDirectory.exists()) {
-			throw new JTomtomException("Répertoire de carte introuvable !");
+			throw new JTomtomException("org.jtomtom.errors.gps.map.directorynotfound");
 		}
 		
 		if (!mapDirectory.canWrite()) {
-			throw new JTomtomException("Ecriture interdite dans le répertoire de la carte ("+mapDirectory+")");
+			throw new JTomtomException("org.jtomtom.errors.gps.map.directoryreadonly");
 		}
 		
 		// On déplace les fichiers dans le TT
@@ -522,7 +522,7 @@ public class GlobalPositioningSystem {
 			if (JTomTomUtils.deplacer(current, dest, true)) {
 				LOGGER.debug(current.getName()+" déplacé avec succès.");
 			} else {
-				throw new JTomtomException("Impossible de déplacer "+current.getName()+" vers le GPS !");
+				throw new JTomtomException("org.jtomtom.errors.gps.radars.installfail", new String[]{current.getName()});
 			}
 		}
 		

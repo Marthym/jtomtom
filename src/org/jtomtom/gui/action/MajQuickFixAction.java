@@ -171,7 +171,8 @@ public class MajQuickFixAction extends AbstractAction {
                 }
 
             } else {
-            	throw new JTomtomException("Connexion échoué : ("+conn.getResponseCode()+") "+conn.getResponseMessage());
+            	throw new JTomtomException("org.jtomtom.errors.connexion.fail", 
+            			new String[]{Integer.toString(conn.getResponseCode()),conn.getResponseMessage()});
             }
 			
 		} catch (MalformedURLException e) {
