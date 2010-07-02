@@ -57,7 +57,7 @@ public class JTomtom {
 	private static Proxy m_proxy = null;
 	private static Properties m_props;
 
-	public static final ResourceBundle theMainTranslator = ResourceBundle.getBundle("org.jtomtom.gui.resources.lang.jTomtom-main", Locale.getDefault());
+	public static ResourceBundle theMainTranslator;
 
 	/**
 	 * @param args
@@ -210,6 +210,18 @@ public class JTomtom {
 				
 			} finally {
 				try { fis.close(); } catch (Exception e) {}
+			}
+		}
+		
+		// - Mise à jour de la langue par défaut
+		if (m_props.getProperty("org.jtomtom.locale") != null) {
+			try {
+				String[] jttLocale = m_props.getProperty("org.jtomtom.locale").split("_");
+				Locale.setDefault(new Locale(jttLocale[0], jttLocale[1]));
+				theMainTranslator = ResourceBundle.getBundle("org.jtomtom.gui.resources.lang.jTomtom-main", Locale.getDefault());
+			} catch (Exception e) {
+				// On fait pas dans le détail si ça marche pas on touche à rien
+				LOGGER.warn(e.getLocalizedMessage());
 			}
 		}
 		

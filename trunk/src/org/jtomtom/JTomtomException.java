@@ -41,7 +41,6 @@ public class JTomtomException extends Exception {
 	
 	public JTomtomException(String message) {
 		super(translateMessage(message, null));
-		
 		LOGGER.error(getMessage());
 		if (LOGGER.isDebugEnabled()) {
 			printStackTrace();
