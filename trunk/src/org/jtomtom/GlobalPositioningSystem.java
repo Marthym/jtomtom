@@ -86,14 +86,9 @@ public class GlobalPositioningSystem {
 	private int m_bootloaderVersion;
 	
 	/**
-	 * Nom de la carte installé
+	 * Map actuellement utilisée
 	 */
-	private String m_activeMapName;
-	
-	/**
-	 * Version de la carte installé
-	 */
-	private float m_mapVersion;
+	private GpsMap m_activeMap;
 	
 	/**
 	 * Informations pour le quickFix 
@@ -207,9 +202,9 @@ public class GlobalPositioningSystem {
 		m_bootloaderVersion = Integer.parseInt(props.getProperty("BootLoaderVersion"));
 		m_deviceUniqueID = props.getProperty("DeviceUniqueID");
 		m_gpsVersion = props.getProperty("GPSFirmwareVersion");
-		m_activeMapName = props.getProperty("CurrentMap");
-		m_mapVersion = Float.parseFloat(props.getProperty("CurrentMapVersion"));
 		m_systemVersion = Integer.parseInt(props.getProperty("LinuxVersion"));
+		
+		m_activeMap = GpsMap.readCurrentMap(this);
 		
 		// Un petit coup de trace
 		LOGGER.info("Chargement du "+m_deviceName);
@@ -218,8 +213,8 @@ public class GlobalPositioningSystem {
 			LOGGER.debug("m_appVersion = "+m_appVersion);
 			LOGGER.debug("m_bootloaderVersion = "+m_bootloaderVersion);
 			LOGGER.debug("m_deviceUniqueID = "+m_deviceUniqueID);
-			LOGGER.debug("m_mapName = "+m_activeMapName);
-			LOGGER.debug("m_mapVersion = "+m_mapVersion);
+			LOGGER.debug("m_mapName = "+getActiveMapName());
+			LOGGER.debug("m_mapVersion = "+getActiveMapVersion());
 			LOGGER.debug("m_systemVersion = "+m_systemVersion);
 		}
 	}
@@ -586,10 +581,18 @@ public class GlobalPositioningSystem {
 	}
 
 	public final String getActiveMapName() {
-		return m_activeMapName;
+		if (m_activeMap != null) {
+			return m_activeMap.getName();
+		} else {
+			return "";
+		}
 	}
 
-	public final String getMapVersion() {
-		return Float.toString(m_mapVersion);
+	public final String getActiveMapVersion() {
+		if (m_activeMap != null) {
+			return m_activeMap.getVersion();
+		} else {
+			return "";
+		}
 	}
 }

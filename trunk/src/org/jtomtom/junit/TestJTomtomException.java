@@ -20,8 +20,6 @@
  */
 package org.jtomtom.junit;
 
-import java.util.Locale;
-
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -45,11 +43,7 @@ public class TestJTomtomException {
 	
 	@Test
 	public void testThrowingException() {
-		LOGGER.info(Locale.GERMAN);
-		LOGGER.info(Locale.GERMANY);
-		LOGGER.info(Locale.FRENCH);
-		LOGGER.info(Locale.FRANCE);
-		Exception e = new JTomtomException("Message d'erreur tou con ...");
+		Exception e = new JTomtomException("Message d'erreur tout con ...");
 		LOGGER.info(e.getLocalizedMessage());
 		
 		e = new JTomtomException("Message avec des %1 un peu %2", new String[]{"trous", "partout"});
