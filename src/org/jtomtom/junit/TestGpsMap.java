@@ -19,24 +19,39 @@
  *  <belz12@yahoo.fr> 
  */
 package org.jtomtom.junit;
-import org.apache.log4j.BasicConfigurator;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
 
-@RunWith(Suite.class)
-@SuiteClasses(value={
-	TestTomtomax.class,
-	TestJTTUtils.class,
-	TestGPS.class,
-	TestGpsMap.class,
-	TestActions.class,
-	TestJTomtomException.class
-})
-public class AllTests{
+import static junit.framework.Assert.*;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.jtomtom.GlobalPositioningSystem;
+import org.jtomtom.GpsMap;
+import org.jtomtom.JTomtomException;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+
+public class TestGpsMap {
 	@BeforeClass
 	public static void initLogger() {
-		BasicConfigurator.configure();
+		if (!Logger.getRootLogger().getAllAppenders().hasMoreElements())
+			BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testReadCurrentMap() {
+		try {
+			GlobalPositioningSystem myGPS = new GlobalPositioningSystem(false);
+			GpsMap map = GpsMap.readCurrentMap(myGPS);
+			
+			assertNotNull(map);
+			
+		} catch (JTomtomException e) {
+			fail(e.getLocalizedMessage());
+		}
+	}
+	
 }

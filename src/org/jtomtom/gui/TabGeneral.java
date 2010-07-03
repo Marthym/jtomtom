@@ -69,7 +69,7 @@ public class TabGeneral extends JTTabPanel implements ActionListener {
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.general.map")).append(" : </strong></td><td><i>")
 			.append(JTomtom.getTheGPS().getActiveMapName()).append("</i></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.general.mapversion")).append(" : </strong></td><td><i>")
-			.append(JTomtom.getTheGPS().getMapVersion()).append("</i></td></tr>");
+			.append(JTomtom.getTheGPS().getActiveMapVersion()).append("</i></td></tr>");
 		infos.append("</table>");
 		infos.append("</html>");
 		
@@ -96,7 +96,7 @@ public class TabGeneral extends JTTabPanel implements ActionListener {
 			infos.append(m_rbControls.getString("org.jtomtom.tab.general.gpsversion")).append(" : ").append(JTomtom.getTheGPS().getGpsVersion()).append("\n");
 			infos.append(m_rbControls.getString("org.jtomtom.tab.general.appversion")).append(" : ").append(JTomtom.getTheGPS().getAppVersion()).append("\n");
 			infos.append(m_rbControls.getString("org.jtomtom.tab.general.map")).append(" : ").append(JTomtom.getTheGPS().getActiveMapName()).append("\n");
-			infos.append(m_rbControls.getString("org.jtomtom.tab.general.mapversion")).append(" : ").append(JTomtom.getTheGPS().getMapVersion()).append("\n");
+			infos.append(m_rbControls.getString("org.jtomtom.tab.general.mapversion")).append(" : ").append(JTomtom.getTheGPS().getActiveMapVersion()).append("\n");
 			
 			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 			clipboard.setContents(new StringSelection(infos.toString()), null);
