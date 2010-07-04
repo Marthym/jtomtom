@@ -32,6 +32,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.jar.Manifest;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -57,6 +58,9 @@ public class JTomtom {
 	private static Proxy m_proxy = null;
 	private static Properties m_props;
 
+	private static String m_versionNumber = "0.x";
+	private static String m_versionDate = (new java.util.Date()).toString();
+	
 	public static ResourceBundle theMainTranslator;
 
 	/**
@@ -68,6 +72,18 @@ public class JTomtom {
 				
 		// Chargement des propriétés
 		loadProperties();
+		
+		// Récupération des informations de version
+		try {
+			Manifest man = new Manifest(ClassLoader.getSystemResourceAsStream("META-INF/MANIFEST.MF"));
+			if (man.getMainAttributes().getValue("Implementation-Version") != null)
+				m_versionNumber = man.getMainAttributes().getValue("Implementation-Version");
+			if (man.getMainAttributes().getValue("Built-Date") != null)
+				m_versionDate = man.getMainAttributes().getValue("Built-Date");
+			LOGGER.info("jTomtom v"+m_versionNumber+" du "+m_versionDate);
+		} catch (Exception e) {
+			LOGGER.debug("Erreur de récupération de version !");
+		}
 		
 		// License
 		LOGGER.warn("jTomtom  Copyright (C) 2010  Frédéric Combes");
@@ -177,6 +193,22 @@ public class JTomtom {
 	}
 	
 	/**
+	 * Fournit le numéro de version de jTomtom lu dans le manifest
+	 * @return	Numero de version/build
+	 */
+	public static final String getApplicationVersionNumber() {
+		return m_versionNumber;
+	}
+	
+	/**
+	 * Fournit la date de compilation de jTomtom lu dans le manifest
+	 * @return	Date du build
+	 */
+	public static final String getApplicationVersionDate() {
+		return m_versionDate;
+	}
+	
+	/**
 	 * Charge les propriétées utilisateur depuis le fichier dans le home
 	 */
 	public static void loadProperties() {
@@ -248,6 +280,11 @@ public class JTomtom {
 				if (LOGGER.isDebugEnabled()) e.printStackTrace();
 			}
 		} 
+		
+		// Initialisation de la vérification des mise à jour
+		if (m_props.getProperty("org.jtomtom.checkupdate") == null) {
+			m_props.setProperty("org.jtomtom.checkupdate", "true");
+		}
 		
 		// - Ré-initialisation du proxy
 		m_proxy = null;

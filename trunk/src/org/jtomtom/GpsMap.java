@@ -84,14 +84,14 @@ public class GpsMap {
 		
 		// Commence par lire le fichier currentmap.dat pour trouver le chemin de la carte
 		String gpsMapPath = "";
+		RandomAccessFile raf = null;
 		try {
-			RandomAccessFile raf = new RandomAccessFile(currentMapFile, "r");
+			raf = new RandomAccessFile(currentMapFile, "r");
 			if (raf.readByte() == FS) {
 				raf.skipBytes(3);
 				gpsMapPath = CabFile.readCString(raf);
 			}
 			LOGGER.debug("path = "+gpsMapPath);
-			raf = null;
 			
 		} catch (FileNotFoundException e) {
 			LOGGER.error(e.getLocalizedMessage());
@@ -102,6 +102,9 @@ public class GpsMap {
 			LOGGER.error(e.getLocalizedMessage());
 			if (LOGGER.isDebugEnabled()) e.printStackTrace();
 			return null;
+			
+		} finally {
+			try {raf.close();} catch (Exception e) {};
 		}
 		
 		// On récupère ensuite le nom et le path absolue de la carte
@@ -140,14 +143,15 @@ public class GpsMap {
 			sc.nextLine();					// Date
 			version = sc.nextLine();		// Major version
 			String build = sc.nextLine();	// build
-			sc.close();
 			
 			version = version.trim() +"."+ build.trim().split("=")[1];	// Ouais c'est presque pas crade ;)
 			
 		} catch (Exception e) {
-			try {sc.close();} catch (Exception e1){}
 			LOGGER.debug(e.getLocalizedMessage());
 			return null;
+			
+		} finally {
+			try {sc.close();} catch (Exception e){}
 		}
 		
 		GpsMap theMap = new GpsMap();
