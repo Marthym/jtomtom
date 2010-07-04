@@ -32,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.JTomtom;
 import org.jtomtom.gui.utilities.JTTabPanel;
 
 /**
@@ -65,7 +66,8 @@ public class TabAbout extends JTTabPanel implements ActionListener {
 		JPanel htmlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		StringBuffer infos = new StringBuffer();
 		infos.append("<html><table>");
-		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.about.version")).append("</strong></td><td>build 01-07-2010</td></tr>");
+		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.about.version")).append("</strong></td><td>").append(JTomtom.getApplicationVersionNumber()).append("</td></tr>");
+		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.about.date")).append("</strong></td><td>").append(JTomtom.getApplicationVersionDate()).append("</td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.about.developer")).append("</strong></td><td>Frédéric Combes @ <a href=\"mailto:belz12@yahoo.fr\">belz12@yahoo.fr</a></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.about.website")).append("</strong></td><td><a href=\"http://jtomtom.sourceforge.net\">http://jtomtom.sourceforge.net</a></td></tr>");
 		infos.append("</table><br/><br/>");

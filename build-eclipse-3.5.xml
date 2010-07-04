@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project jTomTom with Jar-in-Jar Loader">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+	<property name="dir.build" location="bin"/>
+	<property name="dir.lib" location="lib"/>
+	<property name="dir.src" location="src"/>
+
+	<property name="version.num" value="0.0"/>
+	<buildnumber file="build.num"/>
+	<tstamp>
+		<format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
+	</tstamp>
+
+	<target name="get_jarinjar_loader">
+		<unzip src="${eclipse.home}${file.separator}plugins${file.separator}org.eclipse.jdt.ui_3.5.2.r352_v20100106-0800.jar" dest=".">
+		    <patternset>
+		        <include name="jar-in-jar-loader.zip"/>
+		    </patternset>
+		    <mapper type="flatten"/>
+		</unzip>
+	</target>
+	
+    <target name="create_run_jar" depends="get_jarinjar_loader" description="Création du jar de JTomtom">
+    	<delete file="..${file.separator}jTomtom.jar"/>
+        <jar destfile="..${file.separator}jTomtom.jar">
+            <manifest>
+                <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+                <attribute name="Rsrc-Main-Class" value="org.jtomtom.JTomtom"/>
+                <attribute name="Class-Path" value="."/>
+                <attribute name="Rsrc-Class-Path" value="./ org.hamcrest.core_1.1.0.v20090501071000.jar log4j-1.2.16.jar iso9660.jar sabre.jar"/>
+				<attribute name="Implementation-Version" value="${version.num}-b${build.number}"/>   
+				<attribute name="Built-Date" value="${TODAY}"/>
+            </manifest>
+            <zipfileset src="jar-in-jar-loader.zip"/>
+            <fileset dir="${dir.build}">
+            	<exclude name="org${file.separator}jtomtom${file.separator}junit${file.separator}"/>
+			</fileset>
+            <zipfileset dir="${eclipse.home}${file.separator}plugins" includes="org.hamcrest.core_1.1.0.v20090501071000.jar"/>
+            <zipfileset dir="${dir.lib}" includes="*.jar"/>
+        </jar>
+    </target>
+	
+    <target name="create_source_tar" description="Création du tar des dources JTomtom">
+    	<delete file="..${file.separator}jTomtom-src.tar.gz"/>
+        <tar destfile="..${file.separator}jTomtom-src.tar.gz" compression="gzip">
+            <fileset dir=".">
+            	<exclude name="jar-in-jar-loader.zip"/>
+            	<exclude name="bin/"/>
+            	<exclude name=".settings/"/>
+			</fileset>
+        </tar>
+    </target>
+	
+</project>
