@@ -155,6 +155,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 			while (it.hasNext()) {
 				GpsMap map = it.next();
 				JCheckBox chk = new JCheckBox(map.getName());
+				chk.setToolTipText(m_rbControls.getString("org.jtomtom.tab.radars.panel.maplist.hint"));
 				if (map.getName().equals(JTomtom.getTheGPS().getActiveMapName())) {
 					chk.setSelected(true);
 				}
@@ -167,6 +168,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		JScrollPane scroll = new JScrollPane(checkBoxPane);
 		checkBoxPane.setMaximumSize(new Dimension(200, (int)checkBoxPane.getMaximumSize().getHeight()));
 		scroll.setMaximumSize(new Dimension(200, (int)scroll.getMaximumSize().getHeight()));
+		scroll.setToolTipText(m_rbControls.getString("org.jtomtom.tab.radars.panel.maplist.hint"));
 		add(scroll);
 		
 		// Add the action button at the bottom
