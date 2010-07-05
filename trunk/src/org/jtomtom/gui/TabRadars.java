@@ -195,9 +195,12 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		
 		StringBuffer infos = new StringBuffer();
 		infos.append("<html><table>");
-		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.availableupdate")).append(" : </strong></td><td><i>Chargement ...</i></td></tr>");
-		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>Chargement...</i></td></tr>");
-		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>Chargement...</i></td></tr>");
+		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.availableupdate"))
+			.append(" : </strong></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.loading")).append("</i></td></tr>");
+		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate"))
+			.append(" : </strong></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.loading")).append("</i></td></tr>");
+		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount"))
+			.append(" : </strong></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.loading")).append("...</i></td></tr>");
 		infos.append("</table>");
 		infos.append("<br/><font size=\"2\"><p><i>")
 			.append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))

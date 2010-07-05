@@ -72,6 +72,7 @@ public class TabAbout extends JTTabPanel implements ActionListener {
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.about.website")).append("</strong></td><td><a href=\"http://jtomtom.sourceforge.net\">http://jtomtom.sourceforge.net</a></td></tr>");
 		infos.append("</table><br/><br/>");
 		infos.append("<strong>").append(m_rbControls.getString("org.jtomtom.tab.about.translation")).append(" :</strong><table>");
+		infos.append("<tr><td>Català :</td><td><strong>Oriol Gonzalez Llobet</strong></td></tr>");
 		infos.append("<tr><td>Deutsch :</td><td><strong>Olivier Brügger</strong></td></tr>");
 		infos.append("</table>");
 		infos.append("</html>");

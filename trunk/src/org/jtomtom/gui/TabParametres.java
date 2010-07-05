@@ -79,22 +79,32 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		
 		// Paramètres du proxy
 		buildProxyFields();
-		JPanel proxyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel proxyPanel = new JPanel(new SpringLayout());
 		proxyPanel.setBorder(BorderFactory.createTitledBorder(m_rbControls.getString("org.jtomtom.tab.parameters.border.network.label")));
-		proxyPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.proxy.label")));
+		proxyPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.conn.label")));
 		proxyPanel.add(m_proxyType);
+		proxyPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.proxy.label")));
 		proxyPanel.add(m_proxyHost);
-		proxyPanel.add(new JLabel(":"));
+		proxyPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.port.label")));
 		proxyPanel.add(m_proxyPort);
+		SpringUtilities.makeCompactGrid(proxyPanel,
+                3, 2, 		 //rows, cols
+                6, 6,        //initX, initY
+                6, 6);       //xPad, yPad
 		add(proxyPanel);
 		
 		// Paramètres des log
 		buildLogsFields();
-		JPanel logsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel logsPanel = new JPanel(new SpringLayout());
 		logsPanel.setBorder(BorderFactory.createTitledBorder(m_rbControls.getString("org.jtomtom.tab.parameters.border.log.label")));
 		logsPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.label")));
 		logsPanel.add(m_logLevel);
+		logsPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.logfile.label")));
 		logsPanel.add(m_logFile);
+		SpringUtilities.makeCompactGrid(logsPanel,
+                2, 2, 		 //rows, cols
+                6, 6,        //initX, initY
+                6, 6);       //xPad, yPad
 		add(logsPanel);
 
 		// Paramètres Tomtomax
