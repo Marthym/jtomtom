@@ -27,25 +27,35 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SpringLayout;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.GpsMap;
+import org.jtomtom.InitialErrorRun;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.TomTomax;
 import org.jtomtom.gui.action.ActionResult;
 import org.jtomtom.gui.action.MajRadarsAction;
 import org.jtomtom.gui.utilities.JTTabPanel;
+import org.jtomtom.gui.utilities.SpringUtilities;
 
 /**
  * @author marthym
@@ -60,6 +70,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	private JLabel radarsInfos;
 	private JButton radarsButton;
 	private JButton refreshButton;
+	private List<JCheckBox> mapsCheckList;
 	
 	private Map<String, String> infosTomtomax;
 
@@ -121,22 +132,53 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	 */
 	private void build() {
 		super.build(getClass().getResource("resources/radars.png"));
-		add(Box.createRigidArea(new Dimension(0,5)));
+		m_scrolledPanel.setLayout(new SpringLayout());	// For better layout we use SpringLayout for this tab
 		
+		// Add informations about Radars
 		radarsInfos = new JLabel("");
 		add(radarsInfos);
 		
-		add(Box.createRigidArea(new Dimension(0, 5)));
+		// Add Refresh button
 		refreshButton = new JButton(m_rbControls.getString("org.jtomtom.tab.radars.button.refresh.label"));
 		refreshButton.setToolTipText(m_rbControls.getString("org.jtomtom.tab.radars.button.refresh.hint"));
 		refreshButton.setEnabled(false);
 		refreshButton.addActionListener(this);
 		add(refreshButton);
 		
+		// Make list of the maps found in the GPS
+		// A list of checkbox with scrollbar
+		JPanel checkBoxPane = new JPanel();
+		checkBoxPane.setLayout(new BoxLayout(checkBoxPane, BoxLayout.PAGE_AXIS));
+		mapsCheckList = new LinkedList<JCheckBox>();
+		try {
+			Iterator<GpsMap> it = JTomtom.getTheGPS().getAllMaps().values().iterator();
+			while (it.hasNext()) {
+				GpsMap map = it.next();
+				JCheckBox chk = new JCheckBox(map.getName());
+				if (map.getName().equals(JTomtom.getTheGPS().getActiveMapName())) {
+					chk.setSelected(true);
+				}
+				mapsCheckList.add(chk);
+				checkBoxPane.add(chk);
+			}
+		} catch (JTomtomException e) {
+			SwingUtilities.invokeLater(new InitialErrorRun(e));
+		}
+		JScrollPane scroll = new JScrollPane(checkBoxPane);
+		checkBoxPane.setMaximumSize(new Dimension(200, (int)checkBoxPane.getMaximumSize().getHeight()));
+		scroll.setMaximumSize(new Dimension(200, (int)scroll.getMaximumSize().getHeight()));
+		add(scroll);
+		
+		// Add the action button at the bottom
 		radarsButton = new JButton(new MajRadarsAction(m_rbControls.getString("org.jtomtom.tab.radars.button.update.label")));
 		radarsButton.setEnabled(false);
 		addActionButton(radarsButton);
 
+		// When we finish to add Component, we make a pretty layout
+		SpringUtilities.makeCompactGrid(m_scrolledPanel,
+				m_scrolledPanel.getComponentCount(), 1, // rows, cols
+                0, 0,        							// initX, initY
+                0, 3);       							// xPad, yPad
 	}
 	
 	/**
@@ -155,7 +197,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>Chargement...</i></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>Chargement...</i></td></tr>");
 		infos.append("</table>");
-		infos.append("<br/><br/><font size=\"2\"><p><i>")
+		infos.append("<br/><font size=\"2\"><p><i>")
 			.append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))
 			.append(" <a href=\"").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.url")).append("\">")
 			.append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.label"))
@@ -207,26 +249,26 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 			if (LOGGER.isDebugEnabled()) e.printStackTrace();
 		}
 		
-		if (JTomtom.getTheGPS().getRadarsDbVersion() >= 0) {
+		if (JTomtom.getTheGPS().getActiveMap().getRadarsDbVersion() >= 0) {
 			// Les radars sont déjà installé
 			infos.append("<html><table>");
 			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.availableupdate")).append(" : </strong></td><td><i>")
 					.append(dateFormat.format(remoteDbDate))
 					.append("</i></td></tr>");
-			if (JTomtom.getTheGPS().getRadarsDbDate() != null) {
+			if (JTomtom.getTheGPS().getActiveMap().getRadarsDbDate() != null) {
 				infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
-					.append(dateFormat.format(JTomtom.getTheGPS().getRadarsDbDate()))
+					.append(dateFormat.format(JTomtom.getTheGPS().getActiveMap().getRadarsDbDate()))
 					.append("</i></td></tr>");
 			} else {
 				infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>Aucune</i></td></tr>");
 			}
 			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>")
-				.append(JTomtom.getTheGPS().getRadarsNombre())
+				.append(JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
 				.append("</i> [")
-				.append(Integer.parseInt(infosTomtomax.get(TomTomax.TAG_RADARS)) - JTomtom.getTheGPS().getRadarsNombre())
+				.append(Integer.parseInt(infosTomtomax.get(TomTomax.TAG_RADARS)) - JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
 				.append(m_rbControls.getString("org.jtomtom.tab.radars.missingradar")).append("]</td></tr>");
 			infos.append("</table>");
-			infos.append("<br/><br/><font size=\"2\"><p><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))
+			infos.append("<br/><font size=\"2\"><p><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))
 				.append(" <a href=\"").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.url"))
 				.append("\">").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.label"))
 				.append("</a></i></p></font>");
@@ -264,6 +306,10 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 			loadRadarsInfos();
 		}
 		
+	}
+	
+	public final List<JCheckBox> getMapsCheckList() {
+		return mapsCheckList;
 	}
 
 }

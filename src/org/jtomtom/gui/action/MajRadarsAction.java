@@ -39,12 +39,14 @@ import java.util.zip.ZipInputStream;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.Constant;
 import org.jtomtom.GlobalPositioningSystem;
+import org.jtomtom.GpsMap;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.TomTomax;
@@ -61,7 +63,7 @@ public class MajRadarsAction extends AbstractAction {
 	
 	private PatienterDialog m_waitingDialog = null;
 	private TabRadars m_tabRadars = null;
-
+	
 	public MajRadarsAction (String p_label) {
 		super(p_label);
 	}
@@ -84,7 +86,7 @@ public class MajRadarsAction extends AbstractAction {
             public ActionResult doInBackground() {
             	ActionResult result = new ActionResult(); 
                 try {
-                	result.status = miseAJourRadars(JTomtom.getTheGPS());
+                	result.status = miseAJourRadars(JTomtom.getTheGPS(), m_tabRadars.getMapsCheckList());
 					
 				} catch (JTomtomException e) {
 					LOGGER.error(e.getLocalizedMessage());
@@ -129,7 +131,7 @@ public class MajRadarsAction extends AbstractAction {
 
 	}
 
-	public boolean miseAJourRadars(GlobalPositioningSystem theGPS) throws JTomtomException {	
+	public boolean miseAJourRadars(GlobalPositioningSystem theGPS, List<JCheckBox> p_checkList) throws JTomtomException {	
 		// Téléchargement du fichier de mise à jour
 		LOGGER.info("Téléchargement de la mise à jour Radar ...");
 		
@@ -144,12 +146,17 @@ public class MajRadarsAction extends AbstractAction {
 		File radarsZipFile = null;
 		String urlPackRadars = new String();
 		try {
-			if (theGPS.getRadarsDbVersion() > 0) {
-				urlPackRadars = infosTomtomax.get(TomTomax.TAG_BASIC);
-			} else {
-				urlPackRadars = infosTomtomax.get(TomTomax.TAG_PREMIUM);
+			urlPackRadars = infosTomtomax.get(TomTomax.TAG_BASIC);
+			// We check if we need to download PremiumPack
+			for (JCheckBox chk : p_checkList) { 
+				if (chk.isSelected()) {
+					GpsMap map = theGPS.getAllMaps().get(chk.getText());
+					if (map != null && map.getRadarsDbVersion() <= 0) {
+						urlPackRadars = infosTomtomax.get(TomTomax.TAG_PREMIUM);
+					}
+				}
 			}
-			
+						
 			if (LOGGER.isDebugEnabled()) LOGGER.debug("TomtomMaxURL = "+urlPackRadars);
 			URL tomtomQuickFixURL = new URL(urlPackRadars);
 			
@@ -237,7 +244,24 @@ public class MajRadarsAction extends AbstractAction {
 	    }
 		
 		LOGGER.info("Installation de la mise à jour Tomtomax ...");
-		return theGPS.updateRadars(filesToInstall);
+		boolean retour = true;
+		for (JCheckBox chk : p_checkList) {
+			if (chk.isSelected()) {
+				GpsMap map = theGPS.getAllMaps().get(chk.getText());
+				if (map != null) {
+					retour &= map.updateRadars(filesToInstall);
+				}
+			}
+		}
+		
+		// Now we clean temp directory
+		if (retour) {
+			radarsZipFile.delete();
+			for (File fileToDelete : filesToInstall) {
+				fileToDelete.delete();
+			}
+		}
+		return retour;
 		
 	}
 }

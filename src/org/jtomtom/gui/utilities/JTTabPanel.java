@@ -91,7 +91,7 @@ public class JTTabPanel extends JPanel {
 		m_scrolledPanel.add(p_component);
 		return m_scrolledPanel;
 	}
-	
+		
 	/**
 	 * Ajoute le bouton d'action principal de l'onglet
 	 * @param p_button	Bouton à ajouter

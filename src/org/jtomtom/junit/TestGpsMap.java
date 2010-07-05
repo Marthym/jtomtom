@@ -22,6 +22,8 @@ package org.jtomtom.junit;
 
 import static junit.framework.Assert.*;
 
+import java.util.List;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -48,6 +50,37 @@ public class TestGpsMap {
 			GpsMap map = GpsMap.readCurrentMap(myGPS);
 			
 			assertNotNull(map);
+			
+		} catch (JTomtomException e) {
+			fail(e.getLocalizedMessage());
+		}
+	}
+	
+	@Test
+	public void testReadRadarInfos() {
+		try {
+			@SuppressWarnings("deprecation")
+			GlobalPositioningSystem myGPS = new GlobalPositioningSystem(false);
+			GpsMap map = GpsMap.readCurrentMap(myGPS);
+			map.readRadarsInfos();
+			assertNotNull(map.getRadarsDbDate());
+			assertFalse(map.getRadarsDbVersion() < 0);
+			assertTrue(map.getRadarsNombre() > 0);
+			
+		} catch (JTomtomException e) {
+			fail(e.getLocalizedMessage());
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testListAllGpsMap() {
+		try {
+			GlobalPositioningSystem myGPS = new GlobalPositioningSystem(false);
+			List<GpsMap> map = GpsMap.listAllGpsMap(myGPS);
+			
+			assertNotNull(map);
+			assertFalse(map.isEmpty());
 			
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
