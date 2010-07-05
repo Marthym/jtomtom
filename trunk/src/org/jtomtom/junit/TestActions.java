@@ -22,6 +22,10 @@ package org.jtomtom.junit;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.swing.JCheckBox;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -81,11 +85,13 @@ public class TestActions {
 		
 		MajRadarsAction action = new MajRadarsAction("test TTM");
 		try {
-			action.miseAJourRadars(theGPS);
+			List<JCheckBox> chkList = new LinkedList<JCheckBox>();
+			chkList.add(new JCheckBox("France", true));
+			action.miseAJourRadars(theGPS, chkList);
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
-		assertTrue(theGPS.getRadarsNombre() > 0);
+		assertTrue(theGPS.getActiveMap().getRadarsNombre() > 0);
 	}
 	
 	@Test

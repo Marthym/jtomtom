@@ -26,6 +26,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jtomtom.GlobalPositioningSystem;
+import org.jtomtom.GpsMap;
 import org.jtomtom.JTomtomException;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -96,25 +97,12 @@ public class TestGPS {
 			fail(e.getLocalizedMessage());
 		}
 	}
-	
-	@Test
-	public void testReadRadarsInfos() {
-		try {
-			GlobalPositioningSystem myGPS = new GlobalPositioningSystem();
-			assertNotNull(myGPS.getRadarsDbDate());
-			assertFalse(myGPS.getRadarsDbVersion() < 0);
-			assertTrue(myGPS.getRadarsNombre() > 0);
-			
-		} catch (JTomtomException e) {
-			fail(e.getLocalizedMessage());
-		}
-	}
-	
+		
 	@Test
 	public void testGetMapsList() {
 		try {
 			GlobalPositioningSystem myGPS = new GlobalPositioningSystem();
-			java.util.Map<String, String> maps = myGPS.getMapsList();
+			java.util.Map<String, GpsMap> maps = myGPS.getAllMaps();
 			assertNotNull(maps);
 			assertFalse(maps.isEmpty());
 			

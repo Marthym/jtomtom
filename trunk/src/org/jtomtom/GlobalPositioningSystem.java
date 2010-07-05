@@ -25,14 +25,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +84,7 @@ public class GlobalPositioningSystem {
 	 * Map actuellement utilisée
 	 */
 	private GpsMap m_activeMap;
+	private Map<String, GpsMap> m_mapsList;
 	
 	/**
 	 * Informations pour le quickFix 
@@ -98,14 +94,6 @@ public class GlobalPositioningSystem {
 	private long m_quickFixExpiry;
 	private long m_quickFixLastUpdate;
 
-	/**
-	 * Informations pour les radars
-	 * 		ces données ne sont pas chargées au lancement
-	 */
-	private Date m_radarsDbDate;
-	private int m_radarsDbVersion;
-	private int m_radarsNombre;
-	
 	/**
 	 * Constructeur initialisant les variables membre lues dans le TT connecté
 	 * @throws JTomtomException 
@@ -377,182 +365,7 @@ public class GlobalPositioningSystem {
 		
 		return true;
 	}
-	
-	/**
-	 * Lecture des informations relatives aux Radars
-	 * @throws JTomtomException
-	 */
-	private void readRadarsInfos() throws JTomtomException {
-		// On vérifit déjà qu'on ai bien le point de montage et à défaut on va le chercher
-		if (m_mountPoint == null) {
-			getMountedPoint(false);
-		}
 		
-		// On cherche le répertoire de la carte actuelle
-		File mapDirectory = new File(m_mountPoint+File.separator+getActiveMapName());
-		if (!mapDirectory.exists()) {
-			mapDirectory = new File(m_mountPoint+File.separator+getActiveMapName().toLowerCase());
-		}
-		if (!mapDirectory.exists() || !mapDirectory.isDirectory() || !mapDirectory.canRead()) {
-			m_radarsDbVersion = -1; // Erreur concernant la carte
-			throw new JTomtomException("org.jtomtom.errors.gps.map.notfound", new String[]{getActiveMapName()});
-		}
-		
-		// On cherche le fichier de mise à jour TomtomMax
-		File ttMaxDbFile = new File(mapDirectory, TomTomax.TOMTOMAX_DB_FILE);
-		if (!ttMaxDbFile.exists()) {
-			LOGGER.info("Les Radars TomtomMax n'ont jamais été installé !");
-			return;
-		}
-		
-		// On lit et on parse le fichier
-		if (ttMaxDbFile.exists() && ttMaxDbFile.canRead()) {
-			BufferedReader buff = null;
-			try {
-				buff = new BufferedReader(new FileReader(ttMaxDbFile));
-				String line;
-				while ((line = buff.readLine()) != null) {
-					if (line.startsWith("date=")) {
-						DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy"); 
-						m_radarsDbDate = formatter.parse(line.substring(5));
-						LOGGER.debug("m_radarsDbDate = "+m_radarsDbDate);
-						
-					} else if (line.startsWith("vers=")) {
-						m_radarsDbVersion = Integer.parseInt(line.substring(5));
-						LOGGER.debug("m_radarsDbVersion = "+m_radarsDbVersion);
-						
-					} else if (line.startsWith("radar=")) {
-						m_radarsNombre = Integer.parseInt(line.substring(6));
-						LOGGER.debug("m_radarsNombre = "+m_radarsNombre);
-						
-					} else if (line.startsWith("#####")) {
-						break;
-					}
-				}
-				
-			} catch (FileNotFoundException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-				
-			} catch (IOException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-				
-			} catch (ParseException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-				
-			} finally {
-				try {buff.close();}catch(Exception e){}
-			}
-			
-		} // end if (ttMaxDbFile.exists() && ttMaxDbFile.canRead())
-	}
-	
-	/**
-	 * Retourne la date de la mise à installé sur le GPS
-	 * @return
-	 */
-	public final Date getRadarsDbDate() {
-		if (m_radarsDbDate == null) {
-			try { readRadarsInfos(); } catch (JTomtomException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			}
-		}
-		return m_radarsDbDate;
-	}
-
-	/**
-	 * Retourne la version de la base de radar installé sur le GPS
-	 * @return
-	 */
-	public final int getRadarsDbVersion() {
-		if (m_radarsDbVersion == 0) {
-			try { readRadarsInfos(); } catch (JTomtomException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			}
-		}
-		return m_radarsDbVersion;
-	}
-
-	/**
-	 * Retourne le nombre de radar présent dans la base installé sur le GPS
-	 * @return
-	 */
-	public final int getRadarsNombre() {
-		if (m_radarsNombre == 0) {
-			try { readRadarsInfos(); } catch (JTomtomException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			}
-		}
-		return m_radarsNombre;
-	}
-
-	public boolean updateRadars(List<File> files) throws JTomtomException {
-		// On vérifit déjà qu'on ai bien le point de montage et à défaut on va le chercher
-		if (m_mountPoint == null) {
-			getMountedPoint(false);
-		}
-		
-		// On cherche le répertoire de la carte actuelle
-		File mapDirectory = new File(m_mountPoint+File.separator+getActiveMapName());
-		if (!mapDirectory.exists()) {
-			mapDirectory = new File(m_mountPoint+File.separator+getActiveMapName().toLowerCase());
-		}
-		
-		if (!mapDirectory.exists()) {
-			throw new JTomtomException("org.jtomtom.errors.gps.map.directorynotfound");
-		}
-		
-		if (!mapDirectory.canWrite()) {
-			throw new JTomtomException("org.jtomtom.errors.gps.map.directoryreadonly", new String[]{mapDirectory.getAbsolutePath()});
-		}
-		
-		// On déplace les fichiers dans le TT
-		for (File current : files) {
-			File dest = new File(mapDirectory, current.getName());
-			if (JTomTomUtils.deplacer(current, dest, true)) {
-				LOGGER.debug(current.getName()+" déplacé avec succès.");
-			} else {
-				throw new JTomtomException("org.jtomtom.errors.gps.radars.installfail", new String[]{current.getName()});
-			}
-		}
-		
-		// - Mise à jour des infos
-		readRadarsInfos();
-		
-		return true;
-	}
-	
-	/**
-	 * Retourne la liste des Cartes présentes sur le GPS avec le chemin absolue
-	 * pour les accéder
-	 * @return	Liste des cartes
-	 */
-	public final Map<String, String> getMapsList() {
-		Map<String, String> mapsList = new HashMap<String, String>();
-		for (String currentFileName : m_mountPoint.list()) {
-			File current = new File(m_mountPoint, currentFileName);
-			if (current.isDirectory()) {
-				int mapsettingsCount = current.listFiles(new FilenameFilter() {
-					
-					@Override
-					public boolean accept(File dir, String name) {
-						return name.equalsIgnoreCase("mapsettings.cfg");
-					}
-				}).length;
-				
-				if (mapsettingsCount > 0) {
-					mapsList.put(current.getName(), current.getAbsolutePath());
-				}
-			}
-		}
-		return mapsList;
-	}
-	
 	public final String getDeviceName() {
 		return m_deviceName;
 	}
@@ -594,5 +407,19 @@ public class GlobalPositioningSystem {
 		} else {
 			return "";
 		}
+	}
+	
+	public final GpsMap getActiveMap() {
+		return m_activeMap;
+	}
+	
+	public Map<String, GpsMap> getAllMaps() throws JTomtomException {
+		if (m_mapsList == null) {
+			m_mapsList = new HashMap<String, GpsMap>();
+			for (GpsMap map : GpsMap.listAllGpsMap(this)) {
+				m_mapsList.put(map.getName(), map);
+			}
+		}
+		return m_mapsList;
 	}
 }

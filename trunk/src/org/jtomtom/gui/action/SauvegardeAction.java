@@ -33,6 +33,7 @@ import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.GlobalPositioningSystem;
+import org.jtomtom.GpsMap;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.gui.PatienterDialog;
@@ -158,7 +159,7 @@ public class SauvegardeAction extends AbstractAction {
     		} else {
     			LOGGER.debug("Restriction du contenu de l'ISO pour fichier de test");
     			// - Si on fait un ISO pour test, on ne mets que le nécessaire dedans ...
-    			java.util.Map<String, String> mapsList = p_GPS.getMapsList();
+    			java.util.Map<String, GpsMap> mapsList = p_GPS.getAllMaps();
     			isoRoot.addDirectory(gpsDir);
     			for (String currFileName: gpsDir.list()) {
     				File current = new File(gpsDir, currFileName);

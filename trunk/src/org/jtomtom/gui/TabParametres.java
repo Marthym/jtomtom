@@ -101,8 +101,6 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		buildConnexionFields();
 		JPanel tomtomaxPanel = new JPanel(new SpringLayout());
 		tomtomaxPanel.setBorder(BorderFactory.createTitledBorder(m_rbControls.getString("org.jtomtom.tab.parameters.border.tomtomax.label")));
-		//Dimension dim = tomtomaxPanel.getPreferredSize();
-		//tomtomaxPanel.setPreferredSize(new Dimension((int)dim.getWidth(), 150));
 		tomtomaxPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.user.label")));
 		tomtomaxPanel.add(m_ttmaxUser);
 		tomtomaxPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.password.label")));
