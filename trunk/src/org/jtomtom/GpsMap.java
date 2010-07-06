@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.text.DateFormat;
@@ -93,7 +94,23 @@ public class GpsMap {
 	 */
 	public static GpsMap readCurrentMap(GlobalPositioningSystem p_gps) throws JTomtomException {
 		
-		File currentMapFile = new File(p_gps.getMountedPoint(false), "currentmap.dat");
+		// Now we must read root directory for found currentmap.dat
+		// We dont know excatly the name because of case sensity
+		File mountPoint = new File(p_gps.getMountedPoint(false));
+		File[] datFiles = mountPoint.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".dat");
+			}
+		});
+		
+		File currentMapFile = null;
+		for (int i = 0; i < datFiles.length; i++) {
+			if ("currentmap.dat".equalsIgnoreCase(datFiles[i].getName())) {
+				currentMapFile = datFiles[i];
+				break;
+			}
+		}
 		if (!currentMapFile.exists()) {
 			LOGGER.error("Fichier currentmap.dat inexistant !");
 			return null;
