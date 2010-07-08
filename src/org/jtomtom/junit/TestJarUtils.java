@@ -19,25 +19,30 @@
  *  <belz12@yahoo.fr> 
  */
 package org.jtomtom.junit;
-import org.apache.log4j.BasicConfigurator;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
 
-@RunWith(Suite.class)
-@SuiteClasses(value={
-	TestJarUtils.class,
-	TestTomtomax.class,
-	TestJTTUtils.class,
-	TestGPS.class,
-	TestGpsMap.class,
-	TestActions.class,
-	TestJTomtomException.class
-})
-public class AllTests{
+import java.util.jar.JarFile;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.jtomtom.gui.utilities.JarUtils;
+
+import static org.junit.Assert.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+public class TestJarUtils {
 	@BeforeClass
 	public static void initLogger() {
-		BasicConfigurator.configure();
+		if (!Logger.getRootLogger().getAllAppenders().hasMoreElements())
+			BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 	}
+	
+	@Test
+	public void testGetJarFileFromClass() {
+		JarFile jttjar = JarUtils.getJarFileFromClass(TestJarUtils.class);
+		assertNull(jttjar);
+	}
+
 }

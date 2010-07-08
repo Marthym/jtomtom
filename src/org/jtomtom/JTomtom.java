@@ -46,6 +46,7 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
 import org.jtomtom.gui.JTomtomFenetre;
 import org.jtomtom.gui.action.CheckUpdateAction;
+import org.jtomtom.gui.utilities.JarUtils;
 
 /**
  * @author marthym
@@ -75,7 +76,7 @@ public class JTomtom {
 		
 		// Récupération des informations de version
 		try {
-			Manifest man = new Manifest(ClassLoader.getSystemResourceAsStream("META-INF/MANIFEST.MF"));
+			Manifest man = JarUtils.getCurrentJarFile().getManifest();
 			if (man.getMainAttributes().getValue("Implementation-Version") != null)
 				m_versionNumber = man.getMainAttributes().getValue("Implementation-Version");
 			if (man.getMainAttributes().getValue("Built-Date") != null)

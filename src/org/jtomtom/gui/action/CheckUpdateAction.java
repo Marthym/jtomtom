@@ -16,6 +16,7 @@ import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtom;
+import org.jtomtom.gui.utilities.JarUtils;
 
 /**
  * @author marthym
@@ -69,11 +70,12 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 	public static final String checkUpdateNow() {
 		LOGGER.debug("Lancement de la vérification de version");
 		String message = null;
-
+		
 		URL jarUrl = null;
 		try {
 			LOGGER.debug("URL de la version courante : "+REMOTE_JTOMTOM_URL);
 			jarUrl = new URL(REMOTE_JTOMTOM_URL);
+			
 		} catch (MalformedURLException e) {
 			LOGGER.error(e.getLocalizedMessage());
 			if (LOGGER.isDebugEnabled()) e.printStackTrace();
@@ -84,17 +86,9 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 			URLConnection conn = jarUrl.openConnection(JTomtom.getApplicationProxy());
 			
 			// On trouve le nom du fichier jar de jTomtom
-			//	Je sais, c'est merdique mais j'ai pas trouvé mieux !!
-			String jarFileName = ClassLoader.getSystemResource("org/jtomtom/JTomtom.class").toString();
-			if (jarFileName.indexOf("!/") <= 0) {
-				LOGGER.debug("URL anormale, sans doute en train de tester ?");
-				return null;
-			}
-			jarFileName = jarFileName.substring(jarFileName.lastIndexOf(":")+1, jarFileName.indexOf("!/"));
-			File jttJarFile = new File(jarFileName);
-			LOGGER.debug("Fichier jar de jTomtom : "+jarFileName);
-			if (!jttJarFile.exists()) {
-				LOGGER.warn(ClassLoader.getSystemResource(JTomtom.class.getCanonicalName()).getFile()+" introuvable ! Vérification de MAJ annulé !");
+			File jttJarFile = JarUtils.getCurrentFile();
+			if (jttJarFile == null || !jttJarFile.exists()) {
+				LOGGER.warn("Fichier jar introuvable ! Vérification de MAJ annulé !");
 				return null;
 			}
 			if (LOGGER.isDebugEnabled()) {
