@@ -52,4 +52,13 @@
         </tar>
     </target>
 	
+    <target name="create_language_tar" description="Création du tar contenant les fichiers de traduction">
+    	<delete file="..${file.separator}jTomtom-lang.tar.gz"/>
+        <tar destfile="..${file.separator}jTomtom-lang.tar.gz" compression="gzip">
+            <fileset dir=".">
+            	<include name="src/org/jtomtom/gui/resources/lang**/*.properties"/>
+			</fileset>
+        </tar>
+    </target>
+	
 </project>

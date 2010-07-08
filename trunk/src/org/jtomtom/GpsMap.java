@@ -121,12 +121,11 @@ public class GpsMap {
 		RandomAccessFile raf = null;
 		try {
 			raf = new RandomAccessFile(currentMapFile, "r");
-			if (raf.readByte() == FS) {
-				raf.skipBytes(3);
-				gpsMapPath = CabFile.readCString(raf);
+			int pathLenght = Integer.reverseBytes(raf.readInt());
+			gpsMapPath = CabFile.readCString(raf);
+			if (gpsMapPath.length() != (pathLenght-1)) {
+				LOGGER.debug("Le fichier "+currentMapFile.getName()+" semble corrompu !");
 			}
-			LOGGER.debug("path = "+gpsMapPath);
-			
 		} catch (FileNotFoundException e) {
 			LOGGER.error(e.getLocalizedMessage());
 			if (LOGGER.isDebugEnabled()) e.printStackTrace();
@@ -140,6 +139,7 @@ public class GpsMap {
 		} finally {
 			try {raf.close();} catch (Exception e) {};
 		}
+		LOGGER.debug("gpsMapPath = "+gpsMapPath);
 		
 		// On récupère ensuite le nom et le path absolue de la carte
 		String[] cutpath = gpsMapPath.split("/");

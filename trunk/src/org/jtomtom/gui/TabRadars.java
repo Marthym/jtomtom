@@ -238,7 +238,8 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		if (infosTomtomax == null) {
 			infosTomtomax = TomTomax.getRemoteDbInfos(JTomtom.getApplicationProxy());
 			if (infosTomtomax == null) {
-				result.exception = new JTomtomException("Erreur lors de la récupération des informations Tomtomax !");
+				result.exception = new JTomtomException("org.jtomtom.errors.radars.tomtomax.getinfo");
+				LOGGER.debug("Erreur lors de la récupération des informations Tomtomax ...");
 				result.status = false;
 				return result;
 			}
@@ -284,7 +285,8 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 			}
 			result.parameters.add(infos.toString());
 		} else {
-			result.exception = new JTomtomException("Une erreur s'est produite à la lecture des informations sur le GPS !");
+			result.exception = new JTomtomException("org.jtomtom.errors.gps.readinformations");
+			LOGGER.debug("Erreur de lecture des information sur le GPS ...");
 			result.status = false;
 			return result;
 		} 
@@ -295,7 +297,8 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 				JTomtom.getApplicationPropertie("org.tomtomax.user"), 
 				JTomtom.getApplicationPropertie("org.tomtomax.password"));
 		if (!result.status) {
-			result.exception = new JTomtomException("Votre compte utilisateur Tomtomax n'est pas valide !\nVérifier vos paramètre.\nSi vous n'avez pas de compte, vous devez vous en créer un d'abord !");
+			result.exception = new JTomtomException("org.jtomtom.errors.radars.tomtomax.account");
+			LOGGER.debug("Erreur de compte Tomtomax ...");
 			return result;
 		}
 		
