@@ -40,36 +40,31 @@ import net.sf.jcablib.CabFile;
 import org.apache.log4j.Logger;
 
 /**
- * Classe de gestion des cartes
+ * Class for map management
  * 
  * @author marthym
  *
  */
 public class GpsMap {
 	private static final Logger LOGGER = Logger.getLogger(GpsMap.class);
-	
+		
 	/**
-	 * Caractère de commencement du fichier pna des maps
-	 */
-	public static final byte FS = 0x14;
-	
-	/**
-	 * Lien vers le GPS contenant la map
+	 * Link to the map containing GPS
 	 */
 	private GlobalPositioningSystem m_gps;
 	
 	/**
-	 * Nom de la carte
+	 * Map name
 	 */
 	private String m_name;
 	
 	/**
-	 * Version complète de la carte (majeur.mineure)
+	 * Full version of the map (major.minor)
 	 */
 	private String m_version;
 	
 	/**
-	 * Chemin absolue de ma carte
+	 * Absolute path of the map
 	 */
 	private String m_path;
 	
@@ -87,9 +82,9 @@ public class GpsMap {
 	}
 	
 	/**
-	 * Crée une carte correspondant à la carte courante du GPS
-	 * @param p_gps	GPS porteur de la carte
-	 * @return		Carte
+	 * Create a map corresponding to the current map of GPS
+	 * @param p_gps	GPS map containing
+	 * @return		Current GPS map
 	 * @throws JTomtomException
 	 */
 	public static GpsMap readCurrentMap(GlobalPositioningSystem p_gps) throws JTomtomException {
@@ -112,11 +107,11 @@ public class GpsMap {
 			}
 		}
 		if (!currentMapFile.exists()) {
-			LOGGER.error("Fichier currentmap.dat inexistant !");
+			LOGGER.error("File currentmap.dat not found in the GPS root !");
 			return null;
 		}
 		
-		// Commence par lire le fichier currentmap.dat pour trouver le chemin de la carte
+		// First, we reading the file currentmap.dat for find the map path
 		String gpsMapPath = "";
 		RandomAccessFile raf = null;
 		try {
@@ -124,7 +119,7 @@ public class GpsMap {
 			int pathLenght = Integer.reverseBytes(raf.readInt());
 			gpsMapPath = CabFile.readCString(raf);
 			if (gpsMapPath.length() != (pathLenght-1)) {
-				LOGGER.debug("Le fichier "+currentMapFile.getName()+" semble corrompu !");
+				LOGGER.debug("File "+currentMapFile.getName()+" seems to be corrupted !");
 			}
 		} catch (FileNotFoundException e) {
 			LOGGER.error(e.getLocalizedMessage());
@@ -141,7 +136,7 @@ public class GpsMap {
 		}
 		LOGGER.debug("gpsMapPath = "+gpsMapPath);
 		
-		// On récupère ensuite le nom et le path absolue de la carte
+		// Second, we retrieves the name and absolute path of the map
 		String[] cutpath = gpsMapPath.split("/");
 		String name = "";
 		String path = "";
@@ -158,9 +153,9 @@ public class GpsMap {
 	}
 	
 	/**
-	 * Retourne la liste des cartes contenues dans un GPS
-	 * @param p_gps	GPS à explorer
-	 * @return		Liste de carte
+	 * Returns the list of maps in a GPS
+	 * @param p_gps	GPS to explore
+	 * @return		Map list
 	 * @throws JTomtomException
 	 */
 	public static List<GpsMap> listAllGpsMap(GlobalPositioningSystem p_gps) throws JTomtomException {
@@ -187,10 +182,10 @@ public class GpsMap {
 	}
 	
 	/**
-	 * Crée une carte sans GPS à partie du nom et du chemin de la carte
-	 * @param p_name	Nome de la carte
-	 * @param p_path	Chemin absolue de la carte
-	 * @return			Carte non liée à un GPS
+	 * Create a map without GPS from the name and path of the map
+	 * @param p_name	Map name
+	 * @param p_path	Absolute path of the map
+	 * @return			Map not linked to a GPS
 	 */
 	private static GpsMap createMapFromPna(String p_name, String p_path) {
 		if (p_name.isEmpty() || p_path.isEmpty()) {
@@ -207,7 +202,7 @@ public class GpsMap {
 			version = sc.nextLine();		// Major version
 			String build = sc.nextLine();	// build
 			
-			version = version.trim() +"."+ build.trim().split("=")[1];	// Ouais c'est presque pas crade ;)
+			version = version.trim() +"."+ build.trim().split("=")[1];	// Yeah it's almost not dirty ;)
 			
 		} catch (FileNotFoundException e) {
 			LOGGER.error(e.getLocalizedMessage());
@@ -230,12 +225,12 @@ public class GpsMap {
 	}
 	
 	/**
-	 * Relie la carte à un GPS
-	 * @param p_gps
-	 * @return
+	 * Link map to a GPS
+	 * @param p_gps	GPS to link
+	 * @return		The linked map
 	 */
 	private GpsMap linkToGps(GlobalPositioningSystem p_gps) {
-		// On vérifie quand même que c'est cohérent
+		// We verifies that it is still consistent
 		String mp = "";
 		try {
 			mp = p_gps.getMountedPoint(false);
@@ -248,26 +243,26 @@ public class GpsMap {
 	}
 	
 	/**
-	 * Lecture des informations relatives aux Radars
+	 * Reading Radar informations
 	 * @throws JTomtomException
 	 */
 	public void readRadarsInfos() throws JTomtomException {
 		
-		// On cherche le répertoire de la carte actuelle
+		// We search the directory of the current map
 		File mapDirectory = new File(m_path);
 		if (!mapDirectory.exists() || !mapDirectory.isDirectory() || !mapDirectory.canRead()) {
-			m_radarsDbVersion = -1; // Erreur concernant la carte
+			m_radarsDbVersion = -1; // Error about the map
 			throw new JTomtomException("org.jtomtom.errors.gps.map.notfound", new String[]{m_name});
 		}
 		
-		// On cherche le fichier de mise à jour TomtomMax
+		// We looking for the Tomtomax update file
 		File ttMaxDbFile = new File(mapDirectory, TomTomax.TOMTOMAX_DB_FILE);
 		if (!ttMaxDbFile.exists()) {
 			LOGGER.info("Les Radars TomtomMax n'ont jamais été installé !");
 			return;
 		}
 		
-		// On lit et on parse le fichier
+		// We read and parse the file
 		if (ttMaxDbFile.exists() && ttMaxDbFile.canRead()) {
 			BufferedReader buff = null;
 			try {
@@ -318,7 +313,7 @@ public class GpsMap {
 	 * @throws JTomtomException
 	 */
 	public boolean updateRadars(List<File> files) throws JTomtomException {		
-		// On cherche le répertoire de la carte actuelle
+		// We search the directory of the map
 		File mapDirectory = new File(m_path);
 		if (!mapDirectory.exists()) {
 			mapDirectory = new File(m_path.toLowerCase());
@@ -332,7 +327,7 @@ public class GpsMap {
 			throw new JTomtomException("org.jtomtom.errors.gps.map.directoryreadonly", new String[]{mapDirectory.getAbsolutePath()});
 		}
 		
-		// On déplace les fichiers dans le TT
+		// We move file inside the GPS
 		for (File current : files) {
 			File dest = new File(mapDirectory, current.getName());
 			if (JTomTomUtils.copier(current, dest, true)) {
@@ -342,7 +337,7 @@ public class GpsMap {
 			}
 		}
 		
-		// - Mise à jour des infos pour la carte active
+		// Update active map infos if needing
 		if (m_name.equals(m_gps.getActiveMapName())) {
 			readRadarsInfos();
 		}
@@ -350,22 +345,42 @@ public class GpsMap {
 		return true;
 	}
 	
+	/**
+	 * Retur map name
+	 * @return
+	 */
 	public final String getName() {
 		return m_name;
 	}
 	
+	/**
+	 * Give the GPS linked to this map
+	 * @return
+	 */
 	public final GlobalPositioningSystem getGPS() {
 		return m_gps;
 	}
 	
+	/**
+	 * Give the map absolute path
+	 * @return
+	 */
 	public final String getPath() {
 		return m_path;
 	}
 
+	/**
+	 * Give the map version
+	 * @return
+	 */
 	public final String getVersion() {
 		return m_version;
 	}
 	
+	/**
+	 * Give the installed Radar DB date
+	 * @return
+	 */
 	public final Date getRadarsDbDate() {
 		if (m_radarsDbDate == null) {
 			try { readRadarsInfos(); } catch (JTomtomException e) {
@@ -376,6 +391,10 @@ public class GpsMap {
 		return m_radarsDbDate;
 	}
 	
+	/**
+	 * Give the installed Radar version date
+	 * @return
+	 */
 	public final int getRadarsDbVersion() {
 		if (m_radarsDbVersion == 0) {
 			try { readRadarsInfos(); } catch (JTomtomException e) {
@@ -386,6 +405,10 @@ public class GpsMap {
 		return m_radarsDbVersion;
 	}
 
+	/**
+	 * Give the installed radar count
+	 * @return
+	 */
 	public final int getRadarsNombre() {
 		if (m_radarsNombre == 0) {
 			try { readRadarsInfos(); } catch (JTomtomException e) {
