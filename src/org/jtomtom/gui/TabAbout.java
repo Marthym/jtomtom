@@ -26,10 +26,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtom;
@@ -70,17 +72,29 @@ public class TabAbout extends JTTabPanel implements ActionListener {
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.about.date")).append("</strong></td><td>").append(JTomtom.getApplicationVersionDate()).append("</td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.about.developer")).append("</strong></td><td>Frédéric Combes @ <a href=\"mailto:belz12@yahoo.fr\">belz12@yahoo.fr</a></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.about.website")).append("</strong></td><td><a href=\"http://jtomtom.sourceforge.net\">http://jtomtom.sourceforge.net</a></td></tr>");
-		infos.append("</table><br/><br/>");
-		infos.append("<strong>").append(m_rbControls.getString("org.jtomtom.tab.about.translation")).append(" :</strong><table>");
-		infos.append("<tr><td>Català :</td><td><strong>Oriol Gonzalez Llobet</strong></td></tr>");
-		infos.append("<tr><td>Dutch :</td><td><strong>Charly Preis</strong></td></tr>");
-		infos.append("<tr><td>German :</td><td><strong>Olivier Brügger</strong></td></tr>");
-		infos.append("</table>");
-		infos.append("</html>");
+		infos.append("</table></html>");
 		
 		JLabel label = new JLabel(infos.toString());
 		htmlPanel.add(label);
 		add(htmlPanel);
+		
+		JPanel translatorsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		infos = new StringBuffer();
+		infos.append("<html><table>");
+		infos.append("<tr><td>Català (ca_ES) :</td><td><strong>Oriol Gonzalez Llobet</strong></td></tr>");
+		infos.append("<tr><td>Dutch (nl_NL) :</td><td><strong>Charly Preis</strong></td></tr>");
+		infos.append("<tr><td>Español (es_ES) :</td><td><strong>Francisco Luque Contreras</strong></td></tr>");
+		infos.append("<tr><td>German (de_DE) :</td><td><strong>Olivier Brügger</strong></td></tr>");
+		infos.append("</table>");
+		infos.append("</html>");
+		label = new JLabel(infos.toString());
+		translatorsPanel.add(label);
+		
+		JScrollPane scroll = new JScrollPane(translatorsPanel);
+		scroll.setBorder(
+				BorderFactory.createTitledBorder(m_rbControls.getString("org.jtomtom.tab.about.translation")));
+		add(scroll);
+
 				
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		JButton bpLicence = new JButton(m_rbControls.getString("org.jtomtom.tab.about.license")+" GPLv3");
