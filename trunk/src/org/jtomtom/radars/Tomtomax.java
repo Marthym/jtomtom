@@ -48,27 +48,22 @@ public final class Tomtomax implements RadarsConnector {
 	/**
 	 * URL du fichier de base contennat les informations sur la base courante
 	 */
-	public static final String TOMTOMAX_DB_URL = "http://www.tomtomax.fr/upload/tomtomax_radars.db";
-	public static final String TOMTOMAX_LOGIN_URL = "http://www.tomtomax.fr/forum/ucp.php?mode=login";
+	private static final String TOMTOMAX_DB_URL = "http://www.tomtomax.fr/upload/tomtomax_radars.db";
+	private static final String TOMTOMAX_LOGIN_URL = "http://www.tomtomax.fr/forum/ucp.php?mode=login";
 	
-	public static final String TOMTOMAX_COOKIE_CONNECT = "phpbb3_e1wj8_u";
-	
-	/**
-	 * User Agent de la MaxBox
-	 */
-	public static final String TOMTOMAX_USER_AGENT = "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)";
+	private static final String TOMTOMAX_COOKIE_CONNECT = "phpbb3_e1wj8_u";
 	
 	/**
 	 * Fichier de base présent dans les packages et installé sur le TT
 	 */
-	public static final String TOMTOMAX_DB_FILE = "maxipoi_radars.db";
+	private static final String TOMTOMAX_DB_FILE = "maxipoi_radars.db";
 	
 	/**
 	 * Tags contenu dans le fichier pour identifier les différentes informations
 	 */
-	public static final String TAG_BASIC = "[UZ1] ";
-	public static final String TAG_MEDIUM = "[UZ2] ";
-	public static final String TAG_PREMIUM = "[UZ3] ";
+	private static final String TAG_BASIC = "[UZ1] ";
+	private static final String TAG_MEDIUM = "[UZ2] ";
+	private static final String TAG_PREMIUM = "[UZ3] ";
 	
 	private Map<String, String> m_localInfos;
 	private Map<String, String> m_remoteInfos;

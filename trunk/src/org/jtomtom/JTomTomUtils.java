@@ -25,7 +25,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.channels.FileChannel;
+import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
@@ -115,11 +119,21 @@ public final class JTomTomUtils {
 	 * @throws JTomtomException
 	 */
 	public static final RadarsConnector instantiateRadarConnector() throws JTomtomException {
+		return instantiateRadarConnector(Locale.getDefault());
+	}
+	
+	/**
+	 * Instantiate the Radar connector class for the specified Locale
+	 * @param	Locale	Locale of the country represented by the map
+	 * @return			An intance of RadarsConnector
+	 * @throws JTomtomException
+	 */
+	public static final RadarsConnector instantiateRadarConnector(Locale localeSite) throws JTomtomException {
 		Class<?> connector;
 		RadarsConnector radars;
 		try {
-			LOGGER.debug("Création de l'instance du connecteur");
-			connector = Class.forName(JTomtom.getApplicationPropertie("org.jtomtom.radars.connector."+Locale.getDefault()));
+			LOGGER.debug("Create connector instante for Locale "+localeSite);
+			connector = Class.forName(JTomtom.getApplicationPropertie("org.jtomtom.radars.connector."+localeSite));
 			
 			if (RadarsConnector.class.isAssignableFrom(connector)) {
 				radars = (RadarsConnector) connector.newInstance();
@@ -138,6 +152,40 @@ public final class JTomTomUtils {
 		}
 		
 		return radars;
+	}
+	
+	public static final RadarsConnector[] getAllRadarsConnectors() {
+		//TODO Ca marche pas encore !!!
+		// Little bit of introspection
+		String packPath = "org/jtomtom/radars";
+		List<RadarsConnector> result = new LinkedList<RadarsConnector>();
+		try {
+			Enumeration<URL> listConnector = RadarsConnector.class.getClassLoader().getResources(packPath);
+			while (listConnector.hasMoreElements()) {
+				URL connector = listConnector.nextElement();
+				try {
+					Class<?> connectorClass = Class.forName(connector.getPath().replace('/', '.'));
+					
+					if (RadarsConnector.class.isAssignableFrom(connectorClass)) {
+						result.add((RadarsConnector) connectorClass.newInstance());
+					} 
+					
+				} catch (ClassNotFoundException e) {
+					
+					
+				} catch (InstantiationException e) {
+					
+					
+				} catch (IllegalAccessException e) {
+					
+				}
+
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

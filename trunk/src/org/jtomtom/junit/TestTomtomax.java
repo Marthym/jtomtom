@@ -67,9 +67,6 @@ public class TestTomtomax {
 		assertTrue(infos.containsKey(Tomtomax.TAG_DATE));
 		assertTrue(infos.containsKey(Tomtomax.TAG_RADARS));
 		assertTrue(infos.containsKey(Tomtomax.TAG_VERSION));
-		assertTrue(infos.containsKey(Tomtomax.TAG_BASIC));
-		assertTrue(infos.containsKey(Tomtomax.TAG_MEDIUM));
-		assertTrue(infos.containsKey(Tomtomax.TAG_PREMIUM));
 	}
 	
 	@Test

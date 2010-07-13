@@ -34,7 +34,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
 public class TestJTTUtils {
 	@BeforeClass
 	public static void initLogger() {
@@ -44,6 +43,7 @@ public class TestJTTUtils {
 	}
 	
 	@Test
+	@Ignore
 	public void testDeplacer() {
 		File source = new File("source.txt");
 		File destination = new File("destination.txt");
@@ -63,6 +63,13 @@ public class TestJTTUtils {
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
+		assertNotNull(radars);
+	}
+	
+	@Test
+	public void testGetAllRadarsConnectors() {
+		RadarsConnector[] radars = null;
+		radars = JTomTomUtils.getAllRadarsConnectors();
 		assertNotNull(radars);
 	}
 

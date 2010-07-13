@@ -3,35 +3,40 @@ package org.jtomtom;
 import java.net.Proxy;
 import java.util.Map;
 
+/**
+ * Interface for connect different radars database site 
+ * @author marthym
+ *
+ */
 public interface RadarsConnector {
 	/**
-	 * Tags contenu dans le fichier pour identifier les différentes informations
+	 * Tags in the file to identify the different information
 	 */
 	public static final String TAG_DATE = "[DAT] ";
 	public static final String TAG_VERSION = "[VER] ";
 	public static final String TAG_RADARS = "[RAD] ";
 
 	/**
-	 * Récupère les informations de la base de Radars courante sur le Tomtom connecté
-	 * @param	String Chemin de la carte
-	 * @return	Un tableau contenant les informations
+	 * Get the radars informations from the GPS connected
+	 * @param	String Path of the map
+	 * @return	HashMap with informations
 	 * @throws JTomtomException 
 	 */
 	public Map<String, String> getLocalDbInfos(String m_path) throws JTomtomException;
 	
 	/**
-	 * Récupère les informations de la base de Radars courante chez Tomtomax
-	 * @param	Proxy à utiliser pour la connexion
-	 * @return	Un tableau contenant les informations
+	 * Get the radars information from the remote site database
+	 * @param	Proxy to use for connexion
+	 * @return	HashMap with informations
 	 */
 	public Map<String, String> getRemoteDbInfos(Proxy proxy);
 
 	/**
-	 * Effectue la connexion au site Tomtomax pour télécharger les mises à jours !
-	 * @param p_proxy		Proxy à utiliser
-	 * @param p_user		Utilisateur sur forum Tomtomax
-	 * @param p_password	Mot de pas de l'utilisateur
-	 * @return				True si l'utilisateur à le droit de se connecter
+	 * Connect to the remote web site if necessary
+	 * @param p_proxy		Proxy to use for connexion
+	 * @param p_user		User login
+	 * @param p_password	password login
+	 * @return				True if the connexion is established
 	 */
 	public boolean connexion(Proxy p_proxy, String p_user, String p_password);
 	
