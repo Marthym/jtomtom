@@ -20,10 +20,8 @@
  */
 package org.jtomtom;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -33,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import net.sf.jcablib.CabFile;
@@ -247,63 +246,28 @@ public class GpsMap {
 	 * @throws JTomtomException
 	 */
 	public void readRadarsInfos() throws JTomtomException {
-		
-		// We search the directory of the current map
-		File mapDirectory = new File(m_path);
-		if (!mapDirectory.exists() || !mapDirectory.isDirectory() || !mapDirectory.canRead()) {
-			m_radarsDbVersion = -1; // Error about the map
-			throw new JTomtomException("org.jtomtom.errors.gps.map.notfound", new String[]{m_name});
+		RadarsConnector radars = JTomTomUtils.instantiateRadarConnector();
+		Map<String, String> infos = radars.getLocalDbInfos(m_path);
+		try {
+			DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+			m_radarsDbDate = formatter.parse(infos.get(RadarsConnector.TAG_DATE));
+		} catch (ParseException e) {
+			LOGGER.error(e.getLocalizedMessage());
+			if (LOGGER.isDebugEnabled()) e.printStackTrace();
 		}
 		
-		// We looking for the Tomtomax update file
-		File ttMaxDbFile = new File(mapDirectory, TomTomax.TOMTOMAX_DB_FILE);
-		if (!ttMaxDbFile.exists()) {
-			LOGGER.info("Les Radars TomtomMax n'ont jamais été installé !");
-			return;
+		try { m_radarsDbVersion = Integer.parseInt(infos.get(RadarsConnector.TAG_VERSION));} 
+		catch (NumberFormatException e) {
+			LOGGER.error(e.getLocalizedMessage());
+			if (LOGGER.isDebugEnabled()) e.printStackTrace();
 		}
 		
-		// We read and parse the file
-		if (ttMaxDbFile.exists() && ttMaxDbFile.canRead()) {
-			BufferedReader buff = null;
-			try {
-				buff = new BufferedReader(new FileReader(ttMaxDbFile));
-				String line;
-				while ((line = buff.readLine()) != null) {
-					if (line.startsWith("date=")) {
-						DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy"); 
-						m_radarsDbDate = formatter.parse(line.substring(5));
-						LOGGER.debug("m_radarsDbDate = "+m_radarsDbDate);
-						
-					} else if (line.startsWith("vers=")) {
-						m_radarsDbVersion = Integer.parseInt(line.substring(5));
-						LOGGER.debug("m_radarsDbVersion = "+m_radarsDbVersion);
-						
-					} else if (line.startsWith("radar=")) {
-						m_radarsNombre = Integer.parseInt(line.substring(6));
-						LOGGER.debug("m_radarsNombre = "+m_radarsNombre);
-						
-					} else if (line.startsWith("#####")) {
-						break;
-					}
-				}
-				
-			} catch (FileNotFoundException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-				
-			} catch (IOException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-				
-			} catch (ParseException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-				
-			} finally {
-				try {buff.close();}catch(Exception e){}
-			}
-			
-		} // end if (ttMaxDbFile.exists() && ttMaxDbFile.canRead())
+		try { m_radarsNombre = Integer.parseInt(infos.get(RadarsConnector.TAG_RADARS)); } 
+		catch (NumberFormatException e) {
+			LOGGER.error(e.getLocalizedMessage());
+			if (LOGGER.isDebugEnabled()) e.printStackTrace();
+		}
+
 	}
 	
 	/**

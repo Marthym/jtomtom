@@ -29,6 +29,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.GpsMap;
+import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -59,6 +60,8 @@ public class TestGpsMap {
 	@Test
 	public void testReadRadarInfos() {
 		try {
+			JTomtom.loadProperties();
+			
 			@SuppressWarnings("deprecation")
 			GlobalPositioningSystem myGPS = new GlobalPositioningSystem(false);
 			GpsMap map = GpsMap.readCurrentMap(myGPS);

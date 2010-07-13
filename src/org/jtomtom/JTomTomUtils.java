@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
 
@@ -106,6 +107,37 @@ public final class JTomTomUtils {
 	 */
 	public static final boolean deplacer (File source, File destination) {
 		return deplacer(source, destination, false);
+	}
+
+	/**
+	 * Instantiate the Radar connector class for the current Locale
+	 * @return		An intance of RadarsConnector
+	 * @throws JTomtomException
+	 */
+	public static final RadarsConnector instantiateRadarConnector() throws JTomtomException {
+		Class<?> connector;
+		RadarsConnector radars;
+		try {
+			LOGGER.debug("Création de l'instance du connecteur");
+			connector = Class.forName(JTomtom.getApplicationPropertie("org.jtomtom.radars.connector."+Locale.getDefault()));
+			
+			if (RadarsConnector.class.isAssignableFrom(connector)) {
+				radars = (RadarsConnector) connector.newInstance();
+			} else {
+				throw new JTomtomException(new ClassCastException());
+			}
+			
+		} catch (ClassNotFoundException e) {
+			throw new JTomtomException(e);
+			
+		} catch (InstantiationException e) {
+			throw new JTomtomException(e);
+			
+		} catch (IllegalAccessException e) {
+			throw new JTomtomException(e);
+		}
+		
+		return radars;
 	}
 
 }

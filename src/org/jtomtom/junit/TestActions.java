@@ -31,6 +31,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jtomtom.GlobalPositioningSystem;
+import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.gui.action.CheckUpdateAction;
 import org.jtomtom.gui.action.MajQuickFixAction;
@@ -75,6 +76,7 @@ public class TestActions {
 	
 	@Test
 	public void testMajRadarsAction() {
+		JTomtom.loadProperties();
 		GlobalPositioningSystem theGPS = null;
 		try {
 			theGPS = new GlobalPositioningSystem();

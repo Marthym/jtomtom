@@ -18,10 +18,13 @@
  *  Frédéric Combes can be reached at:
  *  <belz12@yahoo.fr> 
  */
-package org.jtomtom;
+package org.jtomtom.radars;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -35,9 +38,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.Constant;
+import org.jtomtom.JTomtomException;
+import org.jtomtom.RadarsConnector;
 
-public final class TomTomax {
-	private static final Logger LOGGER = Logger.getLogger(TomTomax.class);
+public final class Tomtomax implements RadarsConnector {
+	private static final Logger LOGGER = Logger.getLogger(Tomtomax.class);
 	
 	/**
 	 * URL du fichier de base contennat les informations sur la base courante
@@ -60,26 +66,17 @@ public final class TomTomax {
 	/**
 	 * Tags contenu dans le fichier pour identifier les différentes informations
 	 */
-	public static final String TAG_DATE = "[DAT] ";
-	public static final String TAG_VERSION = "[VER] ";
-	public static final String TAG_RADARS = "[RAD] ";
 	public static final String TAG_BASIC = "[UZ1] ";
 	public static final String TAG_MEDIUM = "[UZ2] ";
 	public static final String TAG_PREMIUM = "[UZ3] ";
 	
+	private Map<String, String> m_localInfos;
+	private Map<String, String> m_remoteInfos;
 	
-	/**
-	 * On interdit l'instanciation
+	/* (non-Javadoc)
+	 * @see org.jtomtom.RadarsConnector#getRemoteDbInfos(java.net.Proxy)
 	 */
-	private TomTomax(){};
-	
-	/**
-	 * Récupère les informations de la base de Radars courante chez Tomtomax
-	 * @param	Proxy à utiliser pour la connexion
-	 * @return	Un tableau contenant les informations
-	 */
-	public static final Map<String, String> getRemoteDbInfos(Proxy proxy) {
-		Map<String, String> infos = null;
+	public final Map<String, String> getRemoteDbInfos(Proxy proxy) {
 		HttpURLConnection conn = null;
 		try {
 			URL tomtomaxUrl = new URL(TOMTOMAX_DB_URL);
@@ -93,7 +90,7 @@ public final class TomTomax {
 			if (LOGGER.isDebugEnabled()) LOGGER.debug("conn.getResponseCode() = "+conn.getResponseCode());
 			
 	        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-	        	infos = new HashMap<String, String>(6);
+	        	m_remoteInfos = new HashMap<String, String>(6);
 	        	InputStream is = null;
 	        	BufferedReader rd = null;
 	        	try {
@@ -102,28 +99,28 @@ public final class TomTomax {
 					String line;
 					while((line = rd.readLine()) != null) {
 						if (line.startsWith(TAG_DATE)) {
-							infos.put(TAG_DATE, line.substring(TAG_DATE.length()).trim());
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+infos.get(TAG_DATE));
+							m_remoteInfos.put(TAG_DATE, line.substring(TAG_DATE.length()).trim());
+							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+m_remoteInfos.get(TAG_DATE));
 							
 						} else if (line.startsWith(TAG_VERSION)) {
-							infos.put(TAG_VERSION, line.substring(TAG_VERSION.length()).trim());
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_VERSION+infos.get(TAG_VERSION));
+							m_remoteInfos.put(TAG_VERSION, line.substring(TAG_VERSION.length()).trim());
+							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_VERSION+m_remoteInfos.get(TAG_VERSION));
 							
 						} else if (line.startsWith(TAG_RADARS)) {
-							infos.put(TAG_RADARS, line.substring(TAG_RADARS.length()).trim());
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_RADARS+infos.get(TAG_RADARS));
+							m_remoteInfos.put(TAG_RADARS, line.substring(TAG_RADARS.length()).trim());
+							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_RADARS+m_remoteInfos.get(TAG_RADARS));
 							
 						} else if (line.startsWith(TAG_BASIC)) {
-							infos.put(TAG_BASIC, line.substring(TAG_BASIC.length()).trim());
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_BASIC+infos.get(TAG_BASIC));
+							m_remoteInfos.put(TAG_BASIC, line.substring(TAG_BASIC.length()).trim());
+							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_BASIC+m_remoteInfos.get(TAG_BASIC));
 							
 						} else if (line.startsWith(TAG_MEDIUM)) {
-							infos.put(TAG_MEDIUM, line.substring(TAG_MEDIUM.length()).trim());
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_MEDIUM+infos.get(TAG_MEDIUM));
+							m_remoteInfos.put(TAG_MEDIUM, line.substring(TAG_MEDIUM.length()).trim());
+							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_MEDIUM+m_remoteInfos.get(TAG_MEDIUM));
 							
 						} else if (line.startsWith(TAG_PREMIUM)) {
-							infos.put(TAG_PREMIUM, line.substring(TAG_PREMIUM.length()).trim());
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_PREMIUM+infos.get(TAG_PREMIUM));
+							m_remoteInfos.put(TAG_PREMIUM, line.substring(TAG_PREMIUM.length()).trim());
+							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_PREMIUM+m_remoteInfos.get(TAG_PREMIUM));
 							
 						}
 					}
@@ -143,17 +140,75 @@ public final class TomTomax {
 			if (LOGGER.isDebugEnabled()) e.printStackTrace();
 		} 
 		
-		return infos;
+		return m_remoteInfos;
 	}
 	
-	/**
-	 * Effectue la connexion au site Tomtomax pour télécharger les mises à jours !
-	 * @param p_proxy		Proxy à utiliser
-	 * @param p_user		Utilisateur sur forum Tomtomax
-	 * @param p_password	Mot de pas de l'utilisateur
-	 * @return				True si l'utilisateur à le droit de se connecter
+	/* (non-Javadoc)
+	 * @see org.jtomtom.RadarsConnector#getLocalDbInfos(java.lang.String)
 	 */
-	public static final boolean connexion(Proxy p_proxy, String p_user, String p_password) {
+	public final Map<String, String> getLocalDbInfos(String m_path) throws JTomtomException {
+		m_localInfos = new HashMap<String, String>();
+		
+		// We search the directory of the current map
+		File mapDirectory = new File(m_path);
+		if (!mapDirectory.exists() || !mapDirectory.isDirectory() || !mapDirectory.canRead()) {
+			m_localInfos.put(TAG_VERSION, "-1");
+			throw new JTomtomException("org.jtomtom.errors.gps.map.notfound", new String[]{m_path});
+		}
+		
+		// We looking for the Tomtomax update file
+		File ttMaxDbFile = new File(mapDirectory,TOMTOMAX_DB_FILE);
+		if (!ttMaxDbFile.exists()) {
+			LOGGER.info("Les Radars TomtomMax n'ont jamais été installé !");
+			m_localInfos.put(TAG_VERSION, "-1");
+			return m_localInfos;
+		}
+		
+		// We read and parse the file
+		if (ttMaxDbFile.exists() && ttMaxDbFile.canRead()) {
+			BufferedReader buff = null;
+			try {
+				buff = new BufferedReader(new FileReader(ttMaxDbFile));
+				String line;
+				while ((line = buff.readLine()) != null) {
+					if (line.startsWith("date=")) {
+						m_localInfos.put(TAG_DATE, line.substring(5));
+						if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+" = "+m_localInfos.get(TAG_DATE));
+						
+					} else if (line.startsWith("vers=")) {
+						m_localInfos.put(TAG_VERSION, line.substring(5));
+						if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_VERSION+" = "+m_localInfos.get(TAG_VERSION));
+						
+					} else if (line.startsWith("radar=")) {
+						m_localInfos.put(TAG_RADARS, line.substring(6));
+						if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_RADARS+" = "+m_localInfos.get(TAG_RADARS));
+						
+					} else if (line.startsWith("#####")) {
+						break;
+					}
+				}
+				
+			} catch (FileNotFoundException e) {
+				LOGGER.error(e.getLocalizedMessage());
+				if (LOGGER.isDebugEnabled()) e.printStackTrace();
+				
+			} catch (IOException e) {
+				LOGGER.error(e.getLocalizedMessage());
+				if (LOGGER.isDebugEnabled()) e.printStackTrace();
+				
+			} finally {
+				try {buff.close();}catch(Exception e){}
+			}
+			
+		} // end if (ttMaxDbFile.exists() && ttMaxDbFile.canRead())
+		
+		return m_localInfos;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.jtomtom.RadarsConnector#connexion(java.net.Proxy, java.lang.String, java.lang.String)
+	 */
+	public final boolean connexion(Proxy p_proxy, String p_user, String p_password) {
 		Map<String, String> cookies = null;
 		String urlParameters = "";
 		try {
@@ -222,4 +277,23 @@ public final class TomTomax {
 		return false;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jtomtom.RadarsConnector#getUpdateURL()
+	 */
+	public final String getUpdateURL() {
+		if (m_remoteInfos != null && m_remoteInfos.containsKey(TAG_BASIC)) {
+			return m_remoteInfos.get(TAG_BASIC);
+		}
+		return "";
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.jtomtom.RadarsConnector#getInstallURL()
+	 */
+	public final String getInstallURL() {
+		if (m_remoteInfos != null && m_remoteInfos.containsKey(TAG_PREMIUM)) {
+			return m_remoteInfos.get(TAG_PREMIUM);
+		}
+		return "";
+	}
 }
