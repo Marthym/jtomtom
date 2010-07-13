@@ -49,9 +49,10 @@ import javax.swing.SwingWorker.StateValue;
 import org.apache.log4j.Logger;
 import org.jtomtom.GpsMap;
 import org.jtomtom.InitialErrorRun;
+import org.jtomtom.JTomTomUtils;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
-import org.jtomtom.TomTomax;
+import org.jtomtom.RadarsConnector;
 import org.jtomtom.gui.action.ActionResult;
 import org.jtomtom.gui.action.MajRadarsAction;
 import org.jtomtom.gui.utilities.JTTabPanel;
@@ -67,12 +68,12 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(TabRadars.class);
 	
-	private JLabel radarsInfos;
+	private JLabel infosHtml;
 	private JButton radarsButton;
 	private JButton refreshButton;
 	private List<JCheckBox> mapsCheckList;
 	
-	private Map<String, String> infosTomtomax;
+	private Map<String, String> remoteRadarsInfos;
 
 	/**
 	 * @author marthym
@@ -99,7 +100,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 							infos.exception.getLocalizedMessage(), 
 							m_rbControls.getString("org.jtomtom.tab.radars.sw.error.title"), JOptionPane.ERROR_MESSAGE);
 				} else {
-					radarsInfos.setText(infos.parameters.get(0));
+					infosHtml.setText(infos.parameters.get(0));
 					radarsButton.setEnabled(true);
 					refreshButton.setEnabled(true);
 				}
@@ -135,8 +136,8 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		m_scrolledPanel.setLayout(new SpringLayout());	// For better layout we use SpringLayout for this tab
 		
 		// Add informations about Radars
-		radarsInfos = new JLabel("");
-		add(radarsInfos);
+		infosHtml = new JLabel("");
+		add(infosHtml);
 		
 		// Add Refresh button
 		refreshButton = new JButton(m_rbControls.getString("org.jtomtom.tab.radars.button.refresh.label"));
@@ -208,7 +209,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 			.append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.label"))
 			.append("</a></i></p></font>");
 		infos.append("</html>");
-		radarsInfos.setText(infos.toString());
+		infosHtml.setText(infos.toString());
 		
 		if (m_loadWorker.getState() != StateValue.STARTED) { // On en lance qu'un à la fois
 			LOGGER.debug("Lancement de LoadInformationsWorker ...");
@@ -235,9 +236,17 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		StringBuffer infos = new StringBuffer();
 		
 		// Si on a pas déjà les infos, on les demande au serveur TTMax
-		if (infosTomtomax == null) {
-			infosTomtomax = TomTomax.getRemoteDbInfos(JTomtom.getApplicationProxy());
-			if (infosTomtomax == null) {
+		RadarsConnector radars;
+		try {
+			radars = JTomTomUtils.instantiateRadarConnector();
+		} catch (JTomtomException e) {
+			result.exception = e;
+			result.status = false;
+			return result;
+		}
+		if (remoteRadarsInfos == null) {
+			remoteRadarsInfos = radars.getRemoteDbInfos(JTomtom.getApplicationProxy());
+			if (remoteRadarsInfos == null) {
 				result.exception = new JTomtomException("org.jtomtom.errors.radars.tomtomax.getinfo");
 				LOGGER.debug("Erreur lors de la récupération des informations Tomtomax ...");
 				result.status = false;
@@ -249,7 +258,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy"); 
 		Date remoteDbDate = null;
 		try {
-			remoteDbDate = formatter.parse(infosTomtomax.get(TomTomax.TAG_DATE));
+			remoteDbDate = formatter.parse(remoteRadarsInfos.get(RadarsConnector.TAG_DATE));
 		} catch (ParseException e) {
 			LOGGER.error(e.getLocalizedMessage());
 			if (LOGGER.isDebugEnabled()) e.printStackTrace();
@@ -271,7 +280,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>")
 				.append(JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
 				.append("</i> [")
-				.append(Integer.parseInt(infosTomtomax.get(TomTomax.TAG_RADARS)) - JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
+				.append(Integer.parseInt(remoteRadarsInfos.get(RadarsConnector.TAG_RADARS)) - JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
 				.append(m_rbControls.getString("org.jtomtom.tab.radars.missingradar")).append("]</td></tr>");
 			infos.append("</table>");
 			infos.append("<br/><font size=\"2\"><p><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))
@@ -292,7 +301,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		} 
 		
 		// - Enfin, on teste la connexion à Tomtomax pour vérifier que le user ai un compte
-		result.status = TomTomax.connexion(
+		result.status = radars.connexion(
 				JTomtom.getApplicationProxy(), 
 				JTomtom.getApplicationPropertie("org.tomtomax.user"), 
 				JTomtom.getApplicationPropertie("org.tomtomax.password"));

@@ -26,8 +26,12 @@ import java.util.Map;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.JTomtom;
-import org.jtomtom.TomTomax;
+import org.jtomtom.JTomtomException;
+import org.jtomtom.RadarsConnector;
+import org.jtomtom.radars.Tomtomax;
+
 import static org.junit.Assert.*;
 
 import org.junit.BeforeClass;
@@ -44,26 +48,44 @@ public class TestTomtomax {
 	
 	@Test
 	public void testConnexion() {
+		RadarsConnector radars = new Tomtomax();
 		Proxy proxy = JTomtom.getApplicationProxy();
-		assertFalse(TomTomax.connexion(proxy, "marthym", "prout"));
-		assertFalse(TomTomax.connexion(proxy, "martm", "myhtram"));
-		assertTrue(TomTomax.connexion(proxy, "marthym", "myhtram"));
+		assertFalse(radars.connexion(proxy, "marthym", "prout"));
+		assertFalse(radars.connexion(proxy, "martm", "myhtram"));
+		assertTrue(radars.connexion(proxy, "marthym", "myhtram"));
 	}
 	
 	@Test
 	public void testGetRemoteDbInfos() {
-		
+		RadarsConnector radars = new Tomtomax();
 		Proxy proxy = JTomtom.getApplicationProxy();
 		
 		Map<String, String> infos;
-		infos = TomTomax.getRemoteDbInfos(proxy);
+		infos = radars.getRemoteDbInfos(proxy);
 		
 		assertNotNull(infos);
-		assertTrue(infos.containsKey(TomTomax.TAG_DATE));
-		assertTrue(infos.containsKey(TomTomax.TAG_RADARS));
-		assertTrue(infos.containsKey(TomTomax.TAG_VERSION));
-		assertTrue(infos.containsKey(TomTomax.TAG_BASIC));
-		assertTrue(infos.containsKey(TomTomax.TAG_MEDIUM));
-		assertTrue(infos.containsKey(TomTomax.TAG_PREMIUM));
+		assertTrue(infos.containsKey(Tomtomax.TAG_DATE));
+		assertTrue(infos.containsKey(Tomtomax.TAG_RADARS));
+		assertTrue(infos.containsKey(Tomtomax.TAG_VERSION));
+		assertTrue(infos.containsKey(Tomtomax.TAG_BASIC));
+		assertTrue(infos.containsKey(Tomtomax.TAG_MEDIUM));
+		assertTrue(infos.containsKey(Tomtomax.TAG_PREMIUM));
+	}
+	
+	@Test
+	public void testGetLocalDbInfos() {
+		RadarsConnector radars = new Tomtomax();
+		
+		Map<String, String> infos = null;
+		try {
+			infos = radars.getLocalDbInfos((new GlobalPositioningSystem()).getActiveMap().getPath());
+		} catch (JTomtomException e) {
+			fail(e.getLocalizedMessage());
+		}
+		
+		assertNotNull(infos);
+		assertTrue(infos.containsKey(Tomtomax.TAG_DATE));
+		assertTrue(infos.containsKey(Tomtomax.TAG_RADARS));
+		assertTrue(infos.containsKey(Tomtomax.TAG_VERSION));
 	}
 }

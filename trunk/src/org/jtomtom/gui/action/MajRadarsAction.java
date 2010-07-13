@@ -47,9 +47,10 @@ import org.apache.log4j.Logger;
 import org.jtomtom.Constant;
 import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.GpsMap;
+import org.jtomtom.JTomTomUtils;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
-import org.jtomtom.TomTomax;
+import org.jtomtom.RadarsConnector;
 import org.jtomtom.gui.PatienterDialog;
 import org.jtomtom.gui.TabRadars;
 
@@ -134,8 +135,9 @@ public class MajRadarsAction extends AbstractAction {
 	public boolean miseAJourRadars(GlobalPositioningSystem theGPS, List<JCheckBox> p_checkList) throws JTomtomException {	
 		// Téléchargement du fichier de mise à jour
 		LOGGER.info("Téléchargement de la mise à jour Radar ...");
+		RadarsConnector radars = JTomTomUtils.instantiateRadarConnector();
 		
-		Map<String, String> infosTomtomax = TomTomax.getRemoteDbInfos(JTomtom.getApplicationProxy());
+		Map<String, String> infosTomtomax = radars.getRemoteDbInfos(JTomtom.getApplicationProxy());
 		if (infosTomtomax == null) {
 			throw new JTomtomException("org.jtomtom.errors.radars.tomtomaxfail");
 		}
@@ -146,18 +148,18 @@ public class MajRadarsAction extends AbstractAction {
 		File radarsZipFile = null;
 		String urlPackRadars = new String();
 		try {
-			urlPackRadars = infosTomtomax.get(TomTomax.TAG_BASIC);
+			urlPackRadars = radars.getUpdateURL();
 			// We check if we need to download PremiumPack
 			for (JCheckBox chk : p_checkList) { 
 				if (chk.isSelected()) {
 					GpsMap map = theGPS.getAllMaps().get(chk.getText());
 					if (map != null && map.getRadarsDbVersion() <= 0) {
-						urlPackRadars = infosTomtomax.get(TomTomax.TAG_PREMIUM);
+						urlPackRadars = radars.getInstallURL();
 					}
 				}
 			}
 						
-			if (LOGGER.isDebugEnabled()) LOGGER.debug("TomtomMaxURL = "+urlPackRadars);
+			if (LOGGER.isDebugEnabled()) LOGGER.debug("RadarsPOIURL = "+urlPackRadars);
 			URL tomtomQuickFixURL = new URL(urlPackRadars);
 			
 			radarsZipFile = File.createTempFile("tomtomax_radars", ".zip");

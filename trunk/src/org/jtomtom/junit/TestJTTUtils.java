@@ -26,6 +26,9 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomTomUtils;
+import org.jtomtom.JTomtomException;
+import org.jtomtom.RadarsConnector;
+
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -50,6 +53,17 @@ public class TestJTTUtils {
 		JTomTomUtils.copier(source, destination, true);
 		assertTrue(destination.exists());
 		assertEquals(source.length(), destination.length());
+	}
+
+	@Test
+	public void testInstantiateRadarsConnector() {
+		RadarsConnector radars = null;
+		try {
+			radars = JTomTomUtils.instantiateRadarConnector();
+		} catch (JTomtomException e) {
+			fail(e.getLocalizedMessage());
+		}
+		assertNotNull(radars);
 	}
 
 }
