@@ -21,6 +21,7 @@
 package org.jtomtom.gui;
 
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
@@ -37,6 +38,7 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -72,6 +74,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	private JButton radarsButton;
 	private JButton refreshButton;
 	private List<JCheckBox> mapsCheckList;
+	private JComboBox radarSiteList;
 	
 	private Map<String, String> remoteRadarsInfos;
 
@@ -140,11 +143,24 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		add(infosHtml);
 		
 		// Add Refresh button
+		JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
 		refreshButton = new JButton(m_rbControls.getString("org.jtomtom.tab.radars.button.refresh.label"));
 		refreshButton.setToolTipText(m_rbControls.getString("org.jtomtom.tab.radars.button.refresh.hint"));
 		refreshButton.setEnabled(false);
 		refreshButton.addActionListener(this);
-		add(refreshButton);
+		buttonPanel.add(refreshButton);
+		
+		radarSiteList = new JComboBox(JTomTomUtils.getAllRadarsConnectors());
+		buttonPanel.add(radarSiteList);
+		buttonPanel.setMaximumSize(
+				new Dimension(
+						(int)buttonPanel.getMaximumSize().getWidth(),
+						(int)refreshButton.getPreferredSize().getHeight()));
+		radarSiteList.setPreferredSize(
+				new Dimension(
+						(int)radarSiteList.getPreferredSize().getWidth(), 
+						(int)refreshButton.getPreferredSize().getHeight()));
+		add(buttonPanel);
 		
 		// Make list of the maps found in the GPS
 		// A list of checkbox with scrollbar
