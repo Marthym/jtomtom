@@ -25,12 +25,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.channels.FileChannel;
-import java.util.Enumeration;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -154,38 +152,38 @@ public final class JTomTomUtils {
 		return radars;
 	}
 	
+	/**
+	 * Get an array of all radarconnector declared in properties file
+	 * @return	Array of RadarsConnector
+	 */
 	public static final RadarsConnector[] getAllRadarsConnectors() {
-		//TODO Ca marche pas encore !!!
-		// Little bit of introspection
-		String packPath = "org/jtomtom/radars";
-		List<RadarsConnector> result = new LinkedList<RadarsConnector>();
-		try {
-			Enumeration<URL> listConnector = RadarsConnector.class.getClassLoader().getResources(packPath);
-			while (listConnector.hasMoreElements()) {
-				URL connector = listConnector.nextElement();
-				try {
-					Class<?> connectorClass = Class.forName(connector.getPath().replace('/', '.'));
-					
-					if (RadarsConnector.class.isAssignableFrom(connectorClass)) {
-						result.add((RadarsConnector) connectorClass.newInstance());
-					} 
-					
-				} catch (ClassNotFoundException e) {
-					
-					
-				} catch (InstantiationException e) {
-					
-					
-				} catch (IllegalAccessException e) {
-					
-				}
+		Map<String, String> connectorList = JTomtom.getApplicationProperties("org.jtomtom.radars.connector");
+		RadarsConnector[] result = new RadarsConnector[connectorList.size()];
+		int i = 0;
+		
+		Iterator<String> it = connectorList.keySet().iterator();
+		while (it.hasNext()) {
+			String key = it.next();
 
+			Class<?> connector = null;
+			try {
+				connector = Class.forName(connectorList.get(key));
+			} catch (ClassNotFoundException e) {
+				LOGGER.debug(e.getLocalizedMessage());
+				continue;
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
+			try {
+				if (RadarsConnector.class.isAssignableFrom(connector)) {
+					result[i++] = (RadarsConnector) connector.newInstance();
+				}
+			} catch (Exception e) {
+				LOGGER.debug(e.getLocalizedMessage());
+				continue;
+			}
 		}
-		return null;
+		
+		return result;
 	}
 
 }

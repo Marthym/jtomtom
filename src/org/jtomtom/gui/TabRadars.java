@@ -150,7 +150,13 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		refreshButton.addActionListener(this);
 		buttonPanel.add(refreshButton);
 		
-		radarSiteList = new JComboBox(JTomTomUtils.getAllRadarsConnectors());
+		RadarsConnector[] allConnectors = JTomTomUtils.getAllRadarsConnectors();
+		radarSiteList = new JComboBox(allConnectors);
+		for (RadarsConnector radar : allConnectors) {
+			if (radar.toString().endsWith("["+Locale.getDefault().getCountry()+"]")) {
+				radarSiteList.setSelectedItem(radar);
+			}
+		}
 		buttonPanel.add(radarSiteList);
 		buttonPanel.setMaximumSize(
 				new Dimension(
@@ -253,13 +259,8 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		
 		// Si on a pas déjà les infos, on les demande au serveur TTMax
 		RadarsConnector radars;
-		try {
-			radars = JTomTomUtils.instantiateRadarConnector();
-		} catch (JTomtomException e) {
-			result.exception = e;
-			result.status = false;
-			return result;
-		}
+		radars = (RadarsConnector)radarSiteList.getSelectedItem();
+		
 		if (remoteRadarsInfos == null) {
 			remoteRadarsInfos = radars.getRemoteDbInfos(JTomtom.getApplicationProxy());
 			if (remoteRadarsInfos == null) {
@@ -343,6 +344,10 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	
 	public final List<JCheckBox> getMapsCheckList() {
 		return mapsCheckList;
+	}
+	
+	public final RadarsConnector getSelectedRadarConnector() {
+		return (RadarsConnector)radarSiteList.getSelectedItem();
 	}
 
 }

@@ -50,5 +50,7 @@ public interface RadarsConnector {
 	/**
 	 * Return the URL for download installation radars pack
 	 * @return
-	 */	public String getInstallURL();
+	 */	
+	public String getInstallURL();
+	
 }

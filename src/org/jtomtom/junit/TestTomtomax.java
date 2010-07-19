@@ -85,4 +85,27 @@ public class TestTomtomax {
 		assertTrue(infos.containsKey(Tomtomax.TAG_RADARS));
 		assertTrue(infos.containsKey(Tomtomax.TAG_VERSION));
 	}
+	
+	@Test
+	public void testGetInstallURL() {
+		RadarsConnector radars = new Tomtomax();
+		radars.getRemoteDbInfos(JTomtom.getApplicationProxy());
+		assertNotNull(radars.getInstallURL());
+		assertTrue(radars.getInstallURL().length() > 0);
+	}
+	
+	@Test
+	public void testGetUpdateURL() {
+		RadarsConnector radars = new Tomtomax();
+		radars.getRemoteDbInfos(JTomtom.getApplicationProxy());
+		assertNotNull(radars.getUpdateURL());
+		assertTrue(radars.getUpdateURL().length() > 0);
+	}
+	
+	@Test
+	public void testToString() {
+		RadarsConnector radars = new Tomtomax();
+		assertNotNull(radars.toString());
+		assertTrue(radars.toString().length() > 0);
+	}
 }

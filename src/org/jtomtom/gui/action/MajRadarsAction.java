@@ -47,7 +47,6 @@ import org.apache.log4j.Logger;
 import org.jtomtom.Constant;
 import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.GpsMap;
-import org.jtomtom.JTomTomUtils;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.RadarsConnector;
@@ -87,7 +86,7 @@ public class MajRadarsAction extends AbstractAction {
             public ActionResult doInBackground() {
             	ActionResult result = new ActionResult(); 
                 try {
-                	result.status = miseAJourRadars(JTomtom.getTheGPS(), m_tabRadars.getMapsCheckList());
+                	result.status = miseAJourRadars(JTomtom.getTheGPS(), m_tabRadars.getMapsCheckList(), m_tabRadars.getSelectedRadarConnector());
 					
 				} catch (JTomtomException e) {
 					LOGGER.error(e.getLocalizedMessage());
@@ -132,12 +131,12 @@ public class MajRadarsAction extends AbstractAction {
 
 	}
 
-	public boolean miseAJourRadars(GlobalPositioningSystem theGPS, List<JCheckBox> p_checkList) throws JTomtomException {	
+	public boolean miseAJourRadars(GlobalPositioningSystem theGPS, List<JCheckBox> p_checkList, RadarsConnector p_radars) 
+	throws JTomtomException {	
 		// Téléchargement du fichier de mise à jour
 		LOGGER.info("Téléchargement de la mise à jour Radar ...");
-		RadarsConnector radars = JTomTomUtils.instantiateRadarConnector();
 		
-		Map<String, String> infosTomtomax = radars.getRemoteDbInfos(JTomtom.getApplicationProxy());
+		Map<String, String> infosTomtomax = p_radars.getRemoteDbInfos(JTomtom.getApplicationProxy());
 		if (infosTomtomax == null) {
 			throw new JTomtomException("org.jtomtom.errors.radars.tomtomaxfail");
 		}
@@ -148,13 +147,13 @@ public class MajRadarsAction extends AbstractAction {
 		File radarsZipFile = null;
 		String urlPackRadars = new String();
 		try {
-			urlPackRadars = radars.getUpdateURL();
+			urlPackRadars = p_radars.getUpdateURL();
 			// We check if we need to download PremiumPack
 			for (JCheckBox chk : p_checkList) { 
 				if (chk.isSelected()) {
 					GpsMap map = theGPS.getAllMaps().get(chk.getText());
 					if (map != null && map.getRadarsDbVersion() <= 0) {
-						urlPackRadars = radars.getInstallURL();
+						urlPackRadars = p_radars.getInstallURL();
 					}
 				}
 			}
