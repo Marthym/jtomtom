@@ -35,6 +35,7 @@ import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -57,6 +58,8 @@ public final class Tomtomax implements RadarsConnector {
 	 * Fichier de base présent dans les packages et installé sur le TT
 	 */
 	private static final String TOMTOMAX_DB_FILE = "maxipoi_radars.db";
+	
+	private static final Locale TOMTOMAX_COUNTRY = Locale.FRANCE;
 	
 	/**
 	 * Tags contenu dans le fichier pour identifier les différentes informations
@@ -290,5 +293,12 @@ public final class Tomtomax implements RadarsConnector {
 			return m_remoteInfos.get(TAG_PREMIUM);
 		}
 		return "";
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return this.getClass().getSimpleName()+" ["+TOMTOMAX_COUNTRY.getCountry()+"]";
 	}
 }

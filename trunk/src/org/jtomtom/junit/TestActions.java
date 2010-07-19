@@ -37,6 +37,7 @@ import org.jtomtom.gui.action.CheckUpdateAction;
 import org.jtomtom.gui.action.MajQuickFixAction;
 import org.jtomtom.gui.action.MajRadarsAction;
 import org.jtomtom.gui.action.SauvegardeAction;
+import org.jtomtom.radars.Tomtomax;
 
 import static org.junit.Assert.*;
 
@@ -75,7 +76,7 @@ public class TestActions {
 	}
 	
 	@Test
-	public void testMajRadarsAction() {
+	public void testMajRadarsTomtomaxAction() {
 		JTomtom.loadProperties();
 		GlobalPositioningSystem theGPS = null;
 		try {
@@ -85,11 +86,11 @@ public class TestActions {
 		}
 		assertNotNull(theGPS);
 		
-		MajRadarsAction action = new MajRadarsAction("test TTM");
+		MajRadarsAction action = new MajRadarsAction("test Tomtomax");
 		try {
 			List<JCheckBox> chkList = new LinkedList<JCheckBox>();
 			chkList.add(new JCheckBox("France", true));
-			action.miseAJourRadars(theGPS, chkList);
+			action.miseAJourRadars(theGPS, chkList, new Tomtomax());
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}

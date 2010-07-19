@@ -29,7 +29,9 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Proxy.Type;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.jar.Manifest;
@@ -298,6 +300,23 @@ public class JTomtom {
 	 */
 	public static final String getApplicationPropertie(String p_key) {
 		return m_props.getProperty(p_key);
+	}
+	
+	/**
+	 * Return all properties wich start with p_key in a Map
+	 * @param p_key	Prefix of properties you looking for
+	 * @return		Map (key, value) of properties
+	 */
+	public static final Map<String, String> getApplicationProperties(String p_key) {
+		Enumeration<?> keys = m_props.propertyNames();
+		Map<String, String> allProperties = new HashMap<String, String>();
+		while (keys.hasMoreElements()) {
+			String key = (String)keys.nextElement();
+			if (key.startsWith(p_key)) {
+				allProperties.put(key, m_props.getProperty(key));
+			}
+		}
+		return allProperties;
 	}
 	
 	/**
