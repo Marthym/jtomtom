@@ -1,5 +1,6 @@
 package org.jtomtom;
 
+import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.util.Map;
 
@@ -42,15 +43,15 @@ public interface RadarsConnector {
 	
 	
 	/**
-	 * Return the URL for download update radars pack
+	 * Return the connection needed for download update radars pack
 	 * @return
 	 */
-	public String getUpdateURL();
+	public HttpURLConnection getConnectionForUpdate();
 	
 	/**
-	 * Return the URL for download installation radars pack
+	 * Return the connection needed for download installation radars pack
 	 * @return
 	 */	
-	public String getInstallURL();
+	public HttpURLConnection getConnectionForInstall();
 	
 }

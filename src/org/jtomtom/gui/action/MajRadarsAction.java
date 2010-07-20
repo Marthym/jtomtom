@@ -29,10 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -44,7 +42,6 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.Constant;
 import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.GpsMap;
 import org.jtomtom.JTomtom;
@@ -136,40 +133,35 @@ public class MajRadarsAction extends AbstractAction {
 		// Téléchargement du fichier de mise à jour
 		LOGGER.info("Téléchargement de la mise à jour Radar ...");
 		
-		Map<String, String> infosTomtomax = p_radars.getRemoteDbInfos(JTomtom.getApplicationProxy());
-		if (infosTomtomax == null) {
-			throw new JTomtomException("org.jtomtom.errors.radars.tomtomaxfail");
+		boolean connStatus = p_radars.connexion(
+				JTomtom.getApplicationProxy(), 
+				JTomtom.getApplicationPropertie("org.tomtomax.user"), 
+				JTomtom.getApplicationPropertie("org.tomtomax.password"));
+		if (!connStatus) {
+			throw new JTomtomException("org.jtomtom.errors.radars.tomtomax.account");
 		}
 		
 		HttpURLConnection conn = null;
 		FileOutputStream fout = null;
 		InputStream is = null;
 		File radarsZipFile = null;
-		String urlPackRadars = new String();
 		try {
-			urlPackRadars = p_radars.getUpdateURL();
+			conn = p_radars.getConnectionForUpdate();
 			// We check if we need to download PremiumPack
 			for (JCheckBox chk : p_checkList) { 
 				if (chk.isSelected()) {
 					GpsMap map = theGPS.getAllMaps().get(chk.getText());
 					if (map != null && map.getRadarsDbVersion() <= 0) {
-						urlPackRadars = p_radars.getInstallURL();
+						conn = p_radars.getConnectionForInstall();
 					}
 				}
 			}
 						
-			if (LOGGER.isDebugEnabled()) LOGGER.debug("RadarsPOIURL = "+urlPackRadars);
-			URL tomtomQuickFixURL = new URL(urlPackRadars);
+			if (LOGGER.isDebugEnabled()) LOGGER.debug("RadarsPOIURL = "+conn.getURL());
 			
 			radarsZipFile = File.createTempFile("tomtomax_radars", ".zip");
 			radarsZipFile.deleteOnExit();
 			
-			conn = (HttpURLConnection) tomtomQuickFixURL.openConnection(JTomtom.getApplicationProxy());
-			
-			conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
-			conn.setDoInput(true);
-            conn.setUseCaches(false);
-            conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
             conn.connect();
 
             int currentSize = 0;

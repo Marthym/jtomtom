@@ -23,24 +23,23 @@ package org.jtomtom.junit;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
-import java.util.Map;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.JTomtom;
-import org.jtomtom.JTomtomException;
 import org.jtomtom.RadarsConnector;
+import org.jtomtom.radars.PdisDotEs;
 import org.jtomtom.radars.Tomtomax;
 
 import static org.junit.Assert.*;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
-public class TestTomtomax {
+public class TestPdisDotEs {
 	@BeforeClass
 	public static void initLogger() {
 		if (!Logger.getRootLogger().getAllAppenders().hasMoreElements())
@@ -50,51 +49,20 @@ public class TestTomtomax {
 	
 	@Test
 	public void testConnexion() {
-		RadarsConnector radars = new Tomtomax();
+		RadarsConnector radars = new PdisDotEs();
 		Proxy proxy = JTomtom.getApplicationProxy();
-		assertFalse(radars.connexion(proxy, "marthym", "prout"));
 		assertFalse(radars.connexion(proxy, "martm", "myhtram"));
-		assertTrue(radars.connexion(proxy, "marthym", "myhtram"));
-	}
-	
-	@Test
-	public void testGetRemoteDbInfos() {
-		RadarsConnector radars = new Tomtomax();
-		Proxy proxy = JTomtom.getApplicationProxy();
-		
-		Map<String, String> infos;
-		infos = radars.getRemoteDbInfos(proxy);
-		
-		assertNotNull(infos);
-		assertTrue(infos.containsKey(Tomtomax.TAG_DATE));
-		assertTrue(infos.containsKey(Tomtomax.TAG_RADARS));
-		assertTrue(infos.containsKey(Tomtomax.TAG_VERSION));
-	}
-	
-	@Test
-	public void testGetLocalDbInfos() {
-		RadarsConnector radars = new Tomtomax();
-		
-		Map<String, String> infos = null;
-		try {
-			infos = radars.getLocalDbInfos((new GlobalPositioningSystem()).getActiveMap().getPath());
-		} catch (JTomtomException e) {
-			fail(e.getLocalizedMessage());
-		}
-		
-		assertNotNull(infos);
-		assertTrue(infos.containsKey(Tomtomax.TAG_DATE));
-		assertTrue(infos.containsKey(Tomtomax.TAG_RADARS));
-		assertTrue(infos.containsKey(Tomtomax.TAG_VERSION));
+		assertFalse(radars.connexion(proxy, "marthym", "myhtram"));
+		assertTrue(radars.connexion(proxy, "jtomFrederic", "jtomtom159"));
 	}
 	
 	@Test
 	public void testGetConnectionForUpdate() {
-		RadarsConnector radars = new Tomtomax();
+		RadarsConnector radars = new PdisDotEs();
 		HttpURLConnection conn = radars.getConnectionForUpdate();
 		assertNull(conn);
 		
-		radars.connexion(JTomtom.getApplicationProxy(), "marthym", "myhtram");
+		radars.connexion(JTomtom.getApplicationProxy(), "jtomFrederic", "jtomtom159");
 		conn = radars.getConnectionForUpdate();
 		
 		assertNotNull(conn);
@@ -114,11 +82,11 @@ public class TestTomtomax {
 	
 	@Test
 	public void testGetConnectionForInstall() {
-		RadarsConnector radars = new Tomtomax();
+		RadarsConnector radars = new PdisDotEs();
 		HttpURLConnection conn = radars.getConnectionForUpdate();
 		assertNull(conn);
 		
-		radars.connexion(JTomtom.getApplicationProxy(), "marthym", "myhtram");
+		radars.connexion(JTomtom.getApplicationProxy(), "jtomFrederic", "jtomtom159");
 		conn = radars.getConnectionForInstall();
 		
 		assertNotNull(conn);
@@ -134,5 +102,13 @@ public class TestTomtomax {
 		}
 		assertEquals(HttpURLConnection.HTTP_OK, http_code);
 		assertTrue(http_size > 0);
+	}
+	
+	@Ignore
+	@Test
+	public void testToString() {
+		RadarsConnector radars = new Tomtomax();
+		assertNotNull(radars.toString());
+		assertTrue(radars.toString().length() > 0);
 	}
 }
