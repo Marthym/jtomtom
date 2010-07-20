@@ -27,15 +27,10 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses(value={
-	TestJarUtils.class,
-	TestJTTUtils.class,
-	TestGPS.class,
-	TestGpsMap.class,
-	TestActions.class,
-	TestJTomtomException.class,
-	AllConnectorsTests.class
+	TestTomtomax.class,
+	TestPdisDotEs.class
 })
-public class AllTests{
+public class AllConnectorsTests{
 	@BeforeClass
 	public static void initLogger() {
 		BasicConfigurator.configure();

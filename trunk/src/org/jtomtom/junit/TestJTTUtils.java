@@ -26,6 +26,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomTomUtils;
+import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.RadarsConnector;
 
@@ -57,6 +58,7 @@ public class TestJTTUtils {
 
 	@Test
 	public void testInstantiateRadarsConnector() {
+		JTomtom.loadProperties();
 		RadarsConnector radars = null;
 		try {
 			radars = JTomTomUtils.instantiateRadarConnector();
@@ -68,6 +70,7 @@ public class TestJTTUtils {
 	
 	@Test
 	public void testGetAllRadarsConnectors() {
+		JTomtom.loadProperties();
 		RadarsConnector[] radars = null;
 		radars = JTomTomUtils.getAllRadarsConnectors();
 		assertNotNull(radars);

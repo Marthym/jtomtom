@@ -70,6 +70,8 @@ public final class Tomtomax implements RadarsConnector {
 	
 	private Map<String, String> m_localInfos;
 	private Map<String, String> m_remoteInfos;
+	private boolean m_connected = false;
+	private Proxy m_proxy = Proxy.NO_PROXY;
 	
 	/* (non-Javadoc)
 	 * @see org.jtomtom.RadarsConnector#getRemoteDbInfos(java.net.Proxy)
@@ -207,6 +209,7 @@ public final class Tomtomax implements RadarsConnector {
 	 * @see org.jtomtom.RadarsConnector#connexion(java.net.Proxy, java.lang.String, java.lang.String)
 	 */
 	public final boolean connexion(Proxy p_proxy, String p_user, String p_password) {
+		m_proxy = p_proxy;
 		Map<String, String> cookies = null;
 		String urlParameters = "";
 		try {
@@ -223,7 +226,7 @@ public final class Tomtomax implements RadarsConnector {
 		DataOutputStream wr = null;
 		try {
 			URL tomtomaxUrl = new URL(TOMTOMAX_LOGIN_URL);
-			conn = (HttpURLConnection) tomtomaxUrl.openConnection(p_proxy);
+			conn = (HttpURLConnection) tomtomaxUrl.openConnection(m_proxy);
 			
 			conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
 	        conn.setUseCaches(false);
@@ -269,26 +272,67 @@ public final class Tomtomax implements RadarsConnector {
 				!cookies.isEmpty() && 
 				cookies.containsKey(TOMTOMAX_COOKIE_CONNECT) && 
 				!cookies.get(TOMTOMAX_COOKIE_CONNECT).equals("1")) {
+			m_connected = true;
+			
+			getRemoteDbInfos(m_proxy);
 			return true;
 		}
 		
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jtomtom.RadarsConnector#getUpdateURL()
+	/**
+	 * Init a HttpURLConnection with cookie and all needed parameter for download update and install file
+	 * @param p_url		URL of the file to download
+	 * @param p_post	POST parameter needed for get the good file
+	 * @return			The connection
 	 */
-	public final String getUpdateURL() {
+	private HttpURLConnection initDownloadConnection(String p_url) {
+		if (!m_connected) {
+			LOGGER.error("You must connect before !!");
+			return null;
+		}
+		
+		HttpURLConnection conn = null;
+		URL updateURL = null;
+		try {
+			updateURL = new URL(p_url);
+			conn = (HttpURLConnection) updateURL.openConnection(m_proxy);
+	        			
+			conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
+			conn.setDoInput(true);
+            conn.setUseCaches(false);
+            conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
+	        
+		} catch (MalformedURLException e) {
+			LOGGER.error(e.getLocalizedMessage());
+			if (LOGGER.isDebugEnabled()) e.printStackTrace();
+			return null;
+			
+		} catch (IOException e) {
+			LOGGER.error(e.getLocalizedMessage());
+			if (LOGGER.isDebugEnabled()) e.printStackTrace();
+			return null;
+		}
+				
+		return conn;
+	}
+	
+	/**
+	 * Get the URL off update file
+	 * @return
+	 */
+	private final String getUpdateURL() {
 		if (m_remoteInfos != null && m_remoteInfos.containsKey(TAG_BASIC)) {
 			return m_remoteInfos.get(TAG_BASIC);
 		}
 		return "";
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.jtomtom.RadarsConnector#getInstallURL()
-	 */
-	public final String getInstallURL() {
+	/**
+	 * Get the URL off install file
+	 * @return
+	 */	private final String getInstallURL() {
 		if (m_remoteInfos != null && m_remoteInfos.containsKey(TAG_PREMIUM)) {
 			return m_remoteInfos.get(TAG_PREMIUM);
 		}
@@ -300,5 +344,15 @@ public final class Tomtomax implements RadarsConnector {
 	 */
 	public String toString() {
 		return this.getClass().getSimpleName()+" ["+TOMTOMAX_COUNTRY.getCountry()+"]";
+	}
+
+	@Override
+	public HttpURLConnection getConnectionForUpdate() {
+		return initDownloadConnection(getUpdateURL());
+	}
+
+	@Override
+	public HttpURLConnection getConnectionForInstall() {
+		return initDownloadConnection(getInstallURL());
 	}
 }
