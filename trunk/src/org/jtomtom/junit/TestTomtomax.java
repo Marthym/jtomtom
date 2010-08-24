@@ -23,7 +23,7 @@ package org.jtomtom.junit;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
-import java.util.Map;
+import java.util.Date;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -31,8 +31,9 @@ import org.apache.log4j.Logger;
 import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
-import org.jtomtom.RadarsConnector;
-import org.jtomtom.radars.Tomtomax;
+import org.jtomtom.connector.POIsDbInfos;
+import org.jtomtom.connector.RadarsConnector;
+import org.jtomtom.connector.radars.Tomtomax;
 
 import static org.junit.Assert.*;
 
@@ -62,20 +63,20 @@ public class TestTomtomax {
 		RadarsConnector radars = new Tomtomax();
 		Proxy proxy = JTomtom.getApplicationProxy();
 		
-		Map<String, String> infos;
+		POIsDbInfos infos;
 		infos = radars.getRemoteDbInfos(proxy);
 		
 		assertNotNull(infos);
-		assertTrue(infos.containsKey(Tomtomax.TAG_DATE));
-		assertTrue(infos.containsKey(Tomtomax.TAG_RADARS));
-		assertTrue(infos.containsKey(Tomtomax.TAG_VERSION));
+		assertTrue(infos.getLastUpdateDate() != new Date(0));
+		assertTrue(infos.getPoisNumber() >= 0);
+		assertFalse(infos.getDbVersion().equals(POIsDbInfos.UNKNOWN));
 	}
 	
 	@Test
 	public void testGetLocalDbInfos() {
 		RadarsConnector radars = new Tomtomax();
 		
-		Map<String, String> infos = null;
+		POIsDbInfos infos = null;
 		try {
 			infos = radars.getLocalDbInfos((new GlobalPositioningSystem()).getActiveMap().getPath());
 		} catch (JTomtomException e) {
@@ -83,9 +84,9 @@ public class TestTomtomax {
 		}
 		
 		assertNotNull(infos);
-		assertTrue(infos.containsKey(Tomtomax.TAG_DATE));
-		assertTrue(infos.containsKey(Tomtomax.TAG_RADARS));
-		assertTrue(infos.containsKey(Tomtomax.TAG_VERSION));
+		assertTrue(infos.getLastUpdateDate() != new Date(0));
+		assertTrue(infos.getPoisNumber() >= 0);
+		assertFalse(infos.getDbVersion().equals(POIsDbInfos.UNKNOWN));
 	}
 	
 	@Test

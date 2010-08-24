@@ -25,14 +25,10 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.BoxLayout;
@@ -54,7 +50,8 @@ import org.jtomtom.InitialErrorRun;
 import org.jtomtom.JTomTomUtils;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
-import org.jtomtom.RadarsConnector;
+import org.jtomtom.connector.POIsDbInfos;
+import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.gui.action.ActionResult;
 import org.jtomtom.gui.action.MajRadarsAction;
 import org.jtomtom.gui.utilities.JTTabPanel;
@@ -76,7 +73,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	private List<JCheckBox> mapsCheckList;
 	private JComboBox radarSiteList;
 	
-	private Map<String, String> remoteRadarsInfos;
+	private POIsDbInfos remoteRadarsInfos;
 
 	/**
 	 * @author marthym
@@ -271,21 +268,13 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 			}
 		}
 		
-		// On formate la date récupérer du server TTM
-		DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy"); 
-		Date remoteDbDate = null;
-		try {
-			remoteDbDate = formatter.parse(remoteRadarsInfos.get(RadarsConnector.TAG_DATE));
-		} catch (ParseException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-		}
+		//Date remoteDbDate = remoteRadarsInfos.getLastUpdateDate();
 		
 		if (JTomtom.getTheGPS().getActiveMap().getRadarsDbVersion() >= 0) {
 			// Les radars sont déjà installé
 			infos.append("<html><table>");
 			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.availableupdate")).append(" : </strong></td><td><i>")
-					.append(dateFormat.format(remoteDbDate))
+					.append(dateFormat.format(remoteRadarsInfos.getLastUpdateDate()))
 					.append("</i></td></tr>");
 			if (JTomtom.getTheGPS().getActiveMap().getRadarsDbDate() != null) {
 				infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
@@ -297,7 +286,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>")
 				.append(JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
 				.append("</i> [")
-				.append(Integer.parseInt(remoteRadarsInfos.get(RadarsConnector.TAG_RADARS)) - JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
+				.append(remoteRadarsInfos.getPoisNumber() - JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
 				.append(m_rbControls.getString("org.jtomtom.tab.radars.missingradar")).append("]</td></tr>");
 			infos.append("</table>");
 			infos.append("<br/><font size=\"2\"><p><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))

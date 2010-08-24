@@ -1,8 +1,9 @@
-package org.jtomtom;
+package org.jtomtom.connector;
 
 import java.net.HttpURLConnection;
 import java.net.Proxy;
-import java.util.Map;
+
+import org.jtomtom.JTomtomException;
 
 /**
  * Interface for connect different radars database site 
@@ -23,14 +24,14 @@ public interface RadarsConnector {
 	 * @return	HashMap with informations
 	 * @throws JTomtomException 
 	 */
-	public Map<String, String> getLocalDbInfos(String m_path) throws JTomtomException;
+	public POIsDbInfos getLocalDbInfos(String m_path) throws JTomtomException;
 	
 	/**
 	 * Get the radars information from the remote site database
 	 * @param	Proxy to use for connexion
 	 * @return	HashMap with informations
 	 */
-	public Map<String, String> getRemoteDbInfos(Proxy proxy);
+	public POIsDbInfos getRemoteDbInfos(Proxy proxy);
 
 	/**
 	 * Connect to the remote web site if necessary

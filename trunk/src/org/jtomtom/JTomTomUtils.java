@@ -31,6 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.connector.RadarsConnector;
 
 public final class JTomTomUtils {
 	public static final Logger LOGGER = Logger.getLogger(JTomTomUtils.class);

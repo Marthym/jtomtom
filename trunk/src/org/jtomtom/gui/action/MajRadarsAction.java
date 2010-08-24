@@ -46,7 +46,7 @@ import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.GpsMap;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
-import org.jtomtom.RadarsConnector;
+import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.gui.PatienterDialog;
 import org.jtomtom.gui.TabRadars;
 
