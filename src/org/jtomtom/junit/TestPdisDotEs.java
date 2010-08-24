@@ -23,19 +23,20 @@ package org.jtomtom.junit;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
+import java.util.Map;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.JTomtom;
+import org.jtomtom.JTomtomException;
 import org.jtomtom.RadarsConnector;
 import org.jtomtom.radars.PdisDotEs;
-import org.jtomtom.radars.Tomtomax;
 
 import static org.junit.Assert.*;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -54,6 +55,31 @@ public class TestPdisDotEs {
 		assertFalse(radars.connexion(proxy, "martm", "myhtram"));
 		assertFalse(radars.connexion(proxy, "marthym", "myhtram"));
 		assertTrue(radars.connexion(proxy, "jtomFrederic", "jtomtom159"));
+	}
+	
+	@Test
+	public void testGetRemoteDbInfos() {
+		RadarsConnector radars = new PdisDotEs();
+		Proxy proxy = JTomtom.getApplicationProxy();
+		
+		Map<String, String> infos;
+		infos = radars.getRemoteDbInfos(proxy);
+		
+		assertNotNull(infos);
+	}
+	
+	@Test
+	public void testGetLocalDbInfos() {
+		RadarsConnector radars = new PdisDotEs();
+		
+		Map<String, String> infos = null;
+		try {
+			infos = radars.getLocalDbInfos((new GlobalPositioningSystem()).getActiveMap().getPath());
+		} catch (JTomtomException e) {
+			fail(e.getLocalizedMessage());
+		}
+		
+		assertNotNull(infos);
 	}
 	
 	@Test
@@ -104,10 +130,9 @@ public class TestPdisDotEs {
 		assertTrue(http_size > 0);
 	}
 	
-	@Ignore
 	@Test
 	public void testToString() {
-		RadarsConnector radars = new Tomtomax();
+		RadarsConnector radars = new PdisDotEs();
 		assertNotNull(radars.toString());
 		assertTrue(radars.toString().length() > 0);
 	}
