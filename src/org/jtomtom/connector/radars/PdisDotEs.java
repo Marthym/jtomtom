@@ -18,7 +18,7 @@
  *  Frédéric Combes can be reached at:
  *  <belz12@yahoo.fr> 
  */
-package org.jtomtom.radars;
+package org.jtomtom.connector.radars;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -32,12 +32,12 @@ import java.net.URLEncoder;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.Constant;
 import org.jtomtom.JTomtomException;
-import org.jtomtom.RadarsConnector;
+import org.jtomtom.connector.POIsDbInfos;
+import org.jtomtom.connector.RadarsConnector;
 
 /**
  * @author marthym
@@ -62,7 +62,7 @@ public class PdisDotEs implements RadarsConnector {
 	 * @see org.jtomtom.RadarsConnector#getLocalDbInfos(java.lang.String)
 	 */
 	@Override
-	public Map<String, String> getLocalDbInfos(String m_path)
+	public POIsDbInfos getLocalDbInfos(String m_path)
 			throws JTomtomException {
 		// TODO Auto-generated method stub
 		return null;
@@ -72,7 +72,7 @@ public class PdisDotEs implements RadarsConnector {
 	 * @see org.jtomtom.RadarsConnector#getRemoteDbInfos(java.net.Proxy)
 	 */
 	@Override
-	public Map<String, String> getRemoteDbInfos(Proxy proxy) {
+	public POIsDbInfos getRemoteDbInfos(Proxy proxy) {
 		// TODO Auto-generated method stub
 		return null;
 	}

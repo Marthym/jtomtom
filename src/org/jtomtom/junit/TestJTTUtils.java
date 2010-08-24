@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 import org.jtomtom.JTomTomUtils;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
-import org.jtomtom.RadarsConnector;
+import org.jtomtom.connector.RadarsConnector;
 
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;

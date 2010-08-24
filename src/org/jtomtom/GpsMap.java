@@ -25,18 +25,16 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 import net.sf.jcablib.CabFile;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.connector.POIsDbInfos;
+import org.jtomtom.connector.RadarsConnector;
 
 /**
  * Class for map management
@@ -247,27 +245,16 @@ public class GpsMap {
 	 */
 	public void readRadarsInfos() throws JTomtomException {
 		RadarsConnector radars = JTomTomUtils.instantiateRadarConnector();
-		Map<String, String> infos = radars.getLocalDbInfos(m_path);
-		try {
-			DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-			m_radarsDbDate = formatter.parse(infos.get(RadarsConnector.TAG_DATE));
-		} catch (ParseException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-		}
+		POIsDbInfos infos = radars.getLocalDbInfos(m_path);
+		m_radarsDbDate = infos.getLastUpdateDate();
+		m_radarsNombre = infos.getPoisNumber();
 		
-		try { m_radarsDbVersion = Integer.parseInt(infos.get(RadarsConnector.TAG_VERSION));} 
+		try { m_radarsDbVersion = Integer.parseInt(infos.getDbVersion());} 
 		catch (NumberFormatException e) {
 			LOGGER.error(e.getLocalizedMessage());
 			if (LOGGER.isDebugEnabled()) e.printStackTrace();
 		}
 		
-		try { m_radarsNombre = Integer.parseInt(infos.get(RadarsConnector.TAG_RADARS)); } 
-		catch (NumberFormatException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-		}
-
 	}
 	
 	/**

@@ -33,11 +33,11 @@ import org.apache.log4j.Logger;
 import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
+import org.jtomtom.connector.radars.Tomtomax;
 import org.jtomtom.gui.action.CheckUpdateAction;
 import org.jtomtom.gui.action.MajQuickFixAction;
 import org.jtomtom.gui.action.MajRadarsAction;
 import org.jtomtom.gui.action.SauvegardeAction;
-import org.jtomtom.radars.Tomtomax;
 
 import static org.junit.Assert.*;
 
