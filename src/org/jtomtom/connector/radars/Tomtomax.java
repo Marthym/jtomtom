@@ -101,7 +101,7 @@ public final class Tomtomax implements RadarsConnector {
 					String line;
 					while((line = rd.readLine()) != null) {
 						if (line.startsWith(TAG_DATE)) {
-							m_remoteInfos.setLastUpdateDate("MM/dd/yyyy", line.substring(TAG_DATE.length()).trim());
+							m_remoteInfos.setLastUpdateDate("dd/MM/yyyy", line.substring(TAG_DATE.length()).trim());
 							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+m_remoteInfos.getLastUpdateDate());
 							
 						} else if (line.startsWith(TAG_VERSION)) {
@@ -170,7 +170,7 @@ public final class Tomtomax implements RadarsConnector {
 				String line;
 				while ((line = buff.readLine()) != null) {
 					if (line.startsWith("date=")) {
-						m_localInfos.setLastUpdateDate("MM/dd/yyyy", line.substring(5));
+						m_localInfos.setLastUpdateDate("dd/MM/yyyy", line.substring(5));
 						if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+" = "+m_localInfos.getLastUpdateDate());
 						
 					} else if (line.startsWith("vers=")) {
@@ -313,15 +313,22 @@ public final class Tomtomax implements RadarsConnector {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		return this.getClass().getSimpleName()+" ["+TOMTOMAX_COUNTRY.getCountry()+"]";
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jtomtom.connector.RadarsConnector#getConnectionForUpdate()
+	 */
 	@Override
 	public HttpURLConnection getConnectionForUpdate() {
 		return initDownloadConnection(m_basicUpdateURL);			
 	}
 
+	/* (non-Javadoc)
+	 * @see org.jtomtom.connector.RadarsConnector#getConnectionForInstall()
+	 */
 	@Override
 	public HttpURLConnection getConnectionForInstall() {
 		return initDownloadConnection(m_premiumUpdateURL);

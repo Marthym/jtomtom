@@ -33,12 +33,19 @@ import org.apache.log4j.Logger;
  */
 public class POIsDbInfos {
 	public final static Logger LOGGER = Logger.getLogger(POIsDbInfos.class);
+	
+	/**
+	 * Default value for the DB Version
+	 */
 	public final static String UNKNOWN = "Unknown";
 	
 	private Date m_lastUpdateDate;
 	private int m_poisNumber;
 	private String m_dbVersion;
 	
+	/**
+	 * Constructor of initialisation
+	 */
 	public POIsDbInfos() {
 		m_lastUpdateDate = new Date(0);
 		m_poisNumber = -1;
@@ -53,6 +60,11 @@ public class POIsDbInfos {
 		this.m_lastUpdateDate = m_lastUpdateDate;
 	}
 
+	/**
+	 * Set the last modified date of the POIs DB
+	 * @param p_format	Date format
+	 * @param p_date	Date as String
+	 */
 	public void setLastUpdateDate(String p_format, String p_date) {
 		try {
 			this.m_lastUpdateDate = (new SimpleDateFormat(p_format)).parse(p_date);
