@@ -62,6 +62,7 @@ public class TestPdisDotEs {
 	public void testGetRemoteDbInfos() {
 		RadarsConnector radars = new PdisDotEs();
 		Proxy proxy = JTomtom.getApplicationProxy();
+		assertTrue(radars.connexion(proxy, "jtomFrederic", "jtomtom159"));
 		
 		POIsDbInfos infos;
 		infos = radars.getRemoteDbInfos(proxy);

@@ -20,8 +20,11 @@
  */
 package org.jtomtom.connector.radars;
 
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
@@ -51,6 +54,9 @@ public class PdisDotEs implements RadarsConnector {
 	private static final String PDISES_UPDATE_POST = "fichero=actualizacion_radares_tomtom.zip";
 	private static final String PDISES_INSTALL_URL = "http://www.pdis.es/paginas/terminos_packs.php?fich=9";
 	private static final String PDISES_INSTALL_POST = "fichero=pack_radares_tomtom_v6.zip";
+	private static final String PDISES_DOWN_PACKS = "http://www.pdis.es/paginas/down_packs.php";
+	
+	private static final String PDISES_START_DATE = "<span class=\"textobase5\">&Uacute;ltima actualizaci&oacute;n: </span><span class=\"textobase6\">";
 	
 	private static final Locale PDISES_COUNTRY = new Locale("es", "ES");
 	
@@ -73,8 +79,53 @@ public class PdisDotEs implements RadarsConnector {
 	 */
 	@Override
 	public POIsDbInfos getRemoteDbInfos(Proxy proxy) {
-		// TODO Auto-generated method stub
-		return null;
+		if (m_connexionCookies == null) {
+			LOGGER.error("You must connect before !!");
+			return null;
+		}
+		
+		// Initiate connexion
+		HttpURLConnection conn = initDownloadConnection(PDISES_DOWN_PACKS, "");
+		
+		// Test connexion response code
+		int connResponse = -1;
+		try {
+			connResponse = conn.getResponseCode();
+		} catch (IOException e) {
+			return null;
+		}
+		
+		if (connResponse != HttpURLConnection.HTTP_OK) {
+			return null;
+		}
+		
+		// Looking for package date une the response content.
+		POIsDbInfos infos = new POIsDbInfos();
+		InputStream is = null;
+		BufferedReader rd = null;
+		try {
+			is = conn.getInputStream();
+			rd = new BufferedReader(new InputStreamReader(is));
+			String line;
+			boolean nextLine = false;
+			while((line = rd.readLine()) != null) {
+				if (line.trim().startsWith(PDISES_START_DATE)) {
+					nextLine = true;
+					continue;
+				}
+				if (nextLine) {
+					infos.setLastUpdateDate("dd/MM/yyyy", line.replaceAll("\\<.*?>","").replaceAll("\\&.*?;","").trim());
+					break;
+				}
+			}
+			
+		} catch (IOException e) {
+			LOGGER.warn(e.getLocalizedMessage());
+			if (LOGGER.isDebugEnabled()) LOGGER.debug(e);
+			return null;
+		}
+		
+		return infos;
 	}
 
 	/* (non-Javadoc)
