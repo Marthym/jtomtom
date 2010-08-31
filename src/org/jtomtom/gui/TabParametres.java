@@ -25,6 +25,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
@@ -39,6 +41,8 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.jtomtom.Constant;
 import org.jtomtom.JTomtom;
 import org.jtomtom.gui.utilities.JTTabPanel;
 import org.jtomtom.gui.utilities.SpringUtilities;
@@ -49,7 +53,7 @@ import org.jtomtom.gui.utilities.SpringUtilities;
  */
 public class TabParametres extends JTTabPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
-	//private static final Logger LOGGER = Logger.getLogger(TabParametres.class);
+	private static final Logger LOGGER = Logger.getLogger(TabParametres.class);
 	
 	private JTextField 	m_proxyHost;
 	private JTextField 	m_proxyPort;
@@ -144,7 +148,7 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		// - Type de proxy
 		String[] proxyTypeStrings = {"DIRECT", "HTTP", "SOCKS"};
 		m_proxyType = new JComboBox(proxyTypeStrings);
-		m_proxyType.setSelectedIndex(Arrays.binarySearch(proxyTypeStrings, JTomtom.getApplicationPropertie("net.proxy.type")));
+		m_proxyType.setSelectedIndex(Arrays.binarySearch(proxyTypeStrings, JTomtom.theProperties.getUserProperty("net.proxy.type")));
 		m_proxyType.setPrototypeDisplayValue("DIRECTI");	// Initialise la taille de la combo
 
 		// - Serveur Proxy
@@ -152,14 +156,14 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		m_proxyHost.setColumns(15);
 		m_proxyHost.setPreferredSize(new Dimension(0,25));
 		m_proxyHost.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.proxy.hint"));
-		m_proxyHost.setText(JTomtom.getApplicationPropertie("net.proxy.name"));
+		m_proxyHost.setText(JTomtom.theProperties.getUserProperty("net.proxy.name"));
 
 		// - Port du proxy
 		m_proxyPort = new JTextField();
 		m_proxyPort.setColumns(4);
 		m_proxyPort.setPreferredSize(new Dimension(0,25));
 		m_proxyPort.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.port.hint"));
-		m_proxyPort.setText(JTomtom.getApplicationPropertie("net.proxy.port"));
+		m_proxyPort.setText(JTomtom.theProperties.getUserProperty("net.proxy.port"));
 	}
 	
 	/**
@@ -171,14 +175,14 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		m_ttmaxUser.setColumns(20);
 		m_ttmaxUser.setPreferredSize(new Dimension(0,25));
 		m_ttmaxUser.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.user.hint"));
-		m_ttmaxUser.setText(JTomtom.getApplicationPropertie("org.tomtomax.user"));
+		m_ttmaxUser.setText(JTomtom.theProperties.getUserProperty("org.tomtomax.user"));
 
 		// - Password Tomtomax
 		m_ttmaxPassword = new JPasswordField();
 		m_ttmaxPassword.setColumns(20);
 		m_ttmaxPassword.setPreferredSize(new Dimension(0,25));
 		m_ttmaxPassword.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.password.hint"));
-		m_ttmaxPassword.setText(JTomtom.getApplicationPropertie("org.tomtomax.password"));
+		m_ttmaxPassword.setText(JTomtom.theProperties.getUserProperty("org.tomtomax.password"));
 	}
 
 	/**
@@ -191,7 +195,7 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		m_logLevel.setSelectedIndex(
 				Arrays.binarySearch(
 						logLevelStrings, 
-						Level.toLevel(JTomtom.getApplicationPropertie("org.jtomtom.logLevel")).toString()));
+						Level.toLevel(JTomtom.theProperties.getUserProperty("org.jtomtom.logLevel")).toString()));
 		m_logLevel.setPrototypeDisplayValue("DEBUGI");
 		
 		// - Fichier de log
@@ -199,7 +203,7 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		m_logFile.setColumns(17);
 		m_logFile.setPreferredSize(new Dimension(0,25));
 		m_logFile.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.border.log.hint"));
-		m_logFile.setText(JTomtom.getApplicationPropertie("org.jtomtom.logFile"));
+		m_logFile.setText(JTomtom.theProperties.getUserProperty("org.jtomtom.logFile"));
 	}
 
 	/**
@@ -210,23 +214,34 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		m_checkUpdate.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.checkbox.update.hint"));
 		
 		// Initialisation
-		boolean checkUpdate = "true".equals(JTomtom.getApplicationPropertie("org.jtomtom.checkupdate"));
+		boolean checkUpdate = "true".equals(JTomtom.theProperties.getUserProperty("org.jtomtom.checkupdate"));
 		m_checkUpdate.setSelected(checkUpdate);
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == m_enregistrer) {
-			JTomtom.setApplicationPropertie("net.proxy.type", ((String)m_proxyType.getSelectedItem()));
-			JTomtom.setApplicationPropertie("net.proxy.name", m_proxyHost.getText());
-			JTomtom.setApplicationPropertie("net.proxy.port", m_proxyPort.getText());
-			JTomtom.setApplicationPropertie("org.jtomtom.logLevel", ((String)m_logLevel.getSelectedItem()));
-			JTomtom.setApplicationPropertie("org.jtomtom.logFile", m_logFile.getText());
-			JTomtom.setApplicationPropertie("org.tomtomax.user", m_ttmaxUser.getText());
-			JTomtom.setApplicationPropertie("org.tomtomax.password", m_ttmaxPassword.getText());
-			JTomtom.setApplicationPropertie("org.jtomtom.checkupdate", Boolean.toString(m_checkUpdate.isSelected()));
+	public void actionPerformed(ActionEvent event) {
+		if (event.getSource() == m_enregistrer) {
+			JTomtom.theProperties.setUserProperty("net.proxy.type", ((String)m_proxyType.getSelectedItem()));
+			JTomtom.theProperties.setUserProperty("net.proxy.name", m_proxyHost.getText());
+			JTomtom.theProperties.setUserProperty("net.proxy.port", m_proxyPort.getText());
+			JTomtom.theProperties.setUserProperty("org.jtomtom.logLevel", ((String)m_logLevel.getSelectedItem()));
+			JTomtom.theProperties.setUserProperty("org.jtomtom.logFile", m_logFile.getText());
+			JTomtom.theProperties.setUserProperty("org.tomtomax.user", m_ttmaxUser.getText());
+			JTomtom.theProperties.setUserProperty("org.tomtomax.password", m_ttmaxPassword.getText());
+			JTomtom.theProperties.setUserProperty("org.jtomtom.checkupdate", Boolean.toString(m_checkUpdate.isSelected()));
 			
-			JTomtom.saveApplicationProperties();
+			try {
+				JTomtom.theProperties.storeUserProperties(
+						new File(System.getProperty("user.home"), Constant.JTOMTOM_USER_PROPERTIES));
+				
+			} catch (IOException e) { 
+				LOGGER.error("An error occurred while writing properties file ("+System.getProperty("user.home")+File.separator+Constant.JTOMTOM_USER_PROPERTIES+") !");
+				JOptionPane.showMessageDialog(this, 
+						m_rbControls.getString("org.jtomtom.errors.io.filewriting"), 
+						m_rbControls.getString("org.jtomtom.tab.parameters.dialog.save.title"), JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
 			JTomtom.loadProperties();
 			for (Component currTab : getParent().getComponents()) {
 				if (TabSauvegarde.class.isAssignableFrom(currTab.getClass())) {

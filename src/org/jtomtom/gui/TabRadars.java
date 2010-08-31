@@ -263,8 +263,8 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 			// We try to connect before all
 			boolean isConnected = radars.connexion(
 									JTomtom.getApplicationProxy(), 
-									JTomtom.getApplicationPropertie("org.tomtomax.user"), 
-									JTomtom.getApplicationPropertie("org.tomtomax.password"));
+									JTomtom.theProperties.getUserProperty("org.tomtomax.user"), 
+									JTomtom.theProperties.getUserProperty("org.tomtomax.password"));
 			if (!isConnected) {
 				result.exception = new JTomtomException("org.jtomtom.errors.radars.tomtomax.account");
 				LOGGER.debug("Erreur lors de la connexion au site "+radars.toString()+" pour récupérer les informations distantes");
@@ -314,8 +314,8 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		// - Enfin, on teste la connexion à Tomtomax pour vérifier que le user ai un compte
 		result.status = radars.connexion(
 				JTomtom.getApplicationProxy(), 
-				JTomtom.getApplicationPropertie("org.tomtomax.user"), 
-				JTomtom.getApplicationPropertie("org.tomtomax.password"));
+				JTomtom.theProperties.getUserProperty("org.tomtomax.user"), 
+				JTomtom.theProperties.getUserProperty("org.tomtomax.password"));
 		if (!result.status) {
 			result.exception = new JTomtomException("org.jtomtom.errors.radars.tomtomax.account");
 			LOGGER.debug("Erreur de compte Tomtomax ...");

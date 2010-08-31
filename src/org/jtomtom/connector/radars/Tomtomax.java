@@ -216,8 +216,8 @@ public final class Tomtomax implements RadarsConnector {
 			    "&password=" + URLEncoder.encode(p_password, "UTF-8") +
 			    "&login=Connexion"+
 			    "&redirect=index.php";
-		} catch (UnsupportedEncodingException e1) {
-			e1.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 
 		HttpURLConnection conn = null;

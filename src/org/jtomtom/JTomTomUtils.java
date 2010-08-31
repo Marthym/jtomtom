@@ -132,7 +132,7 @@ public final class JTomTomUtils {
 		RadarsConnector radars;
 		try {
 			LOGGER.debug("Create connector instante for Locale "+localeSite);
-			connector = Class.forName(JTomtom.getApplicationPropertie("org.jtomtom.radars.connector."+localeSite));
+			connector = Class.forName(JTomtom.theProperties.getApplicationProperty("org.jtomtom.radars.connector."+localeSite));
 			
 			if (RadarsConnector.class.isAssignableFrom(connector)) {
 				radars = (RadarsConnector) connector.newInstance();
@@ -158,7 +158,7 @@ public final class JTomTomUtils {
 	 * @return	Array of RadarsConnector
 	 */
 	public static final RadarsConnector[] getAllRadarsConnectors() {
-		Map<String, String> connectorList = JTomtom.getApplicationProperties("org.jtomtom.radars.connector");
+		Map<String, String> connectorList = JTomtom.theProperties.getApplicationProperties("org.jtomtom.radars.connector");
 		RadarsConnector[] result = new RadarsConnector[connectorList.size()];
 		int i = 0;
 		
