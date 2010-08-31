@@ -21,18 +21,12 @@
 package org.jtomtom;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Proxy.Type;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.jar.Manifest;
 
@@ -59,21 +53,16 @@ public class JTomtom {
 	
 	private static GlobalPositioningSystem theGPS;
 	private static Proxy m_proxy = null;
-	
-	/**
-	 * Global application properties
-	 */
-	private static Properties m_props;
-	
-	/**
-	 * User specific properties save in user home directory
-	 */
-	private static Properties m_userProps;
-
+		
 	private static String m_versionNumber = "0.x";
 	private static String m_versionDate = (new java.util.Date()).toString();
 	
 	public static ResourceBundle theMainTranslator;
+
+	/**
+	 * Global application properties
+	 */
+	public static JTomtomProperties theProperties;
 
 	/**
 	 * @param args
@@ -107,7 +96,7 @@ public class JTomtom {
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
 				// Changement du Look And Feel
-				changeLookAndFeel(m_props.getProperty("org.jtomtom.lookandfeel", UIManager.getSystemLookAndFeelClassName()));				
+				changeLookAndFeel(theProperties.getUserProperty("org.jtomtom.lookandfeel", UIManager.getSystemLookAndFeelClassName()));				
 			}
 		});
 		
@@ -144,7 +133,7 @@ public class JTomtom {
 		});
 
 		// On vérifie les mises à jour si nécessaire
-		if ("true".equals(m_props.getProperty("org.jtomtom.checkupdate"))) {
+		if ("true".equals(theProperties.getUserProperty("org.jtomtom.checkupdate"))) {
 			SwingUtilities.invokeLater(new Runnable(){
 				public void run(){
 					CheckUpdateAction check = new CheckUpdateAction();
@@ -179,22 +168,22 @@ public class JTomtom {
 	 * @return
 	 */
 	public static Proxy getApplicationProxy() {
-		if (m_props == null) {
+		if (theProperties == null) {
 			loadProperties();
 		}
 		
 		if (m_proxy == null) {
-			if ("HTTP".equals(m_props.getProperty("net.proxy.type"))) {
+			if ("HTTP".equals(theProperties.getUserProperty("net.proxy.type"))) {
 				m_proxy = new Proxy(Type.HTTP, 
                         new InetSocketAddress(
-                                        m_props.getProperty("net.proxy.name"), 
-                                        Integer.parseInt(m_props.getProperty("net.proxy.port")) ));
+                                        theProperties.getUserProperty("net.proxy.name"), 
+                                        Integer.parseInt(theProperties.getUserProperty("net.proxy.port")) ));
 
-			} else if ("SOCKS".equals(m_props.getProperty("net.proxy.type"))) {
+			} else if ("SOCKS".equals(theProperties.getUserProperty("net.proxy.type"))) {
 				m_proxy = new Proxy(Type.SOCKS, 
                         new InetSocketAddress(
-                                        m_props.getProperty("net.proxy.name"), 
-                                        Integer.parseInt(m_props.getProperty("net.proxy.port")) ));
+                                        theProperties.getUserProperty("net.proxy.name"), 
+                                        Integer.parseInt(theProperties.getUserProperty("net.proxy.port")) ));
 					
 			} else {
 				m_proxy = Proxy.NO_PROXY;
@@ -223,46 +212,25 @@ public class JTomtom {
 	/**
 	 * Charge les propriétées utilisateur depuis le fichier dans le home
 	 */
-	//TODO : Déporter la gestion des propriétées dans une classe séparée
 	public static void loadProperties() {
-		LOGGER.info("Chargement des propriétés");
+		LOGGER.info("Loading properties ...");
 		
 		// - Chargements des propriétes interne
-		m_props = new Properties();
+		theProperties = new JTomtomProperties();
 		try {
-			m_props.load(JTomtom.class.getResourceAsStream(Constant.JTOMTOM_PROPERTIES));
+			theProperties.load(Constant.JTOMTOM_PROPERTIES, 
+					System.getProperty("user.home")+File.separator+Constant.JTOMTOM_USER_PROPERTIES);
+			
 		} catch (IOException e) {
 			LOGGER.error(e.getLocalizedMessage());
 			if (LOGGER.isDebugEnabled()) e.printStackTrace();
 			SwingUtilities.invokeLater(new InitialErrorRun(e));
 		}
-		
-		// - Chargement des propriétés utilisateur
-		if (LOGGER.isDebugEnabled())
-			LOGGER.debug("Répertoire utilisateur : "+System.getProperty("user.home"));
-		
-		File userPropertiesFile = new File(System.getProperty("user.home"), Constant.JTOMTOM_USER_PROPERTIES);
-		m_userProps = new Properties();
-		if (userPropertiesFile.exists()) {
-			FileInputStream fis = null;
-			try {
-				fis = new FileInputStream(userPropertiesFile);
-				m_userProps.load(new FileInputStream(userPropertiesFile));
 				
-			} catch (IOException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-				SwingUtilities.invokeLater(new InitialErrorRun(e));
-				
-			} finally {
-				try { fis.close(); } catch (Exception e) {}
-			}
-		}
-		
 		// - Mise à jour de la langue par défaut
-		if (getApplicationPropertie("org.jtomtom.locale") != null) {
+		if (theProperties.getUserProperty("org.jtomtom.locale") != null) {
 			try {
-				String[] jttLocale = getApplicationPropertie("org.jtomtom.locale").split("_");
+				String[] jttLocale = theProperties.getUserProperty("org.jtomtom.locale").split("_");
 				Locale.setDefault(new Locale(jttLocale[0], jttLocale[1]));
 			} catch (Exception e) {
 				// On fait pas dans le détail si ça marche pas on touche à rien
@@ -272,8 +240,7 @@ public class JTomtom {
 		theMainTranslator = ResourceBundle.getBundle("org.jtomtom.gui.resources.lang.jTomtom-main", Locale.getDefault());
 		
 		// - Mise à jour du niveau de log
-		String myLevel = getApplicationPropertie("org.jtomtom.logLevel");
-		Logger.getLogger(JTomtom.class.getPackage().getName()).setLevel(Level.toLevel( (myLevel==null)?"INFO":myLevel) );
+		Logger.getLogger(JTomtom.class.getPackage().getName()).setLevel(Level.toLevel( theProperties.getUserProperty("org.jtomtom.logLevel", "INFO") ));
 		
 		// Suppression des FileAppender potentiellement déjà ajouté
 		Enumeration<?> enu = Logger.getLogger(JTomtom.class.getPackage().getName()).getAllAppenders();
@@ -285,11 +252,11 @@ public class JTomtom {
 		}
 		
 		// Ajout du FileAppender avec le bon nom si besoin
-		if (getApplicationPropertie("org.jtomtom.logFile") != null && !getApplicationPropertie("org.jtomtom.logFile").isEmpty()) {
+		if (theProperties.getUserProperty("org.jtomtom.logFile") != null && !theProperties.getUserProperty("org.jtomtom.logFile").isEmpty()) {
 			try {
 				Logger.getLogger(JTomtom.class.getPackage().getName()).addAppender(
 						new FileAppender(new PatternLayout("%d{ABSOLUTE} %5p %c{1}:%L %m%n"),  
-						m_props.getProperty("org.jtomtom.logFile")));
+								theProperties.getUserProperty("org.jtomtom.logFile")));
 			} catch (IOException e) {
 				LOGGER.error(e.getLocalizedMessage());
 				if (LOGGER.isDebugEnabled()) e.printStackTrace();
@@ -297,87 +264,12 @@ public class JTomtom {
 		} 
 		
 		// - Initialisation de la vérification des mises à jour
-		if (getApplicationPropertie("org.jtomtom.checkupdate") == null) {
-			m_userProps.setProperty("org.jtomtom.checkupdate", "true");
+		if (theProperties.getUserProperty("org.jtomtom.checkupdate") == null) {
+			theProperties.setUserProperty("org.jtomtom.checkupdate", "true");
 		}
 		
 		// - Ré-initialisation du proxy
 		m_proxy = null;
 	}
-
-	/**
-	 * Retourne les paramètres de l'application
-	 * @param p_key	Clé de la propriété
-	 * @return	Valeur de la propriété
-	 */
-	public static final String getApplicationPropertie(String p_key) {
-		return m_userProps.getProperty(p_key, m_props.getProperty(p_key));
-	}
 	
-	/**
-	 * Return all properties wich start with p_key in a Map
-	 * @param p_key	Prefix of properties you looking for
-	 * @return		Map (key, value) of properties
-	 */
-	public static final Map<String, String> getApplicationProperties(String p_key) {
-		Enumeration<?> keys = m_props.propertyNames(); // Valid because m_userProps is a subset of m_props
-		Map<String, String> allProperties = new HashMap<String, String>();
-		while (keys.hasMoreElements()) {
-			String key = (String)keys.nextElement();
-			if (key.startsWith(p_key)) {
-				allProperties.put(key, getApplicationPropertie(key));
-			}
-		}
-		return allProperties;
-	}
-	
-	/**
-	 * Modifie les paramètres de l'application
-	 * @param p_key		Clé de la propriété
-	 * @param p_value	Nouvelle valeur de la propriété
-	 */
-	public static void setApplicationPropertie(String p_key, String p_value) {
-		if (LOGGER.isDebugEnabled() && !m_props.getProperty(p_key, "").equals(p_value)) {
-			LOGGER.debug(p_key+" = "+p_value);
-		}
-
-		m_props.setProperty(p_key, p_value);
-	}
-	
-	/**
-	 * Modifie les paramètres de l'application
-	 * @param p_key		Clé de la propriété
-	 * @param p_value	Nouvelle valeur de la propriété
-	 */
-	public static void setUserPropertie(String p_key, String p_value) {
-		if (LOGGER.isDebugEnabled() && !m_userProps.getProperty(p_key, "").equals(p_value)) {
-			LOGGER.debug(p_key+" = "+p_value);
-		}
-
-		m_userProps.setProperty(p_key, p_value);
-	}
-	
-	/**
-	 * Enregistrement des propriétés dans un fichier du répertoire utilisateur
-	 * @return	TRUE si c'est ok
-	 */
-	public static boolean saveApplicationProperties() {
-		File fichierProps = new File(System.getProperty("user.home"), Constant.JTOMTOM_USER_PROPERTIES);
-		LOGGER.info("Enregistrement des propriétées dans "+fichierProps.getAbsoluteFile());
-		try {
-			// We store juste user properties, not application properties
-			m_userProps.store(new FileOutputStream(fichierProps), "Propriétées utilisateur de JTomtom");
-			
-		} catch (FileNotFoundException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			SwingUtilities.invokeLater(new InitialErrorRun(e));
-			
-		} catch (IOException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			SwingUtilities.invokeLater(new InitialErrorRun(e));
-		} 
-		return true;
-	}
 }

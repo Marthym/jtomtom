@@ -136,8 +136,8 @@ public class MajRadarsAction extends AbstractAction {
 		
 		boolean connStatus = p_radars.connexion(
 				JTomtom.getApplicationProxy(), 
-				JTomtom.getApplicationPropertie("org.tomtomax.user"), 
-				JTomtom.getApplicationPropertie("org.tomtomax.password"));
+				JTomtom.theProperties.getUserProperty("org.tomtomax.user"), 
+				JTomtom.theProperties.getUserProperty("org.tomtomax.password"));
 		if (!connStatus) {
 			throw new JTomtomException("org.jtomtom.errors.radars.tomtomax.account");
 		}
