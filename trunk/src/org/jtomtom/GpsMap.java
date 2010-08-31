@@ -68,9 +68,7 @@ public class GpsMap {
 	/**
 	 * Radars informations
 	 */
-	private Date m_radarsDbDate;
-	private int m_radarsDbVersion;
-	private int m_radarsNombre;
+	private POIsDbInfos m_radarsInformations;
 	
 	private GpsMap() {
 		m_name = "";
@@ -245,16 +243,7 @@ public class GpsMap {
 	 */
 	public void readRadarsInfos() throws JTomtomException {
 		RadarsConnector radars = JTomTomUtils.instantiateRadarConnector();
-		POIsDbInfos infos = radars.getLocalDbInfos(m_path);
-		m_radarsDbDate = infos.getLastUpdateDate();
-		m_radarsNombre = infos.getPoisNumber();
-		
-		try { m_radarsDbVersion = Integer.parseInt(infos.getDbVersion());} 
-		catch (NumberFormatException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-		}
-		
+		m_radarsInformations = radars.getLocalDbInfos(m_path);
 	}
 	
 	/**
@@ -333,41 +322,41 @@ public class GpsMap {
 	 * @return
 	 */
 	public final Date getRadarsDbDate() {
-		if (m_radarsDbDate == null) {
+		if (m_radarsInformations == null) {
 			try { readRadarsInfos(); } catch (JTomtomException e) {
 				LOGGER.error(e.getLocalizedMessage());
 				if (LOGGER.isDebugEnabled()) e.printStackTrace();
 			}
 		}
-		return m_radarsDbDate;
+		return m_radarsInformations.getLastUpdateDate();
 	}
 	
 	/**
 	 * Give the installed Radar version date
 	 * @return
 	 */
-	public final int getRadarsDbVersion() {
-		if (m_radarsDbVersion == 0) {
+	public final String getRadarsDbVersion() {
+		if (m_radarsInformations == null) {
 			try { readRadarsInfos(); } catch (JTomtomException e) {
 				LOGGER.error(e.getLocalizedMessage());
 				if (LOGGER.isDebugEnabled()) e.printStackTrace();
 			}
 		}
-		return m_radarsDbVersion;
+		return m_radarsInformations.getDbVersion();
 	}
 
 	/**
 	 * Give the installed radar count
 	 * @return
 	 */
-	public final int getRadarsNombre() {
-		if (m_radarsNombre == 0) {
+	public final long getRadarsNombre() {
+		if (m_radarsInformations == null) {
 			try { readRadarsInfos(); } catch (JTomtomException e) {
 				LOGGER.error(e.getLocalizedMessage());
 				if (LOGGER.isDebugEnabled()) e.printStackTrace();
 			}
 		}
-		return m_radarsNombre;
+		return m_radarsInformations.getPoisNumber();
 	}
 
 } 

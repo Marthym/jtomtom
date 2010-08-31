@@ -73,7 +73,11 @@ public class TestJTTUtils {
 		JTomtom.loadProperties();
 		RadarsConnector[] radars = null;
 		radars = JTomTomUtils.getAllRadarsConnectors();
+		
 		assertNotNull(radars);
+		for (RadarsConnector radar : radars) {
+			assertNotNull(radar);
+		}
 	}
 
 }

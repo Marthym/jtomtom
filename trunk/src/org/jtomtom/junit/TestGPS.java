@@ -110,4 +110,5 @@ public class TestGPS {
 			fail(e.getLocalizedMessage());
 		}
 	}
+	
 }

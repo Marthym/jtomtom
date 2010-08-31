@@ -22,6 +22,7 @@ package org.jtomtom.connector.radars;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,6 +33,7 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -49,12 +51,14 @@ import org.jtomtom.connector.RadarsConnector;
 public class PdisDotEs implements RadarsConnector {
 	private static final Logger LOGGER = Logger.getLogger(PdisDotEs.class);
 
+	public  static final String PDISES_DATE_FORMAT = "dd/MM/yyyy";
 	private static final String PDISES_LOGIN_URL = "http://www.pdis.es/paginas/login.php";
 	private static final String PDISES_UPDATE_URL = "http://www.pdis.es/paginas/terminos_packs.php?fich=2";
 	private static final String PDISES_UPDATE_POST = "fichero=actualizacion_radares_tomtom.zip";
 	private static final String PDISES_INSTALL_URL = "http://www.pdis.es/paginas/terminos_packs.php?fich=9";
 	private static final String PDISES_INSTALL_POST = "fichero=pack_radares_tomtom_v6.zip";
 	private static final String PDISES_DOWN_PACKS = "http://www.pdis.es/paginas/down_packs.php";
+	private static final String PDISES_WHATS_NEW_FILE = "ES_R_AA_Que_hay_de_nuevo.txt";
 	
 	private static final String PDISES_START_DATE = "<span class=\"textobase5\">&Uacute;ltima actualizaci&oacute;n: </span><span class=\"textobase6\">";
 	
@@ -70,17 +74,42 @@ public class PdisDotEs implements RadarsConnector {
 	@Override
 	public POIsDbInfos getLocalDbInfos(String m_path)
 			throws JTomtomException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		// We search the directory of the current map
+		File mapDirectory = new File(m_path);
+		
+		if (!mapDirectory.exists() || !mapDirectory.isDirectory() || !mapDirectory.canRead()) {
+			throw new JTomtomException("org.jtomtom.errors.gps.map.notfound", new String[]{m_path});
+		}
+		
+		// We looking for the Pdis.es what's new file
+		File pdisesWhatsNewFile = new File(mapDirectory, PDISES_WHATS_NEW_FILE);
+		if (!pdisesWhatsNewFile.exists()) {
+			LOGGER.info("Les Radars TomtomMax n'ont jamais été installé !");
+			return new POIsDbInfos();
+		}
+		
+		POIsDbInfos infos = new POIsDbInfos();
+		infos.setLastUpdateDate(new Date(pdisesWhatsNewFile.lastModified()));
+		
+		// Add dummy value
+		infos.setDbVersion(Long.toString(infos.getLastUpdateDate().getTime()));
+		infos.setPoisNumber(0);
+		
+		return infos;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.jtomtom.RadarsConnector#getRemoteDbInfos(java.net.Proxy)
 	 */
+	/**
+	 * This class parses the download page on pdis.es to find the date of the last update. 
+	 * This is the only solution since no file will list information on packages.
+	 */
 	@Override
 	public POIsDbInfos getRemoteDbInfos(Proxy proxy) {
 		if (m_connexionCookies == null) {
-			LOGGER.error("You must connect before !!");
+			LOGGER.error("You are not connected !!");
 			return null;
 		}
 		
@@ -114,7 +143,7 @@ public class PdisDotEs implements RadarsConnector {
 					continue;
 				}
 				if (nextLine) {
-					infos.setLastUpdateDate("dd/MM/yyyy", line.replaceAll("\\<.*?>","").replaceAll("\\&.*?;","").trim());
+					infos.setLastUpdateDate(PDISES_DATE_FORMAT, line.replaceAll("\\<.*?>","").replaceAll("\\&.*?;","").trim());
 					break;
 				}
 			}
@@ -124,6 +153,10 @@ public class PdisDotEs implements RadarsConnector {
 			if (LOGGER.isDebugEnabled()) LOGGER.debug(e);
 			return null;
 		}
+		
+		// Add dummy value
+		infos.setDbVersion(Long.toString(infos.getLastUpdateDate().getTime()));
+		infos.setPoisNumber(0);
 		
 		return infos;
 	}
