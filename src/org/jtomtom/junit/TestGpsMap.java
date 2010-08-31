@@ -21,6 +21,7 @@
 package org.jtomtom.junit;
 
 import static junit.framework.Assert.*;
+import static org.junit.Assert.assertFalse;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.GpsMap;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
+import org.jtomtom.connector.POIsDbInfos;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -67,7 +69,7 @@ public class TestGpsMap {
 			GpsMap map = GpsMap.readCurrentMap(myGPS);
 			map.readRadarsInfos();
 			assertNotNull(map.getRadarsDbDate());
-			assertFalse(map.getRadarsDbVersion() < 0);
+			assertFalse(map.getRadarsDbVersion().equals(POIsDbInfos.UNKNOWN));
 			assertTrue(map.getRadarsNombre() > 0);
 			
 		} catch (JTomtomException e) {

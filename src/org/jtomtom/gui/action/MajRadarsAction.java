@@ -46,6 +46,7 @@ import org.jtomtom.GlobalPositioningSystem;
 import org.jtomtom.GpsMap;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
+import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.gui.PatienterDialog;
 import org.jtomtom.gui.TabRadars;
@@ -151,7 +152,7 @@ public class MajRadarsAction extends AbstractAction {
 			for (JCheckBox chk : p_checkList) { 
 				if (chk.isSelected()) {
 					GpsMap map = theGPS.getAllMaps().get(chk.getText());
-					if (map != null && map.getRadarsDbVersion() <= 0) {
+					if (map != null && POIsDbInfos.UNKNOWN.equals(map.getRadarsDbVersion())) {
 						conn = p_radars.getConnectionForInstall();
 					}
 				}

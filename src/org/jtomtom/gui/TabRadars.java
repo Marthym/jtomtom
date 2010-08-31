@@ -99,6 +99,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 					JOptionPane.showMessageDialog(null, 
 							infos.exception.getLocalizedMessage(), 
 							m_rbControls.getString("org.jtomtom.tab.radars.sw.error.title"), JOptionPane.ERROR_MESSAGE);
+					refreshButton.setEnabled(true);
 				} else {
 					infosHtml.setText(infos.parameters.get(0));
 					radarsButton.setEnabled(true);
@@ -220,7 +221,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate"))
 			.append(" : </strong></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.loading")).append("</i></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount"))
-			.append(" : </strong></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.loading")).append("...</i></td></tr>");
+			.append(" : </strong></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.loading")).append("</i></td></tr>");
 		infos.append("</table>");
 		infos.append("<br/><font size=\"2\"><p><i>")
 			.append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))
@@ -259,6 +260,17 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		radars = (RadarsConnector)radarSiteList.getSelectedItem();
 		
 		if (remoteRadarsInfos == null) {
+			// We try to connect before all
+			boolean isConnected = radars.connexion(
+									JTomtom.getApplicationProxy(), 
+									JTomtom.getApplicationPropertie("org.tomtomax.user"), 
+									JTomtom.getApplicationPropertie("org.tomtomax.password"));
+			if (!isConnected) {
+				result.exception = new JTomtomException("org.jtomtom.errors.radars.tomtomax.account");
+				LOGGER.debug("Erreur lors de la connexion au site "+radars.toString()+" pour récupérer les informations distantes");
+				result.status = false;
+				return result;
+			}
 			remoteRadarsInfos = radars.getRemoteDbInfos(JTomtom.getApplicationProxy());
 			if (remoteRadarsInfos == null) {
 				result.exception = new JTomtomException("org.jtomtom.errors.radars.tomtomax.getinfo");
@@ -268,43 +280,36 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 			}
 		}
 		
-		//Date remoteDbDate = remoteRadarsInfos.getLastUpdateDate();
-		
-		if (JTomtom.getTheGPS().getActiveMap().getRadarsDbVersion() >= 0) {
-			// Les radars sont déjà installé
-			infos.append("<html><table>");
-			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.availableupdate")).append(" : </strong></td><td><i>")
-					.append(dateFormat.format(remoteRadarsInfos.getLastUpdateDate()))
-					.append("</i></td></tr>");
-			if (JTomtom.getTheGPS().getActiveMap().getRadarsDbDate() != null) {
-				infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
-					.append(dateFormat.format(JTomtom.getTheGPS().getActiveMap().getRadarsDbDate()))
-					.append("</i></td></tr>");
-			} else {
-				infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>Aucune</i></td></tr>");
-			}
-			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>")
-				.append(JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
-				.append("</i> [")
-				.append(remoteRadarsInfos.getPoisNumber() - JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
-				.append(m_rbControls.getString("org.jtomtom.tab.radars.missingradar")).append("]</td></tr>");
-			infos.append("</table>");
-			infos.append("<br/><font size=\"2\"><p><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))
-				.append(" <a href=\"").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.url"))
-				.append("\">").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.label"))
-				.append("</a></i></p></font>");
-			infos.append("</html>");
-			
-			if (result.parameters == null) {
-				result.parameters = new LinkedList<String>();
-			}
-			result.parameters.add(infos.toString());
+		boolean isInstalled = !POIsDbInfos.UNKNOWN.equals(JTomtom.getTheGPS().getActiveMap().getRadarsDbVersion());
+
+		infos.append("<html><table>");
+		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.availableupdate")).append(" : </strong></td><td><i>")
+				.append(dateFormat.format(remoteRadarsInfos.getLastUpdateDate()))
+				.append("</i></td></tr>");
+		if (isInstalled) {
+			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
+				.append(dateFormat.format(JTomtom.getTheGPS().getActiveMap().getRadarsDbDate()))
+				.append("</i></td></tr>");
 		} else {
-			result.exception = new JTomtomException("org.jtomtom.errors.gps.readinformations");
-			LOGGER.debug("Erreur de lecture des information sur le GPS ...");
-			result.status = false;
-			return result;
-		} 
+			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
+				.append(m_rbControls.getString("org.jtomtom.tab.radars.noversioninstalled")).append("</i></td></tr>");
+		}
+		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>")
+			.append(JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
+			.append("</i> [")
+			.append(remoteRadarsInfos.getPoisNumber() - JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
+			.append(m_rbControls.getString("org.jtomtom.tab.radars.missingradar")).append("]</td></tr>");
+		infos.append("</table>");
+		infos.append("<br/><font size=\"2\"><p><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))
+			.append(" <a href=\"").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.url"))
+			.append("\">").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.label"))
+			.append("</a></i></p></font>");
+		infos.append("</html>");
+		
+		if (result.parameters == null) {
+			result.parameters = new LinkedList<String>();
+		}
+		result.parameters.add(infos.toString());
 		
 		// - Enfin, on teste la connexion à Tomtomax pour vérifier que le user ai un compte
 		result.status = radars.connexion(
