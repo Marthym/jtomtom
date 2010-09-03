@@ -162,7 +162,14 @@ public class GpsMap {
 		for (String currentFilePath : listRootFile) {
 			File currentFile = new File(gpsRoot,currentFilePath);
 			if (!currentFile.isDirectory()) continue;
-			File pnaFile = new File(currentFile, currentFile.getName()+".pna");
+			String[] pnaFileList = currentFile.list(new FilenameFilter() {
+				public boolean accept(File dir, String name) {
+					return name.endsWith(".pna");
+				}
+			});
+			if (pnaFileList.length <= 0) continue;
+			
+			File pnaFile = new File(currentFile, pnaFileList[0]);
 			if (pnaFile.exists() && pnaFile.canRead()) {
 				// To save some memory if the card is current, we do not create a new object, we just add the link
 				if (p_gps.getActiveMap() != null && p_gps.getActiveMap().getName().equals(currentFile.getName())) {
@@ -182,12 +189,22 @@ public class GpsMap {
 	 * @param p_path	Absolute path of the map
 	 * @return			Map not linked to a GPS
 	 */
+	//TODO: Remove first parameter and use last path name
 	private static GpsMap createMapFromPna(String p_name, String p_path) {
 		if (p_name.isEmpty() || p_path.isEmpty()) {
 			return null;
 		}
 		
-		File pnaFile = new File(p_path, p_name+".pna");	
+		// - We looking for pna file
+		File mapDirectory = new File(p_path);
+		String[] pnaFileList = mapDirectory.list(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.endsWith(".pna");
+			}
+		});
+		if (pnaFileList.length <= 0) return null;
+		
+		File pnaFile = new File(mapDirectory, pnaFileList[0]);
 		Scanner sc = null;
 		String version = "";
 		try {
