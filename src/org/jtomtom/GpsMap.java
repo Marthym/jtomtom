@@ -70,6 +70,15 @@ public class GpsMap {
 	 */
 	private POIsDbInfos m_radarsInformations;
 	
+	/**
+	 * FilenameFilter use for finding .pna file inside map directories
+	 */
+	private static final FilenameFilter PNA_FILE_FILTER = new FilenameFilter() {
+		public boolean accept(File dir, String name) {
+			return name.endsWith(".pna");
+		}
+	};
+	
 	private GpsMap() {
 		m_name = "";
 		m_version = "";
@@ -162,11 +171,7 @@ public class GpsMap {
 		for (String currentFilePath : listRootFile) {
 			File currentFile = new File(gpsRoot,currentFilePath);
 			if (!currentFile.isDirectory()) continue;
-			String[] pnaFileList = currentFile.list(new FilenameFilter() {
-				public boolean accept(File dir, String name) {
-					return name.endsWith(".pna");
-				}
-			});
+			String[] pnaFileList = currentFile.list(PNA_FILE_FILTER);
 			if (pnaFileList.length <= 0) continue;
 			
 			File pnaFile = new File(currentFile, pnaFileList[0]);
@@ -197,11 +202,7 @@ public class GpsMap {
 		
 		// - We looking for pna file
 		File mapDirectory = new File(p_path);
-		String[] pnaFileList = mapDirectory.list(new FilenameFilter() {
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".pna");
-			}
-		});
+		String[] pnaFileList = mapDirectory.list(PNA_FILE_FILTER);
 		if (pnaFileList.length <= 0) return null;
 		
 		File pnaFile = new File(mapDirectory, pnaFileList[0]);
