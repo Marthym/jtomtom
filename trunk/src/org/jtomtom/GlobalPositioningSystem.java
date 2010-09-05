@@ -99,13 +99,13 @@ public class GlobalPositioningSystem {
 	 * @throws JTomtomException 
 	 */
 	public GlobalPositioningSystem() throws JTomtomException {
-		readInformations();
+		readGPSInformations();
 	}
 	
 	public GlobalPositioningSystem(String p_moutPoint) throws JTomtomException {
 		m_mountPoint = new File(p_moutPoint);
 		if (m_mountPoint.exists() && m_mountPoint.canRead())
-			readInformations();
+			readGPSInformations();
 		
 		throw new JTomtomException("org.jtomtom.errors.gps.incorrectmountpoint");
 	}
@@ -118,7 +118,7 @@ public class GlobalPositioningSystem {
 	@Deprecated
 	public GlobalPositioningSystem(boolean p_init) {
 		if (p_init) {
-			try { readInformations(); } catch (JTomtomException e) {
+			try { readGPSInformations(); } catch (JTomtomException e) {
 				LOGGER.error(e.getLocalizedMessage());
 				if (LOGGER.isDebugEnabled()) e.printStackTrace();
 			}
@@ -161,7 +161,11 @@ public class GlobalPositioningSystem {
 		throw new JTomtomException("org.jtomtom.errors.gps.gpsnotfound");
 	}
 	
-	public void readInformations() throws JTomtomException {
+	/**
+	 * Read the GPS informations in the ttgo.bif file at the root directory
+	 * @throws JTomtomException
+	 */
+	public void readGPSInformations() throws JTomtomException {
 		// On vérifit déjà qu'on ai bien le point de montage et à défaut on va le chercher
 		if (m_mountPoint == null) {
 			getMountedPoint(false);
@@ -223,16 +227,18 @@ public class GlobalPositioningSystem {
 			String line = new String();
 			LOGGER.debug("Liste des pounts de montage :");
 			while ((line = br.readLine()) != null) {
-				String morceaux[] = line.split(" ");
-				if (morceaux.length < 3 || morceaux[0].equals("none")) {
+				if (line.startsWith("none")) {
 					// On vire les périphériques non monté
 					continue;
 				} 
 				
-				if (LOGGER.isDebugEnabled())
-					LOGGER.debug("   "+morceaux[2]);
+				final String START = " on ", END = " type ";
+				String pathMountPoint = line.substring(
+						line.indexOf(START)+START.length(), 
+						line.lastIndexOf(END));
+				if (LOGGER.isDebugEnabled()) LOGGER.debug("\t"+pathMountPoint);
 				
-				roots.add(new File(morceaux[2]));
+				roots.add(new File(pathMountPoint));
 			}
 			
 		} catch (IOException e) {
