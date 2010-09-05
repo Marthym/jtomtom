@@ -62,7 +62,7 @@ public class TestGPS {
 		GlobalPositioningSystem myGPS = new GlobalPositioningSystem(false);
 		assertNotNull(myGPS);
 		try {
-			myGPS.readInformations();
+			myGPS.readGPSInformations();
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
