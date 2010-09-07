@@ -51,7 +51,7 @@ import org.jtomtom.gui.utilities.JarUtils;
 public class JTomtom {
 	private static final Logger LOGGER = Logger.getLogger(JTomtom.class);
 	
-	private static GlobalPositioningSystem theGPS;
+	private static TomtomDevice theGPS;
 	private static Proxy m_proxy = null;
 		
 	private static String m_versionNumber = "0.x";
@@ -115,7 +115,7 @@ public class JTomtom {
 		
 		// Le premier truc à faire c'est initialiser le GPS
 		try {
-			theGPS = new GlobalPositioningSystem();
+			theGPS = new TomtomDevice();
 			
 		} catch (JTomtomException e) {
 			// Si on peut même pas faire ça c'est pas la peine de se faire chier
@@ -159,7 +159,7 @@ public class JTomtom {
 		} catch (Exception e) {}
 	}
 
-	public static final GlobalPositioningSystem getTheGPS() {
+	public static final TomtomDevice getTheGPS() {
 		return theGPS;
 	}
 	

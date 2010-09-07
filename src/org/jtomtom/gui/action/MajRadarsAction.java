@@ -42,8 +42,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.GlobalPositioningSystem;
-import org.jtomtom.GpsMap;
+import org.jtomtom.TomtomDevice;
+import org.jtomtom.TomtomMap;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
@@ -129,7 +129,7 @@ public class MajRadarsAction extends AbstractAction {
 
 	}
 
-	public boolean miseAJourRadars(GlobalPositioningSystem theGPS, List<JCheckBox> p_checkList, RadarsConnector p_radars) 
+	public boolean miseAJourRadars(TomtomDevice theGPS, List<JCheckBox> p_checkList, RadarsConnector p_radars) 
 	throws JTomtomException {	
 		// Téléchargement du fichier de mise à jour
 		LOGGER.info("Téléchargement de la mise à jour Radar ...");
@@ -151,7 +151,7 @@ public class MajRadarsAction extends AbstractAction {
 			// We check if we need to download PremiumPack
 			for (JCheckBox chk : p_checkList) { 
 				if (chk.isSelected()) {
-					GpsMap map = theGPS.getAllMaps().get(chk.getText());
+					TomtomMap map = theGPS.getAllMaps().get(chk.getText());
 					if (map != null && POIsDbInfos.UNKNOWN.equals(map.getRadarsDbVersion())) {
 						conn = p_radars.getConnectionForInstall();
 					}
@@ -241,7 +241,7 @@ public class MajRadarsAction extends AbstractAction {
 		boolean retour = true;
 		for (JCheckBox chk : p_checkList) {
 			if (chk.isSelected()) {
-				GpsMap map = theGPS.getAllMaps().get(chk.getText());
+				TomtomMap map = theGPS.getAllMaps().get(chk.getText());
 				if (map != null) {
 					retour &= map.updateRadars(filesToInstall);
 				}

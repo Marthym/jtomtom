@@ -45,7 +45,7 @@ import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.GpsMap;
+import org.jtomtom.TomtomMap;
 import org.jtomtom.InitialErrorRun;
 import org.jtomtom.JTomTomUtils;
 import org.jtomtom.JTomtom;
@@ -74,6 +74,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	private JComboBox radarSiteList;
 	
 	private POIsDbInfos remoteRadarsInfos;
+	private POIsDbInfos localRadarsInfos;
 
 	/**
 	 * @author marthym
@@ -172,9 +173,9 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		checkBoxPane.setLayout(new BoxLayout(checkBoxPane, BoxLayout.PAGE_AXIS));
 		mapsCheckList = new LinkedList<JCheckBox>();
 		try {
-			Iterator<GpsMap> it = JTomtom.getTheGPS().getAllMaps().values().iterator();
+			Iterator<TomtomMap> it = JTomtom.getTheGPS().getAllMaps().values().iterator();
 			while (it.hasNext()) {
-				GpsMap map = it.next();
+				TomtomMap map = it.next();
 				JCheckBox chk = new JCheckBox(map.getName());
 				chk.setToolTipText(m_rbControls.getString("org.jtomtom.tab.radars.panel.maplist.hint"));
 				if (map.getName().equals(JTomtom.getTheGPS().getActiveMapName())) {
@@ -280,7 +281,17 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 			}
 		}
 		
-		boolean isInstalled = !POIsDbInfos.UNKNOWN.equals(JTomtom.getTheGPS().getActiveMap().getRadarsDbVersion());
+		if (localRadarsInfos == null) {
+			try {
+				localRadarsInfos = radars.getLocalDbInfos(JTomtom.getTheGPS().getActiveMap().getPath());
+			} catch (JTomtomException e) {
+				result.exception = e;
+				result.status = false;
+				return result;
+			}
+		}
+		
+		boolean isInstalled = !POIsDbInfos.UNKNOWN.equals(localRadarsInfos.getDbVersion());
 
 		infos.append("<html><table>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.availableupdate")).append(" : </strong></td><td><i>")
@@ -288,16 +299,16 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 				.append("</i></td></tr>");
 		if (isInstalled) {
 			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
-				.append(dateFormat.format(JTomtom.getTheGPS().getActiveMap().getRadarsDbDate()))
+				.append(dateFormat.format(localRadarsInfos.getLastUpdateDate()))
 				.append("</i></td></tr>");
 		} else {
 			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
 				.append(m_rbControls.getString("org.jtomtom.tab.radars.noversioninstalled")).append("</i></td></tr>");
 		}
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>")
-			.append(JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
+			.append(localRadarsInfos.getPoisNumber())
 			.append("</i> [")
-			.append(remoteRadarsInfos.getPoisNumber() - JTomtom.getTheGPS().getActiveMap().getRadarsNombre())
+			.append(remoteRadarsInfos.getPoisNumber() - localRadarsInfos.getPoisNumber())
 			.append(m_rbControls.getString("org.jtomtom.tab.radars.missingradar")).append("]</td></tr>");
 		infos.append("</table>");
 		infos.append("<br/><font size=\"2\"><p><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))
@@ -329,7 +340,8 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == refreshButton) {
-			// Rafraichissement manuel des infos de la page
+			remoteRadarsInfos = null;
+			localRadarsInfos = null;
 			refreshButton.setEnabled(false);
 			loadRadarsInfos();
 		}

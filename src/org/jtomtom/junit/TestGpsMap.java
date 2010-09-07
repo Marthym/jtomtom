@@ -28,8 +28,8 @@ import java.util.List;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.GlobalPositioningSystem;
-import org.jtomtom.GpsMap;
+import org.jtomtom.TomtomDevice;
+import org.jtomtom.TomtomMap;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
@@ -49,8 +49,8 @@ public class TestGpsMap {
 	@Test
 	public void testReadCurrentMap() {
 		try {
-			GlobalPositioningSystem myGPS = new GlobalPositioningSystem(false);
-			GpsMap map = GpsMap.readCurrentMap(myGPS);
+			TomtomDevice myGPS = new TomtomDevice(false);
+			TomtomMap map = TomtomMap.createActiveMapOfTomtom(myGPS);
 			
 			assertNotNull(map);
 			
@@ -65,8 +65,8 @@ public class TestGpsMap {
 			JTomtom.loadProperties();
 			
 			@SuppressWarnings("deprecation")
-			GlobalPositioningSystem myGPS = new GlobalPositioningSystem(false);
-			GpsMap map = GpsMap.readCurrentMap(myGPS);
+			TomtomDevice myGPS = new TomtomDevice(false);
+			TomtomMap map = TomtomMap.createActiveMapOfTomtom(myGPS);
 			map.readRadarsInfos();
 			assertNotNull(map.getRadarsDbDate());
 			assertFalse(map.getRadarsDbVersion().equals(POIsDbInfos.UNKNOWN));
@@ -81,8 +81,8 @@ public class TestGpsMap {
 	@Test
 	public void testListAllGpsMap() {
 		try {
-			GlobalPositioningSystem myGPS = new GlobalPositioningSystem(false);
-			List<GpsMap> map = GpsMap.listAllGpsMap(myGPS);
+			TomtomDevice myGPS = new TomtomDevice(false);
+			List<TomtomMap> map = TomtomMap.listAllGpsMap(myGPS);
 			
 			assertNotNull(map);
 			assertFalse(map.isEmpty());
