@@ -37,57 +37,61 @@ import org.jtomtom.gui.utilities.TomtomDeviceFinder;
 /**
  * @author Frédéric Combes
  *
- * Classe de manipulation de l'appareil
+ * Class for Tomtom GPS manipulation
  * 
  */
-public class GlobalPositioningSystem {
+public class TomtomDevice {
 	
-	private static final Logger LOGGER = Logger.getLogger(GlobalPositioningSystem.class);
+	private static final Logger LOGGER = Logger.getLogger(TomtomDevice.class);
 	
 	/**
-	 * Pount de montage ou lecteur du TT
+	 * Mount point or drive of the device
 	 */
 	private File mountPoint;
 	
 	/**
-	 * Numéro de série matériel du GPS connecté
+	 * Serial Number of the device
 	 */
-	private String uniqueID;
+	private String serialNumber;
 	
 	/**
-	 * Nom du TomTom 	
+	 * Device name
 	 */
 	private String name;
 	
 	/**
-	 * Numéro de version du NavCore
+	 * NavCore application version
 	 */
 	private int applicationVersion;
 	
 	/**
-	 * Numéro de version du système
+	 * Operating System version
 	 */
 	private int systemVersion;
 	
 	/**
-	 * Numéro de version de la puce GPS
+	 * GPS processor version
 	 */
 	private String processorVersion;
 	
 	/**
-	 * Numéro de version du BootLoader
+	 * BootLoader version number
 	 */
 	private int bootloaderVersion;
 	
 	/**
-	 * Map actuellement utilisée
+	 * Current active map
 	 */
-	private GpsMap activeMap;
-	private Map<String, GpsMap> availableMaps;
+	private TomtomMap activeMap;
 	
 	/**
-	 * Informations pour le quickFix 
-	 * 		ces données ne sont pas chargées au lancement
+	 * Available maps on device
+	 */
+	private Map<String, TomtomMap> availableMaps;
+	
+	/**
+	 * Quickfix informations
+	 * 		this data are not loading at the beginning
 	 */
 	private String chipset;
 	private long quickFixExpiry;
@@ -97,14 +101,14 @@ public class GlobalPositioningSystem {
 	 * Constructeur initialisant les variables membre lues dans le TT connecté
 	 * @throws JTomtomException 
 	 */
-	public GlobalPositioningSystem() throws JTomtomException {
-		readGPSInformations();
+	public TomtomDevice() throws JTomtomException {
+		loadInformationsFromBif();
 	}
 	
-	public GlobalPositioningSystem(String p_moutPoint) throws JTomtomException {
+	public TomtomDevice(String p_moutPoint) throws JTomtomException {
 		mountPoint = new File(p_moutPoint);
 		if (mountPoint.exists() && mountPoint.canRead())
-			readGPSInformations();
+			loadInformationsFromBif();
 		
 		throw new JTomtomException("org.jtomtom.errors.gps.incorrectmountpoint");
 	}
@@ -115,9 +119,9 @@ public class GlobalPositioningSystem {
 	 * @param p_init
 	 */
 	@Deprecated
-	public GlobalPositioningSystem(boolean p_init) {
+	public TomtomDevice(boolean p_init) {
 		if (p_init) {
-			try { readGPSInformations(); } catch (JTomtomException e) {
+			try { loadInformationsFromBif(); } catch (JTomtomException e) {
 				LOGGER.error(e.getLocalizedMessage());
 				if (LOGGER.isDebugEnabled()) e.printStackTrace();
 			}
@@ -143,50 +147,48 @@ public class GlobalPositioningSystem {
 	 * Read the GPS informations in the ttgo.bif file at the root directory
 	 * @throws JTomtomException
 	 */
-	public void readGPSInformations() throws JTomtomException {
-		// On vérifit déjà qu'on ai bien le point de montage et à défaut on va le chercher
-		if (mountPoint == null) {
-			getMountPoint(false);
-		}
+	public void loadInformationsFromBif() throws JTomtomException {
+		verifyMountPoint();
 		
-		// On récupère la fichier d'info du TT
 		File ttgo = new File(mountPoint, TomtomDeviceFinder.TOMTOM_INFORMATION_FILE);
 		Properties props = new Properties();
-		try {
-			props.load(new FileInputStream(ttgo));
-			
-		} catch (FileNotFoundException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			return;
-			
-		} catch (IOException e) {
+		
+		try { props.load(new FileInputStream(ttgo)); } 
+		catch (Exception e) {
 			LOGGER.error(e.getLocalizedMessage());
 			if (LOGGER.isDebugEnabled()) e.printStackTrace();
 			return;
 		}
 		
-		// On affecte les propriétés dont on a besoin
 		name = props.getProperty("DeviceName");
 		applicationVersion = Integer.parseInt(props.getProperty("ApplicationVersionVersionNumber"));
 		bootloaderVersion = Integer.parseInt(props.getProperty("BootLoaderVersion"));
-		uniqueID = props.getProperty("DeviceUniqueID");
+		serialNumber = props.getProperty("DeviceUniqueID");
 		processorVersion = props.getProperty("GPSFirmwareVersion");
 		systemVersion = Integer.parseInt(props.getProperty("LinuxVersion"));
 		
-		activeMap = GpsMap.readCurrentMap(this);
+		activeMap = TomtomMap.createActiveMapOfTomtom(this);
 		
 		// Un petit coup de trace
 		LOGGER.info("Chargement du "+name);
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("m_deviceName = "+name);
-			LOGGER.debug("m_appVersion = "+applicationVersion);
-			LOGGER.debug("m_bootloaderVersion = "+bootloaderVersion);
-			LOGGER.debug("m_deviceUniqueID = "+uniqueID);
-			LOGGER.debug("m_mapName = "+getActiveMapName());
-			LOGGER.debug("m_mapVersion = "+getActiveMapVersion());
-			LOGGER.debug("m_systemVersion = "+systemVersion);
+			LOGGER.debug("name = "+name);
+			LOGGER.debug("applicationVersion = "+applicationVersion);
+			LOGGER.debug("bootloaderVersion = "+bootloaderVersion);
+			LOGGER.debug("serialNumber = "+serialNumber);
+			LOGGER.debug("ActiveMapName = "+getActiveMapName());
+			LOGGER.debug("ActiveMmapVersion = "+getActiveMapVersion());
+			LOGGER.debug("systemVersion = "+systemVersion);
 		}
+	}
+
+	/**
+	 * Verify if the device has a correct mount point and looking for it if it is not the case
+	 * @throws JTomtomException
+	 */
+	private void verifyMountPoint() throws JTomtomException {
+		if (mountPoint == null)
+			getMountPoint(false);
 	}
 
 ////
@@ -308,7 +310,7 @@ public class GlobalPositioningSystem {
 	}
 	
 	public final String getDeviceUniqueID() {
-		return uniqueID;
+		return serialNumber;
 	}
 
 	public final String getAppVersion() {
@@ -346,14 +348,14 @@ public class GlobalPositioningSystem {
 		}
 	}
 	
-	public final GpsMap getActiveMap() {
+	public final TomtomMap getActiveMap() {
 		return activeMap;
 	}
 	
-	public Map<String, GpsMap> getAllMaps() throws JTomtomException {
+	public Map<String, TomtomMap> getAllMaps() throws JTomtomException {
 		if (availableMaps == null) {
-			availableMaps = new HashMap<String, GpsMap>();
-			for (GpsMap map : GpsMap.listAllGpsMap(this)) {
+			availableMaps = new HashMap<String, TomtomMap>();
+			for (TomtomMap map : TomtomMap.listAllGpsMap(this)) {
 				availableMaps.put(map.getName(), map);
 			}
 		}

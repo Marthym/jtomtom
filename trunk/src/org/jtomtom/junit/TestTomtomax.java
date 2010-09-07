@@ -28,7 +28,7 @@ import java.util.Date;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.GlobalPositioningSystem;
+import org.jtomtom.TomtomDevice;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
@@ -78,7 +78,7 @@ public class TestTomtomax {
 		
 		POIsDbInfos infos = null;
 		try {
-			infos = radars.getLocalDbInfos((new GlobalPositioningSystem()).getActiveMap().getPath());
+			infos = radars.getLocalDbInfos((new TomtomDevice()).getActiveMap().getPath());
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}

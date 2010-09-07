@@ -25,8 +25,8 @@ import static junit.framework.Assert.*;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.GlobalPositioningSystem;
-import org.jtomtom.GpsMap;
+import org.jtomtom.TomtomDevice;
+import org.jtomtom.TomtomMap;
 import org.jtomtom.JTomtomException;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class TestGPS {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testGetMountedPoint() {
-		GlobalPositioningSystem myGPS = new GlobalPositioningSystem(false);
+		TomtomDevice myGPS = new TomtomDevice(false);
 		assertNotNull(myGPS);
 		
 		String mountPoint = null;
@@ -59,10 +59,10 @@ public class TestGPS {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testReadInformations() {
-		GlobalPositioningSystem myGPS = new GlobalPositioningSystem(false);
+		TomtomDevice myGPS = new TomtomDevice(false);
 		assertNotNull(myGPS);
 		try {
-			myGPS.readGPSInformations();
+			myGPS.loadInformationsFromBif();
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
@@ -74,7 +74,7 @@ public class TestGPS {
 	@Test
 	public void testGetChipset() {
 		try {
-			GlobalPositioningSystem myGPS = new GlobalPositioningSystem();
+			TomtomDevice myGPS = new TomtomDevice();
 			String chipset = myGPS.getChipset();
 			assertEquals("globalLocate", chipset);
 			assertTrue(myGPS.getQuickFixLastUpdate() != 0);
@@ -89,7 +89,7 @@ public class TestGPS {
 	@Test
 	public void testGetQuickFixExpiry() {
 		try {
-			GlobalPositioningSystem myGPS = new GlobalPositioningSystem();
+			TomtomDevice myGPS = new TomtomDevice();
 			long expiry = myGPS.getQuickFixExpiry();
 			assertTrue(expiry != 0);
 						
@@ -101,8 +101,8 @@ public class TestGPS {
 	@Test
 	public void testGetMapsList() {
 		try {
-			GlobalPositioningSystem myGPS = new GlobalPositioningSystem();
-			java.util.Map<String, GpsMap> maps = myGPS.getAllMaps();
+			TomtomDevice myGPS = new TomtomDevice();
+			java.util.Map<String, TomtomMap> maps = myGPS.getAllMaps();
 			assertNotNull(maps);
 			assertFalse(maps.isEmpty());
 			

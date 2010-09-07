@@ -30,7 +30,7 @@ import javax.swing.JCheckBox;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.GlobalPositioningSystem;
+import org.jtomtom.TomtomDevice;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.radars.Tomtomax;
@@ -56,9 +56,9 @@ public class TestActions {
 	
 	@Test
 	public void testMajQuickFixAction() {
-		GlobalPositioningSystem theGPS = null;
+		TomtomDevice theGPS = null;
 		try {
-			theGPS = new GlobalPositioningSystem();
+			theGPS = new TomtomDevice();
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
@@ -78,9 +78,9 @@ public class TestActions {
 	@Test
 	public void testMajRadarsTomtomaxAction() {
 		JTomtom.loadProperties();
-		GlobalPositioningSystem theGPS = null;
+		TomtomDevice theGPS = null;
 		try {
-			theGPS = new GlobalPositioningSystem();
+			theGPS = new TomtomDevice();
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
@@ -99,9 +99,9 @@ public class TestActions {
 	
 	@Test
 	public void testCreateBackupAction() {
-		GlobalPositioningSystem theGPS = null;
+		TomtomDevice theGPS = null;
 		try {
-			theGPS = new GlobalPositioningSystem();
+			theGPS = new TomtomDevice();
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
@@ -119,9 +119,9 @@ public class TestActions {
 	
 	@Test
 	public void testCreateBackupfortestAction() {
-		GlobalPositioningSystem theGPS = null;
+		TomtomDevice theGPS = null;
 		try {
-			theGPS = new GlobalPositioningSystem();
+			theGPS = new TomtomDevice();
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}

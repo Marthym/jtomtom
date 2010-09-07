@@ -44,7 +44,7 @@ import net.sf.jcablib.CabFile;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.Constant;
-import org.jtomtom.GlobalPositioningSystem;
+import org.jtomtom.TomtomDevice;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.gui.PatienterDialog;
@@ -130,7 +130,7 @@ public class MajQuickFixAction extends AbstractAction {
 	 * @param theGPS	Le GPS à mettre à jour
 	 * @throws JTomtomException
 	 */
-	public boolean miseAJourQuickFix(GlobalPositioningSystem theGPS) throws JTomtomException {		
+	public boolean miseAJourQuickFix(TomtomDevice theGPS) throws JTomtomException {		
 		// Téléchargement du fichier de mise à jour
 		LOGGER.info("Téléchargement de la mise à jour QuickFix...");
 		HttpURLConnection conn = null;
