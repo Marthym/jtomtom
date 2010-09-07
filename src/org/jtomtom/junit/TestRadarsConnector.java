@@ -20,21 +20,16 @@
  */
 package org.jtomtom.junit;
 
-import java.io.File;
-
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomTomUtils;
-import org.jtomtom.JTomtom;
 import org.jtomtom.connector.RadarsConnector;
-
-import static org.junit.Assert.*;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class TestJTTUtils {
+
+public class TestRadarsConnector {
 	@BeforeClass
 	public static void initLogger() {
 		if (!Logger.getRootLogger().getAllAppenders().hasMoreElements())
@@ -43,28 +38,19 @@ public class TestJTTUtils {
 	}
 	
 	@Test
-	@Ignore
-	public void testDeplacer() {
-		File source = new File("source.txt");
-		File destination = new File("destination.txt");
-		assertTrue(source.exists());
-		assertTrue(destination.length() != source.length());
-		
-		JTomTomUtils.copier(source, destination, true);
-		assertTrue(destination.exists());
-		assertEquals(source.length(), destination.length());
-	}
-
-	@Test
-	public void testGetAllRadarsConnectors() {
-		JTomtom.loadProperties();
-		RadarsConnector[] radars = null;
-		radars = JTomTomUtils.getAllRadarsConnectors();
-		
+	public void testCreateFromClass() {
+		RadarsConnector radars = RadarsConnector.createFromClass("org.jtomtom.connector.radars.Tomtomax");		
 		assertNotNull(radars);
-		for (RadarsConnector radar : radars) {
-			assertNotNull(radar);
-		}
+		assertTrue(org.jtomtom.connector.radars.Tomtomax.class.isAssignableFrom(radars.getClass()));
+		
+		radars = RadarsConnector.createFromClass(org.jtomtom.connector.radars.Tomtomax.class);
+		assertNotNull(radars);
+		assertTrue(org.jtomtom.connector.radars.Tomtomax.class.isAssignableFrom(radars.getClass()));
+		
+		radars = RadarsConnector.createFromClass("org.jtomtom.connector.radars.Dummy");
+		assertNotNull(radars);
+		assertTrue(org.jtomtom.connector.radars.DummyRadarsConnector.class.isAssignableFrom(radars.getClass()));
+
 	}
 
 }

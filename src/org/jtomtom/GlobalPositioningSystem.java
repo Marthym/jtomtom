@@ -26,17 +26,16 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.gui.utilities.TomtomDeviceFinder;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  *
  * Classe de manipulation de l'appareil
  * 
@@ -48,51 +47,51 @@ public class GlobalPositioningSystem {
 	/**
 	 * Pount de montage ou lecteur du TT
 	 */
-	private File m_mountPoint;
+	private File mountPoint;
 	
 	/**
 	 * Numéro de série matériel du GPS connecté
 	 */
-	private String m_deviceUniqueID;
+	private String uniqueID;
 	
 	/**
 	 * Nom du TomTom 	
 	 */
-	private String m_deviceName;
+	private String name;
 	
 	/**
 	 * Numéro de version du NavCore
 	 */
-	private int m_appVersion;
+	private int applicationVersion;
 	
 	/**
 	 * Numéro de version du système
 	 */
-	private int m_systemVersion;
+	private int systemVersion;
 	
 	/**
 	 * Numéro de version de la puce GPS
 	 */
-	private String m_gpsVersion;
+	private String processorVersion;
 	
 	/**
 	 * Numéro de version du BootLoader
 	 */
-	private int m_bootloaderVersion;
+	private int bootloaderVersion;
 	
 	/**
 	 * Map actuellement utilisée
 	 */
-	private GpsMap m_activeMap;
-	private Map<String, GpsMap> m_mapsList;
+	private GpsMap activeMap;
+	private Map<String, GpsMap> availableMaps;
 	
 	/**
 	 * Informations pour le quickFix 
 	 * 		ces données ne sont pas chargées au lancement
 	 */
-	private String m_chipset;
-	private long m_quickFixExpiry;
-	private long m_quickFixLastUpdate;
+	private String chipset;
+	private long quickFixExpiry;
+	private long quickFixLastUpdate;
 
 	/**
 	 * Constructeur initialisant les variables membre lues dans le TT connecté
@@ -103,8 +102,8 @@ public class GlobalPositioningSystem {
 	}
 	
 	public GlobalPositioningSystem(String p_moutPoint) throws JTomtomException {
-		m_mountPoint = new File(p_moutPoint);
-		if (m_mountPoint.exists() && m_mountPoint.canRead())
+		mountPoint = new File(p_moutPoint);
+		if (mountPoint.exists() && mountPoint.canRead())
 			readGPSInformations();
 		
 		throw new JTomtomException("org.jtomtom.errors.gps.incorrectmountpoint");
@@ -133,32 +132,11 @@ public class GlobalPositioningSystem {
 	 * @return					Chemin du TomTom ou chaine vide si erreur
 	 * @throws JTomtomException 
 	 */
-	public String getMountedPoint(boolean p_forceRefresh) throws JTomtomException {
-		if (!p_forceRefresh && m_mountPoint != null) {
-			return m_mountPoint.getAbsolutePath();
-		}
+	public String getMountPoint(boolean p_forceRefresh) throws JTomtomException {
+		if (p_forceRefresh || mountPoint == null)
+			mountPoint = TomtomDeviceFinder.findMountPoint();
 		
-		File[] roots = null;
-		
-		// Pour obtenir la liste des points de montage c'est différent sous Linux & windows
-		LOGGER.debug("os.name = "+System.getProperty("os.name"));
-		if ("Linux".equals(System.getProperty("os.name"))) {
-			roots = getLinuxMountPoints();
-		} else {
-			roots = getWindowsMountPoints();
-		}
-		
-		for (int i=0; i < roots.length; i++) {
-			// Pour chaque point de montage on test l'existance de ttgo.bif
-			File ttgo = new File(roots[i].getPath()+File.separator+"ttgo.bif");
-			if (ttgo.exists() && ttgo.isFile() && ttgo.canRead()) {
-				m_mountPoint = roots[i];
-				LOGGER.info("Détection du GPS : "+m_mountPoint.getAbsolutePath());
-				return m_mountPoint.getAbsolutePath();
-			}
-		}
-		
-		throw new JTomtomException("org.jtomtom.errors.gps.gpsnotfound");
+		return mountPoint.getAbsolutePath();
 	}
 	
 	/**
@@ -167,12 +145,12 @@ public class GlobalPositioningSystem {
 	 */
 	public void readGPSInformations() throws JTomtomException {
 		// On vérifit déjà qu'on ai bien le point de montage et à défaut on va le chercher
-		if (m_mountPoint == null) {
-			getMountedPoint(false);
+		if (mountPoint == null) {
+			getMountPoint(false);
 		}
 		
 		// On récupère la fichier d'info du TT
-		File ttgo = new File(m_mountPoint.getPath()+File.separator+"ttgo.bif");
+		File ttgo = new File(mountPoint, TomtomDeviceFinder.TOMTOM_INFORMATION_FILE);
 		Properties props = new Properties();
 		try {
 			props.load(new FileInputStream(ttgo));
@@ -189,73 +167,26 @@ public class GlobalPositioningSystem {
 		}
 		
 		// On affecte les propriétés dont on a besoin
-		m_deviceName = props.getProperty("DeviceName");
-		m_appVersion = Integer.parseInt(props.getProperty("ApplicationVersionVersionNumber"));
-		m_bootloaderVersion = Integer.parseInt(props.getProperty("BootLoaderVersion"));
-		m_deviceUniqueID = props.getProperty("DeviceUniqueID");
-		m_gpsVersion = props.getProperty("GPSFirmwareVersion");
-		m_systemVersion = Integer.parseInt(props.getProperty("LinuxVersion"));
+		name = props.getProperty("DeviceName");
+		applicationVersion = Integer.parseInt(props.getProperty("ApplicationVersionVersionNumber"));
+		bootloaderVersion = Integer.parseInt(props.getProperty("BootLoaderVersion"));
+		uniqueID = props.getProperty("DeviceUniqueID");
+		processorVersion = props.getProperty("GPSFirmwareVersion");
+		systemVersion = Integer.parseInt(props.getProperty("LinuxVersion"));
 		
-		m_activeMap = GpsMap.readCurrentMap(this);
+		activeMap = GpsMap.readCurrentMap(this);
 		
 		// Un petit coup de trace
-		LOGGER.info("Chargement du "+m_deviceName);
+		LOGGER.info("Chargement du "+name);
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("m_deviceName = "+m_deviceName);
-			LOGGER.debug("m_appVersion = "+m_appVersion);
-			LOGGER.debug("m_bootloaderVersion = "+m_bootloaderVersion);
-			LOGGER.debug("m_deviceUniqueID = "+m_deviceUniqueID);
+			LOGGER.debug("m_deviceName = "+name);
+			LOGGER.debug("m_appVersion = "+applicationVersion);
+			LOGGER.debug("m_bootloaderVersion = "+bootloaderVersion);
+			LOGGER.debug("m_deviceUniqueID = "+uniqueID);
 			LOGGER.debug("m_mapName = "+getActiveMapName());
 			LOGGER.debug("m_mapVersion = "+getActiveMapVersion());
-			LOGGER.debug("m_systemVersion = "+m_systemVersion);
+			LOGGER.debug("m_systemVersion = "+systemVersion);
 		}
-	}
-	
-	/**
-	 * Extrait la liste des points de montage de la commande mount
-	 * @return
-	 */
-	private static final File[] getLinuxMountPoints() {
-		
-		List<File> roots = new ArrayList<File>();
-		try {
-			// On exécute la commande système qui liste les point de montages
-			Process cmd = Runtime.getRuntime().exec("mount");
-			BufferedReader br = new BufferedReader(new InputStreamReader(cmd.getInputStream()));
-			
-			// Et on en extrait les répertoire de montage
-			String line = new String();
-			LOGGER.debug("Liste des pounts de montage :");
-			while ((line = br.readLine()) != null) {
-				if (line.startsWith("none")) {
-					// On vire les périphériques non monté
-					continue;
-				} 
-				
-				final String START = " on ", END = " type ";
-				String pathMountPoint = line.substring(
-						line.indexOf(START)+START.length(), 
-						line.lastIndexOf(END));
-				if (LOGGER.isDebugEnabled()) LOGGER.debug("\t"+pathMountPoint);
-				
-				roots.add(new File(pathMountPoint));
-			}
-			
-		} catch (IOException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-		} 
-		
-		return (File[]) roots.toArray(new File[0]);
-		
-	}
-	
-	/**
-	 * Liste les lecteurs
-	 * @return
-	 */
-	private static final File[] getWindowsMountPoints(){
-		return File.listRoots();
 	}
 
 ////
@@ -268,25 +199,25 @@ public class GlobalPositioningSystem {
 	 * @throws JTomtomException 
 	 */
 	public String getChipset() throws JTomtomException {
-		if (m_chipset == null) {
-			String ephemDir = m_mountPoint+File.separator+"ephem";
+		if (chipset == null) {
+			String ephemDir = mountPoint+File.separator+"ephem";
 			File ephemFile = new File(ephemDir+File.separator+"lto.dat");
 			if (ephemFile.exists()) {
-				m_chipset = "globalLocate";
-				m_quickFixLastUpdate = ephemFile.lastModified();
+				chipset = "globalLocate";
+				quickFixLastUpdate = ephemFile.lastModified();
 			}
 			
 			ephemFile = new File(ephemDir+File.separator+"packedephemeris.ee");
 			if (ephemFile.exists()) {
-				m_chipset = "SiRFStarIII";
-				m_quickFixLastUpdate = ephemFile.lastModified();
+				chipset = "SiRFStarIII";
+				quickFixLastUpdate = ephemFile.lastModified();
 			}
 			
-			if (m_chipset == null)
+			if (chipset == null)
 				throw new JTomtomException("org.jtomtom.errors.gps.unknownchipset");
 		}
 		
-		return m_chipset;
+		return chipset;
 	}
 	
 	/**
@@ -294,7 +225,7 @@ public class GlobalPositioningSystem {
 	 * @return 	Timespamp de la date
 	 */
 	public long getQuickFixLastUpdate() {
-		if (m_quickFixLastUpdate == 0) {
+		if (quickFixLastUpdate == 0) {
 			try {
 				getChipset();
 			} catch (JTomtomException e) {
@@ -303,7 +234,7 @@ public class GlobalPositioningSystem {
 			}
 		}
 		
-		return m_quickFixLastUpdate;
+		return quickFixLastUpdate;
 	}
 	
 	/**
@@ -311,8 +242,8 @@ public class GlobalPositioningSystem {
 	 * @return	Timespamp de la date
 	 */
 	public long getQuickFixExpiry() {
-		if (m_quickFixExpiry == 0) {
-			String ephemDir = m_mountPoint+File.separator+"ephem";
+		if (quickFixExpiry == 0) {
+			String ephemDir = mountPoint+File.separator+"ephem";
 			File metaFile = new File(ephemDir+File.separator+"ee_meta.txt");
 			if (metaFile.exists() && metaFile.canRead()) {
 				BufferedReader buff = null;
@@ -321,7 +252,7 @@ public class GlobalPositioningSystem {
 					String line;
 					while ((line = buff.readLine()) != null) {
 						if (line.startsWith("Expiry=")) {
-							m_quickFixExpiry = Long.parseLong(line.substring(7))*1000;
+							quickFixExpiry = Long.parseLong(line.substring(7))*1000;
 						}
 					}
 					
@@ -340,7 +271,7 @@ public class GlobalPositioningSystem {
 			} // end if (metaFile.exists() && metaFile.canRead())
 		} // end if (m_quickFixExpiry == 0)
 		
-		return m_quickFixExpiry;
+		return quickFixExpiry;
 	}
 	
 	/**
@@ -351,7 +282,7 @@ public class GlobalPositioningSystem {
 	 * @throws JTomtomException	Si la copie des fichiers à échouée un exception est levé
 	 */
 	public boolean updateQuickFix(List<File> ephemFiles) throws JTomtomException {
-		String destDir = getMountedPoint(false)+File.separator+"ephem"+File.separator;
+		String destDir = getMountPoint(false)+File.separator+"ephem"+File.separator;
 		
 		LOGGER.debug("Copie des fichiers dans "+destDir);
 		for (File current : ephemFiles) {
@@ -365,67 +296,67 @@ public class GlobalPositioningSystem {
 		
 		// Ré-initialisation des informations QF
 		LOGGER.debug("Ré-initialisation des champs QF.");
-		m_quickFixExpiry = 0;
-		m_quickFixLastUpdate = 0;
-		m_chipset = null;
+		quickFixExpiry = 0;
+		quickFixLastUpdate = 0;
+		chipset = null;
 		
 		return true;
 	}
 		
 	public final String getDeviceName() {
-		return m_deviceName;
+		return name;
 	}
 	
 	public final String getDeviceUniqueID() {
-		return m_deviceUniqueID;
+		return uniqueID;
 	}
 
 	public final String getAppVersion() {
-		if (m_appVersion != 0) {
-			return Float.toString((float)m_appVersion/1000);
+		if (applicationVersion != 0) {
+			return Float.toString((float)applicationVersion/1000);
 		}
-		return Integer.toString(m_appVersion);
+		return Integer.toString(applicationVersion);
 	}
 
 	public final String getSystemVersion() {
-		return Integer.toString(m_systemVersion);
+		return Integer.toString(systemVersion);
 	}
 
 	public final String getGpsVersion() {
-		return m_gpsVersion;
+		return processorVersion;
 	}
 
 	public final String getBootloaderVersion() {
-		return Integer.toString(m_bootloaderVersion);
+		return Integer.toString(bootloaderVersion);
 	}
 
 	public final String getActiveMapName() {
-		if (m_activeMap != null) {
-			return m_activeMap.getName();
+		if (activeMap != null) {
+			return activeMap.getName();
 		} else {
 			return "";
 		}
 	}
 
 	public final String getActiveMapVersion() {
-		if (m_activeMap != null) {
-			return m_activeMap.getVersion();
+		if (activeMap != null) {
+			return activeMap.getVersion();
 		} else {
 			return "";
 		}
 	}
 	
 	public final GpsMap getActiveMap() {
-		return m_activeMap;
+		return activeMap;
 	}
 	
 	public Map<String, GpsMap> getAllMaps() throws JTomtomException {
-		if (m_mapsList == null) {
-			m_mapsList = new HashMap<String, GpsMap>();
+		if (availableMaps == null) {
+			availableMaps = new HashMap<String, GpsMap>();
 			for (GpsMap map : GpsMap.listAllGpsMap(this)) {
-				m_mapsList.put(map.getName(), map);
+				availableMaps.put(map.getName(), map);
 			}
 		}
-		return m_mapsList;
+		return availableMaps;
 	}
 }

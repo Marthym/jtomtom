@@ -44,7 +44,7 @@ import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
 
-public final class Tomtomax implements RadarsConnector {
+public final class Tomtomax extends RadarsConnector {
 	private static final Logger LOGGER = Logger.getLogger(Tomtomax.class);
 	
 	/**

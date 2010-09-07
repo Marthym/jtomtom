@@ -27,7 +27,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -111,56 +110,16 @@ public final class JTomTomUtils {
 	public static final boolean deplacer (File source, File destination) {
 		return deplacer(source, destination, false);
 	}
-
-	/**
-	 * Instantiate the Radar connector class for the current Locale
-	 * @return		An intance of RadarsConnector
-	 * @throws JTomtomException
-	 */
-	public static final RadarsConnector instantiateRadarConnector() throws JTomtomException {
-		return instantiateRadarConnector(Locale.getDefault());
-	}
-	
-	/**
-	 * Instantiate the Radar connector class for the specified Locale
-	 * @param	Locale	Locale of the country represented by the map
-	 * @return			An intance of RadarsConnector
-	 * @throws JTomtomException
-	 */
-	public static final RadarsConnector instantiateRadarConnector(Locale localeSite) throws JTomtomException {
-		Class<?> connector;
-		RadarsConnector radars;
-		try {
-			LOGGER.debug("Create connector instante for Locale "+localeSite);
-			connector = Class.forName(JTomtom.theProperties.getApplicationProperty("org.jtomtom.radars.connector."+localeSite));
-			
-			if (RadarsConnector.class.isAssignableFrom(connector)) {
-				radars = (RadarsConnector) connector.newInstance();
-			} else {
-				throw new JTomtomException(new ClassCastException());
-			}
-			
-		} catch (ClassNotFoundException e) {
-			throw new JTomtomException(e);
-			
-		} catch (InstantiationException e) {
-			throw new JTomtomException(e);
-			
-		} catch (IllegalAccessException e) {
-			throw new JTomtomException(e);
-		}
-		
-		return radars;
-	}
 	
 	/**
 	 * Get an array of all radarconnector declared in properties file
 	 * @return	Array of RadarsConnector
 	 */
 	public static final RadarsConnector[] getAllRadarsConnectors() {
-		Map<String, String> connectorList = JTomtom.theProperties.getApplicationProperties("org.jtomtom.radars.connector");
-		RadarsConnector[] result = new RadarsConnector[connectorList.size()];
-		int i = 0;
+		Map<String, String> connectorList = JTomtom.theProperties.getApplicationProperties(RadarsConnector.RADARS_CONNECTOR_PROPERTIES);
+		RadarsConnector[] result = new RadarsConnector[connectorList.size()+1];
+		result[0] = RadarsConnector.EMPTY_RADAR_CONNECTOR;
+		int i = 1;
 		
 		Iterator<String> it = connectorList.keySet().iterator();
 		while (it.hasNext()) {
