@@ -28,6 +28,7 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 import net.sf.jcablib.CabFile;
@@ -95,7 +96,7 @@ public class GpsMap {
 		
 		// Now we must read root directory for found currentmap.dat
 		// We dont know excatly the name because of case sensity
-		File mountPoint = new File(p_gps.getMountedPoint(false));
+		File mountPoint = new File(p_gps.getMountPoint(false));
 		File[] datFiles = mountPoint.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
@@ -146,7 +147,7 @@ public class GpsMap {
 		String path = "";
 		if (cutpath.length > 0) {
 			name = cutpath[cutpath.length-1];
-			path = p_gps.getMountedPoint(false)+File.separator+name;
+			path = p_gps.getMountPoint(false)+File.separator+name;
 		}
 		
 		try {
@@ -164,7 +165,7 @@ public class GpsMap {
 	 */
 	public static List<GpsMap> listAllGpsMap(GlobalPositioningSystem p_gps) throws JTomtomException {
 		// So we will go through the first level of tree in search of a directory containing file .pna
-		File gpsRoot = new File(p_gps.getMountedPoint(false));
+		File gpsRoot = new File(p_gps.getMountPoint(false));
 		String[] listRootFile = gpsRoot.list();
 		List<GpsMap> mapsList = new ArrayList<GpsMap>();
 		
@@ -246,7 +247,7 @@ public class GpsMap {
 		// We verifies that it is still consistent
 		String mp = "";
 		try {
-			mp = p_gps.getMountedPoint(false);
+			mp = p_gps.getMountPoint(false);
 		} catch (JTomtomException e) {}
 		
 		if (this.m_path.startsWith(mp)) {
@@ -260,8 +261,18 @@ public class GpsMap {
 	 * @throws JTomtomException
 	 */
 	public void readRadarsInfos() throws JTomtomException {
-		RadarsConnector radars = JTomTomUtils.instantiateRadarConnector();
+		RadarsConnector radars = getDefaultRadarConnector();
 		m_radarsInformations = radars.getLocalDbInfos(m_path);
+	}
+	
+	/**
+	 * Return the default radar connector create for the default Locale
+	 * @return
+	 */
+	private static final RadarsConnector getDefaultRadarConnector() {
+		String connectorClassName = JTomtom.theProperties.getApplicationProperty(
+										RadarsConnector.RADARS_CONNECTOR_PROPERTIES+"."+Locale.getDefault());
+		return RadarsConnector.createFromClass(connectorClassName);
 	}
 	
 	/**

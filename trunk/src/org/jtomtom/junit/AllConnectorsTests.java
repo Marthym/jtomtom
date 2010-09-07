@@ -20,6 +20,7 @@
  */
 package org.jtomtom.junit;
 import org.apache.log4j.BasicConfigurator;
+import org.jtomtom.connector.RadarsConnector;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -27,6 +28,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses(value={
+	RadarsConnector.class,
 	TestTomtomax.class,
 	TestPdisDotEs.class
 })

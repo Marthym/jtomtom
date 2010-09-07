@@ -48,7 +48,7 @@ import org.jtomtom.connector.RadarsConnector;
  * @author marthym
  *
  */
-public class PdisDotEs implements RadarsConnector {
+public class PdisDotEs extends RadarsConnector {
 	private static final Logger LOGGER = Logger.getLogger(PdisDotEs.class);
 
 	public  static final String PDISES_DATE_FORMAT = "dd/MM/yyyy";

@@ -48,7 +48,7 @@ public class TestGPS {
 		
 		String mountPoint = null;
 		try {
-			mountPoint = myGPS.getMountedPoint(true);
+			mountPoint = myGPS.getMountPoint(true);
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
