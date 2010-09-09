@@ -25,9 +25,9 @@ import static junit.framework.Assert.*;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.TomtomDevice;
-import org.jtomtom.TomtomMap;
 import org.jtomtom.JTomtomException;
+import org.jtomtom.device.TomtomDevice;
+import org.jtomtom.device.TomtomMap;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -66,8 +66,8 @@ public class TestGPS {
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
-		assertNotNull(myGPS.getDeviceUniqueID());
-		assertEquals("AK9AG BJKUJ", myGPS.getDeviceUniqueID());
+		assertNotNull(myGPS.getSerialNumber());
+		assertEquals("AK9AG BJKUJ", myGPS.getSerialNumber());
 		System.out.println(myGPS.getAppVersion());
 	}
 	
@@ -102,7 +102,7 @@ public class TestGPS {
 	public void testGetMapsList() {
 		try {
 			TomtomDevice myGPS = new TomtomDevice();
-			java.util.Map<String, TomtomMap> maps = myGPS.getAllMaps();
+			java.util.Map<String, TomtomMap> maps = myGPS.getAvailableMaps();
 			assertNotNull(maps);
 			assertFalse(maps.isEmpty());
 			

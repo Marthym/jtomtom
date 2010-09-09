@@ -42,12 +42,12 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.TomtomDevice;
-import org.jtomtom.TomtomMap;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
+import org.jtomtom.device.TomtomDevice;
+import org.jtomtom.device.TomtomMap;
 import org.jtomtom.gui.PatienterDialog;
 import org.jtomtom.gui.TabRadars;
 
@@ -151,7 +151,7 @@ public class MajRadarsAction extends AbstractAction {
 			// We check if we need to download PremiumPack
 			for (JCheckBox chk : p_checkList) { 
 				if (chk.isSelected()) {
-					TomtomMap map = theGPS.getAllMaps().get(chk.getText());
+					TomtomMap map = theGPS.getAvailableMaps().get(chk.getText());
 					if (map != null && POIsDbInfos.UNKNOWN.equals(map.getRadarsDbVersion())) {
 						conn = p_radars.getConnectionForInstall();
 					}
@@ -241,7 +241,7 @@ public class MajRadarsAction extends AbstractAction {
 		boolean retour = true;
 		for (JCheckBox chk : p_checkList) {
 			if (chk.isSelected()) {
-				TomtomMap map = theGPS.getAllMaps().get(chk.getText());
+				TomtomMap map = theGPS.getAvailableMaps().get(chk.getText());
 				if (map != null) {
 					retour &= map.updateRadars(filesToInstall);
 				}

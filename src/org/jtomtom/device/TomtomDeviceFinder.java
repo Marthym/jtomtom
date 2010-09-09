@@ -18,7 +18,7 @@
  *  Frédéric Combes can be reached at:
  *  <belz12@yahoo.fr> 
  */
-package org.jtomtom.gui.utilities;
+package org.jtomtom.device;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,7 +39,6 @@ import org.jtomtom.JTomtomException;
 public class TomtomDeviceFinder {
 	private static final Logger LOGGER = Logger.getLogger(TomtomDeviceFinder.class);
 	
-	public static final String TOMTOM_INFORMATION_FILE = "ttgo.bif";
 	private static final String LINUX_MOUNT_START = " on ";
 	private static final String LINUX_MOUNT_END = " type ";
 	
@@ -82,7 +81,7 @@ public class TomtomDeviceFinder {
 	 * @return
 	 */
 	private static final boolean isTomtomRootDirectory(File directory) {
-		File ttgo = new File(directory, TOMTOM_INFORMATION_FILE);
+		File ttgo = new File(directory, TomtomFilesProvider.FILE_TOMTOM_INFORMATIONS);
 		return ttgo.exists() && ttgo.isFile() && ttgo.canRead();
 	}
 	

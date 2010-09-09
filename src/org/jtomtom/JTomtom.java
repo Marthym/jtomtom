@@ -40,6 +40,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
+import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.JTomtomFenetre;
 import org.jtomtom.gui.action.CheckUpdateAction;
 import org.jtomtom.gui.utilities.JarUtils;

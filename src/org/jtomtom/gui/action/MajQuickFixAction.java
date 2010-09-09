@@ -44,9 +44,9 @@ import net.sf.jcablib.CabFile;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.Constant;
-import org.jtomtom.TomtomDevice;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
+import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.PatienterDialog;
 import org.jtomtom.gui.TabQuickFix;
 

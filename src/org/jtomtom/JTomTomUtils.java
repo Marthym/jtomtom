@@ -26,11 +26,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.connector.RadarsConnector;
 
 public final class JTomTomUtils {
 	public static final Logger LOGGER = Logger.getLogger(JTomTomUtils.class);
@@ -109,41 +106,6 @@ public final class JTomTomUtils {
 	 */
 	public static final boolean deplacer (File source, File destination) {
 		return deplacer(source, destination, false);
-	}
-	
-	/**
-	 * Get an array of all radarconnector declared in properties file
-	 * @return	Array of RadarsConnector
-	 */
-	public static final RadarsConnector[] getAllRadarsConnectors() {
-		Map<String, String> connectorList = JTomtom.theProperties.getApplicationProperties(RadarsConnector.RADARS_CONNECTOR_PROPERTIES);
-		RadarsConnector[] result = new RadarsConnector[connectorList.size()+1];
-		result[0] = RadarsConnector.EMPTY_RADAR_CONNECTOR;
-		int i = 1;
-		
-		Iterator<String> it = connectorList.keySet().iterator();
-		while (it.hasNext()) {
-			String key = it.next();
-
-			Class<?> connector = null;
-			try {
-				connector = Class.forName(connectorList.get(key));
-			} catch (ClassNotFoundException e) {
-				LOGGER.debug(e.getLocalizedMessage());
-				continue;
-			}
-			
-			try {
-				if (RadarsConnector.class.isAssignableFrom(connector)) {
-					result[i++] = (RadarsConnector) connector.newInstance();
-				}
-			} catch (Exception e) {
-				LOGGER.debug(e.getLocalizedMessage());
-				continue;
-			}
-		}
-		
-		return result;
 	}
 
 }
