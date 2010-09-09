@@ -50,7 +50,7 @@ public class JTomtomFenetre extends JFrame implements ChangeListener {
 	}
 
 	private void build() {
-		setTitle("jTomtom - "+JTomtom.getTheGPS().getDeviceName()); 			//On donne un titre à l'application
+		setTitle("jTomtom - "+JTomtom.getTheGPS().getName()); 			//On donne un titre à l'application
 		setSize(600,400); 				//On donne une taille à notre fenêtre
 		setLocationRelativeTo(null); 	//On centre la fenêtre sur l'écran
 		setResizable(false); 			//On interdit la redimensionnement de la fenêtre

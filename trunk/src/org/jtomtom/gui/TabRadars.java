@@ -45,13 +45,12 @@ import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.TomtomMap;
 import org.jtomtom.InitialErrorRun;
-import org.jtomtom.JTomTomUtils;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
+import org.jtomtom.device.TomtomMap;
 import org.jtomtom.gui.action.ActionResult;
 import org.jtomtom.gui.action.MajRadarsAction;
 import org.jtomtom.gui.utilities.JTTabPanel;
@@ -149,7 +148,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		refreshButton.addActionListener(this);
 		buttonPanel.add(refreshButton);
 		
-		RadarsConnector[] allConnectors = JTomTomUtils.getAllRadarsConnectors();
+		RadarsConnector[] allConnectors = RadarsConnector.getAllRadarsConnectors();
 		radarSiteList = new JComboBox(allConnectors);
 		for (RadarsConnector radar : allConnectors) {
 			if (radar.toString().endsWith("["+Locale.getDefault().getCountry()+"]")) {
@@ -173,12 +172,12 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		checkBoxPane.setLayout(new BoxLayout(checkBoxPane, BoxLayout.PAGE_AXIS));
 		mapsCheckList = new LinkedList<JCheckBox>();
 		try {
-			Iterator<TomtomMap> it = JTomtom.getTheGPS().getAllMaps().values().iterator();
+			Iterator<TomtomMap> it = JTomtom.getTheGPS().getAvailableMaps().values().iterator();
 			while (it.hasNext()) {
 				TomtomMap map = it.next();
 				JCheckBox chk = new JCheckBox(map.getName());
 				chk.setToolTipText(m_rbControls.getString("org.jtomtom.tab.radars.panel.maplist.hint"));
-				if (map.getName().equals(JTomtom.getTheGPS().getActiveMapName())) {
+				if (map.getName().equals(JTomtom.getTheGPS().getActiveMap().getName())) {
 					chk.setSelected(true);
 				}
 				mapsCheckList.add(chk);

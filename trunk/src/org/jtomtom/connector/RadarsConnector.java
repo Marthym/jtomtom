@@ -22,8 +22,12 @@ package org.jtomtom.connector;
 
 import java.net.HttpURLConnection;
 import java.net.Proxy;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.JTomTomUtils;
+import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.radars.DummyRadarsConnector;
 
@@ -127,5 +131,40 @@ public abstract class RadarsConnector {
 	 * @return
 	 */	
 	public abstract HttpURLConnection getConnectionForInstall();
+
+	/**
+	 * Get an array of all radarconnector declared in properties file
+	 * @return	Array of RadarsConnector
+	 */
+	public static final RadarsConnector[] getAllRadarsConnectors() {
+		Map<String, String> connectorList = JTomtom.theProperties.getApplicationProperties(RADARS_CONNECTOR_PROPERTIES);
+		RadarsConnector[] result = new RadarsConnector[connectorList.size()+1];
+		result[0] = EMPTY_RADAR_CONNECTOR;
+		int i = 1;
+		
+		Iterator<String> it = connectorList.keySet().iterator();
+		while (it.hasNext()) {
+			String key = it.next();
+	
+			Class<?> connector = null;
+			try {
+				connector = Class.forName(connectorList.get(key));
+			} catch (ClassNotFoundException e) {
+				JTomTomUtils.LOGGER.debug(e.getLocalizedMessage());
+				continue;
+			}
+			
+			try {
+				if (RadarsConnector.class.isAssignableFrom(connector)) {
+					result[i++] = (RadarsConnector) connector.newInstance();
+				}
+			} catch (Exception e) {
+				JTomTomUtils.LOGGER.debug(e.getLocalizedMessage());
+				continue;
+			}
+		}
+		
+		return result;
+	}
 	
 }

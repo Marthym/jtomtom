@@ -57,19 +57,19 @@ public class TabGeneral extends JTTabPanel implements ActionListener {
 		StringBuffer infos = new StringBuffer();
 		infos.append("<html><table>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.general.name")).append(" : </strong></td><td><i>")
-			.append(JTomtom.getTheGPS().getDeviceName()).append("</i></td></tr>");
+			.append(JTomtom.getTheGPS().getName()).append("</i></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.general.unid")).append(" : </strong></td><td><i>")
-			.append(JTomtom.getTheGPS().getDeviceUniqueID()).append("</i></td></tr>");
+			.append(JTomtom.getTheGPS().getSerialNumber()).append("</i></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.general.bootloader")).append(" : </strong></td><td><i>")
 			.append(JTomtom.getTheGPS().getBootloaderVersion()).append("</i></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.general.gpsversion")).append(" : </strong></td><td><i>")
-			.append(JTomtom.getTheGPS().getGpsVersion()).append("</i></td></tr>");
+			.append(JTomtom.getTheGPS().getProcessorVersion()).append("</i></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.general.appversion")).append(" : </strong></td><td><i>")
 			.append(JTomtom.getTheGPS().getAppVersion()).append("</i></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.general.map")).append(" : </strong></td><td><i>")
-			.append(JTomtom.getTheGPS().getActiveMapName()).append("</i></td></tr>");
+			.append(JTomtom.getTheGPS().getActiveMap().getName()).append("</i></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.general.mapversion")).append(" : </strong></td><td><i>")
-			.append(JTomtom.getTheGPS().getActiveMapVersion()).append("</i></td></tr>");
+			.append(JTomtom.getTheGPS().getActiveMap().getVersion()).append("</i></td></tr>");
 		infos.append("</table>");
 		infos.append("</html>");
 		
@@ -90,13 +90,13 @@ public class TabGeneral extends JTTabPanel implements ActionListener {
 		// Action de copier le contenu des infos dans le presse papier
 		if (event.getSource() == m_btCopier) {
 			StringBuffer infos = new StringBuffer();
-			infos.append(m_rbControls.getString("org.jtomtom.tab.general.name")).append(" : ").append(JTomtom.getTheGPS().getDeviceName()).append("\n");
-			infos.append(m_rbControls.getString("org.jtomtom.tab.general.unid")).append(" : ").append(JTomtom.getTheGPS().getDeviceUniqueID()).append("\n");
+			infos.append(m_rbControls.getString("org.jtomtom.tab.general.name")).append(" : ").append(JTomtom.getTheGPS().getName()).append("\n");
+			infos.append(m_rbControls.getString("org.jtomtom.tab.general.unid")).append(" : ").append(JTomtom.getTheGPS().getSerialNumber()).append("\n");
 			infos.append(m_rbControls.getString("org.jtomtom.tab.general.bootloader")).append(" : ").append(JTomtom.getTheGPS().getBootloaderVersion()).append("\n");
-			infos.append(m_rbControls.getString("org.jtomtom.tab.general.gpsversion")).append(" : ").append(JTomtom.getTheGPS().getGpsVersion()).append("\n");
+			infos.append(m_rbControls.getString("org.jtomtom.tab.general.gpsversion")).append(" : ").append(JTomtom.getTheGPS().getProcessorVersion()).append("\n");
 			infos.append(m_rbControls.getString("org.jtomtom.tab.general.appversion")).append(" : ").append(JTomtom.getTheGPS().getAppVersion()).append("\n");
-			infos.append(m_rbControls.getString("org.jtomtom.tab.general.map")).append(" : ").append(JTomtom.getTheGPS().getActiveMapName()).append("\n");
-			infos.append(m_rbControls.getString("org.jtomtom.tab.general.mapversion")).append(" : ").append(JTomtom.getTheGPS().getActiveMapVersion()).append("\n");
+			infos.append(m_rbControls.getString("org.jtomtom.tab.general.map")).append(" : ").append(JTomtom.getTheGPS().getActiveMap().getName()).append("\n");
+			infos.append(m_rbControls.getString("org.jtomtom.tab.general.mapversion")).append(" : ").append(JTomtom.getTheGPS().getActiveMap().getVersion()).append("\n");
 			
 			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 			clipboard.setContents(new StringSelection(infos.toString()), null);

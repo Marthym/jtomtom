@@ -18,21 +18,22 @@
  *  Frédéric Combes can be reached at:
  *  <belz12@yahoo.fr> 
  */
-package org.jtomtom;
+package org.jtomtom.device;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 
-import net.sf.jcablib.CabFile;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.JTomTomUtils;
+import org.jtomtom.JTomtom;
+import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
 
@@ -45,11 +46,6 @@ import org.jtomtom.connector.RadarsConnector;
 public class TomtomMap {
 	private static final Logger LOGGER = Logger.getLogger(TomtomMap.class);
 		
-	/**
-	 * Link to the map containing GPS
-	 */
-	private TomtomDevice parent;
-	
 	/**
 	 * Map name
 	 */
@@ -86,87 +82,6 @@ public class TomtomMap {
 	}
 	
 	/**
-	 * Create a map corresponding to the current map of GPS
-	 * @param p_gps	GPS map containing
-	 * @return		Current GPS map
-	 * @throws JTomtomException
-	 */
-	public static TomtomMap createActiveMapOfTomtom(TomtomDevice p_gps) throws JTomtomException {
-		
-		String gpsMountPoint = p_gps.getMountPoint(false);
-		
-		String gpsActiveMapPath = getActiveMapPathFromDeviceRoot(gpsMountPoint);
-				
-		// Second, we retrieves the name and absolute path of the map
-		File activeMapDirectory = new File(gpsActiveMapPath);	
-		String path = gpsMountPoint+File.separator+activeMapDirectory.getName();
-		try {
-			return createMapFromPna(path).linkToGps(p_gps);
-		} catch (Exception e) { return null;}
-	}
-
-	/**
-	 * Read the currentmap.dat for finding the path of the active map in the given GPS
-	 * @param gpsMountPoint	Root of the GPS device
-	 * @return				Path of the active map
-	 */
-	public static String getActiveMapPathFromDeviceRoot(String gpsMountPoint) {
-		File currentMapFile = getCurrentMapFile(gpsMountPoint);
-		if (currentMapFile == null) return null;
-		
-		String activeMapPath = "";
-		RandomAccessFile raf = null;
-		try {
-			raf = new RandomAccessFile(currentMapFile, "r");
-			int pathLenght = Integer.reverseBytes(raf.readInt());
-			activeMapPath = CabFile.readCString(raf);
-			if (activeMapPath.length() != (pathLenght-1)) {
-				LOGGER.debug("File "+currentMapFile.getName()+" seems to be corrupted !");
-			}
-		} catch (Exception e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			return null;
-			
-		} finally {
-			try {raf.close();} catch (Exception e) {};
-		}
-		LOGGER.debug("activeMapPath = "+activeMapPath);
-
-		return activeMapPath;
-	}
-
-	/**
-	 * Looking for the currentmap.dat file. This file is not case sensitive for
-	 * 	Tomtom device but it is for Linux system.
-	 * @param p_gps				GPS where looking for
-	 * @return					File linking with currentmap.dat
-	 * @throws JTomtomException
-	 */
-	private static File getCurrentMapFile(String p_gpsMountPoint) {
-		File mountPoint = new File(p_gpsMountPoint);
-		File[] datFiles = mountPoint.listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".dat");
-			}
-		});
-		
-		File currentMapFile = null;
-		for (File aDatFile : datFiles) {
-			if ("currentmap.dat".equalsIgnoreCase(aDatFile.getName())) {
-				currentMapFile = aDatFile;
-				break;
-			}
-		}
-		if (!currentMapFile.exists()) {
-			LOGGER.error("File currentmap.dat not found in the GPS root !");
-			return null;
-		}
-		return currentMapFile;
-	}
-	
-	/**
 	 * Returns the list of maps in a GPS
 	 * @param p_gps	GPS to explore
 	 * @return		Map list
@@ -190,7 +105,7 @@ public class TomtomMap {
 				if (p_gps.getActiveMap() != null && p_gps.getActiveMap().getName().equals(currentFile.getName())) {
 					mapsList.add(p_gps.getActiveMap());
 				} else {
-					mapsList.add(createMapFromPna(currentFile.getAbsolutePath()).linkToGps(p_gps));
+					mapsList.add(createMapFromPath(currentFile.getAbsolutePath()));
 				}
 			}
 		}
@@ -202,16 +117,18 @@ public class TomtomMap {
 	 * Create a map without GPS from the name and path of the map
 	 * @param p_path	Absolute path of the map
 	 * @return			Map not linked to a GPS
+	 * @throws JTomtomException 
 	 */
-	private static TomtomMap createMapFromPna(String p_path) {
-		if (p_path.isEmpty()) {
-			return null;
-		}
+	public static TomtomMap createMapFromPath(String p_path) throws JTomtomException {
+		//TODO : C'est quoi une exception non vérifiée ?
+		if (p_path.isEmpty()) 
+			throw new JTomtomException(new IllegalArgumentException());
 		
 		// - We looking for pna file
 		File mapDirectory = new File(p_path);
 		String[] pnaFileList = mapDirectory.list(PNA_FILE_FILTER);
-		if (pnaFileList.length <= 0) return null;
+		if (pnaFileList.length <= 0) 
+			throw new JTomtomException(new FileNotFoundException());
 		
 		File pnaFile = new File(mapDirectory, pnaFileList[0]);
 		Scanner sc = null;
@@ -226,12 +143,7 @@ public class TomtomMap {
 			version = version.trim() +"."+ build.trim().split("=")[1];	// Yeah it's almost not dirty ;)
 			
 		} catch (FileNotFoundException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			
-		} catch (Exception e) {
-			LOGGER.debug(e.getLocalizedMessage());
-			return null;
+			throw new JTomtomException(e);
 			
 		} finally {
 			try {sc.close();} catch (Exception e){}
@@ -243,24 +155,6 @@ public class TomtomMap {
 		theMap.version = version;
 		
 		return theMap;
-	}
-	
-	/**
-	 * Link map to a GPS
-	 * @param p_gps	GPS to link
-	 * @return		The linked map
-	 */
-	private TomtomMap linkToGps(TomtomDevice p_gps) {
-		// We verifies that it is still consistent
-		String mp = "";
-		try {
-			mp = p_gps.getMountPoint(false);
-		} catch (JTomtomException e) {}
-		
-		if (this.absolutePath.startsWith(mp)) {
-			this.parent = p_gps;
-		}
-		return this;
 	}
 	
 	/**
@@ -313,10 +207,7 @@ public class TomtomMap {
 			}
 		}
 		
-		// Update active map infos if needing
-		if (name.equals(parent.getActiveMapName())) {
-			readRadarsInfos();
-		}
+		readRadarsInfos();
 		
 		return true;
 	}
@@ -328,15 +219,7 @@ public class TomtomMap {
 	public final String getName() {
 		return name;
 	}
-	
-	/**
-	 * Give the GPS linked to this map
-	 * @return
-	 */
-	public final TomtomDevice getGPS() {
-		return parent;
-	}
-	
+		
 	/**
 	 * Give the map absolute path
 	 * @return

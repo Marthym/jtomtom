@@ -23,16 +23,18 @@ package org.jtomtom.junit;
 import static junit.framework.Assert.*;
 import static org.junit.Assert.assertFalse;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.TomtomDevice;
-import org.jtomtom.TomtomMap;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
+import org.jtomtom.device.TomtomDevice;
+import org.jtomtom.device.TomtomDeviceFinder;
+import org.jtomtom.device.TomtomMap;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -45,12 +47,10 @@ public class TestGpsMap {
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Test
 	public void testReadCurrentMap() {
 		try {
-			TomtomDevice myGPS = new TomtomDevice(false);
-			TomtomMap map = TomtomMap.createActiveMapOfTomtom(myGPS);
+			TomtomMap map = TomtomMap.createMapFromPath(TomtomDeviceFinder.findMountPoint()+File.separator+"France");
 			
 			assertNotNull(map);
 			
@@ -64,9 +64,7 @@ public class TestGpsMap {
 		try {
 			JTomtom.loadProperties();
 			
-			@SuppressWarnings("deprecation")
-			TomtomDevice myGPS = new TomtomDevice(false);
-			TomtomMap map = TomtomMap.createActiveMapOfTomtom(myGPS);
+			TomtomMap map = TomtomMap.createMapFromPath(TomtomDeviceFinder.findMountPoint()+File.separator+"France");
 			map.readRadarsInfos();
 			assertNotNull(map.getRadarsDbDate());
 			assertFalse(map.getRadarsDbVersion().equals(POIsDbInfos.UNKNOWN));

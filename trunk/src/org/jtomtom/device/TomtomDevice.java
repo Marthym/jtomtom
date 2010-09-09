@@ -18,7 +18,7 @@
  *  Frédéric Combes can be reached at:
  *  <belz12@yahoo.fr> 
  */
-package org.jtomtom;
+package org.jtomtom.device;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,13 +26,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import net.sf.jcablib.CabFile;
+
 import org.apache.log4j.Logger;
-import org.jtomtom.gui.utilities.TomtomDeviceFinder;
+import org.jtomtom.JTomTomUtils;
+import org.jtomtom.JTomtomException;
 
 /**
  * @author Frédéric Combes
@@ -44,49 +48,16 @@ public class TomtomDevice {
 	
 	private static final Logger LOGGER = Logger.getLogger(TomtomDevice.class);
 	
-	/**
-	 * Mount point or drive of the device
-	 */
-	private File mountPoint;
+	public TomtomFilesProvider theFiles;
 	
-	/**
-	 * Serial Number of the device
-	 */
 	private String serialNumber;
-	
-	/**
-	 * Device name
-	 */
 	private String name;
-	
-	/**
-	 * NavCore application version
-	 */
-	private int applicationVersion;
-	
-	/**
-	 * Operating System version
-	 */
+	private int applicationVersion;		// Navcore version
 	private int systemVersion;
-	
-	/**
-	 * GPS processor version
-	 */
-	private String processorVersion;
-	
-	/**
-	 * BootLoader version number
-	 */
+	private String processorVersion;	// GPS Processor version
 	private int bootloaderVersion;
-	
-	/**
-	 * Current active map
-	 */
+
 	private TomtomMap activeMap;
-	
-	/**
-	 * Available maps on device
-	 */
 	private Map<String, TomtomMap> availableMaps;
 	
 	/**
@@ -106,11 +77,13 @@ public class TomtomDevice {
 	}
 	
 	public TomtomDevice(String p_moutPoint) throws JTomtomException {
-		mountPoint = new File(p_moutPoint);
-		if (mountPoint.exists() && mountPoint.canRead())
-			loadInformationsFromBif();
+		try {
+			theFiles = new TomtomFilesProvider(new File(p_moutPoint));
+		} catch (FileNotFoundException e) {
+			throw new JTomtomException("org.jtomtom.errors.gps.incorrectmountpoint");
+		}
 		
-		throw new JTomtomException("org.jtomtom.errors.gps.incorrectmountpoint");
+		loadInformationsFromBif();
 	}
 	
 	/**
@@ -137,10 +110,16 @@ public class TomtomDevice {
 	 * @throws JTomtomException 
 	 */
 	public String getMountPoint(boolean p_forceRefresh) throws JTomtomException {
-		if (p_forceRefresh || mountPoint == null)
-			mountPoint = TomtomDeviceFinder.findMountPoint();
+		if (p_forceRefresh || theFiles == null) {
+			try {
+				theFiles = 
+					new TomtomFilesProvider( TomtomDeviceFinder.findMountPoint() );
+			} catch (FileNotFoundException e) {
+				throw new JTomtomException("org.jtomtom.errors.gps.incorrectmountpoint");
+			}
+		}
 		
-		return mountPoint.getAbsolutePath();
+		return theFiles.getRootDirectory().getAbsolutePath();
 	}
 	
 	/**
@@ -150,14 +129,13 @@ public class TomtomDevice {
 	public void loadInformationsFromBif() throws JTomtomException {
 		verifyMountPoint();
 		
-		File ttgo = new File(mountPoint, TomtomDeviceFinder.TOMTOM_INFORMATION_FILE);
 		Properties props = new Properties();
-		
-		try { props.load(new FileInputStream(ttgo)); } 
-		catch (Exception e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			return;
+		try { 
+			File ttgo = theFiles.getTomtomInformations();
+			props.load(new FileInputStream(ttgo));
+			
+		} catch (Exception e) {
+			throw new JTomtomException(e);
 		}
 		
 		name = props.getProperty("DeviceName");
@@ -167,8 +145,6 @@ public class TomtomDevice {
 		processorVersion = props.getProperty("GPSFirmwareVersion");
 		systemVersion = Integer.parseInt(props.getProperty("LinuxVersion"));
 		
-		activeMap = TomtomMap.createActiveMapOfTomtom(this);
-		
 		// Un petit coup de trace
 		LOGGER.info("Chargement du "+name);
 		if (LOGGER.isDebugEnabled()) {
@@ -176,8 +152,8 @@ public class TomtomDevice {
 			LOGGER.debug("applicationVersion = "+applicationVersion);
 			LOGGER.debug("bootloaderVersion = "+bootloaderVersion);
 			LOGGER.debug("serialNumber = "+serialNumber);
-			LOGGER.debug("ActiveMapName = "+getActiveMapName());
-			LOGGER.debug("ActiveMmapVersion = "+getActiveMapVersion());
+			LOGGER.debug("ActiveMapName = "+getActiveMap().getName());
+			LOGGER.debug("ActiveMmapVersion = "+getActiveMap().getVersion());
 			LOGGER.debug("systemVersion = "+systemVersion);
 		}
 	}
@@ -187,13 +163,41 @@ public class TomtomDevice {
 	 * @throws JTomtomException
 	 */
 	private void verifyMountPoint() throws JTomtomException {
-		if (mountPoint == null)
+		if (theFiles == null)
 			getMountPoint(false);
 	}
 
-////
-// LISTE DES GETTERS 
-//
+	/**
+	 * Read the currentmap.dat for finding the path of the active map in the given GPS
+	 * @param gpsMountPoint	Root of the GPS device
+	 * @return				Path of the active map
+	 * @throws JTomtomException 
+	 */
+	private final String readCurrentMapPath() throws JTomtomException {
+
+		String activeMapPath = "";
+		RandomAccessFile raf = null;
+		try {
+			
+			File currentMapFile = theFiles.getCurrentMapDat();
+			
+			raf = new RandomAccessFile(currentMapFile, "r");
+			int pathLenght = Integer.reverseBytes(raf.readInt());
+			activeMapPath = CabFile.readCString(raf);
+			
+			if (activeMapPath.length() != (pathLenght-1)) {
+				LOGGER.debug("File "+currentMapFile.getName()+" seems to be corrupted !");
+			}
+			
+		} catch (Exception e) { throw new JTomtomException(e);
+		} finally {
+			try {raf.close();} catch (Exception e) {};
+		}
+		LOGGER.debug("activeMapPath = "+activeMapPath);
+	
+		// TODO : To be refactor, that's shit like that
+		return theFiles.getRootDirectory()+File.separator+(new File(activeMapPath)).getName();
+	}
 	
 	/**
 	 * Récupère et renvoie le chipset de la puce GPS en fonctoin des fichiers ephemeride
@@ -202,17 +206,21 @@ public class TomtomDevice {
 	 */
 	public String getChipset() throws JTomtomException {
 		if (chipset == null) {
-			String ephemDir = mountPoint+File.separator+"ephem";
-			File ephemFile = new File(ephemDir+File.separator+"lto.dat");
-			if (ephemFile.exists()) {
-				chipset = "globalLocate";
-				quickFixLastUpdate = ephemFile.lastModified();
+			File ephemeride = null;
+			try {
+				ephemeride = theFiles.getEphemeridData();
+			} catch (FileNotFoundException e) {
+				throw new JTomtomException(e);
 			}
 			
-			ephemFile = new File(ephemDir+File.separator+"packedephemeris.ee");
-			if (ephemFile.exists()) {
+			if (TomtomFilesProvider.FILE_GLOBAL_LOCATE.equals(ephemeride.getName())) {
+				chipset = "globalLocate";
+				quickFixLastUpdate = ephemeride.lastModified();
+			}
+			
+			if (TomtomFilesProvider.FILE_SIRFSTAR_III.equals(ephemeride.getName())) {
 				chipset = "SiRFStarIII";
-				quickFixLastUpdate = ephemFile.lastModified();
+				quickFixLastUpdate = ephemeride.lastModified();
 			}
 			
 			if (chipset == null)
@@ -245,32 +253,30 @@ public class TomtomDevice {
 	 */
 	public long getQuickFixExpiry() {
 		if (quickFixExpiry == 0) {
-			String ephemDir = mountPoint+File.separator+"ephem";
-			File metaFile = new File(ephemDir+File.separator+"ee_meta.txt");
-			if (metaFile.exists() && metaFile.canRead()) {
-				BufferedReader buff = null;
-				try {
-					buff = new BufferedReader(new FileReader(metaFile));
-					String line;
-					while ((line = buff.readLine()) != null) {
-						if (line.startsWith("Expiry=")) {
-							quickFixExpiry = Long.parseLong(line.substring(7))*1000;
-						}
+			BufferedReader buff = null;
+			try {
+				File metaFile = theFiles.getEphemeridMeta();
+				
+				buff = new BufferedReader(new FileReader(metaFile));
+				String line;
+				while ((line = buff.readLine()) != null) {
+					if (line.startsWith("Expiry=")) {
+						quickFixExpiry = Long.parseLong(line.substring(7))*1000;
 					}
-					
-				} catch (FileNotFoundException e) {
-					LOGGER.error(e.getLocalizedMessage());
-					if (LOGGER.isDebugEnabled()) e.printStackTrace();
-					
-				} catch (IOException e) {
-					LOGGER.error(e.getLocalizedMessage());
-					if (LOGGER.isDebugEnabled()) e.printStackTrace();
-					
-				} finally {
-					try {buff.close();}catch(Exception e){}
 				}
 				
-			} // end if (metaFile.exists() && metaFile.canRead())
+			} catch (FileNotFoundException e) {
+				LOGGER.error(e.getLocalizedMessage());
+				if (LOGGER.isDebugEnabled()) e.printStackTrace();
+				
+			} catch (IOException e) {
+				LOGGER.error(e.getLocalizedMessage());
+				if (LOGGER.isDebugEnabled()) e.printStackTrace();
+				
+			} finally {
+				try {buff.close();}catch(Exception e){}
+			}
+				
 		} // end if (m_quickFixExpiry == 0)
 		
 		return quickFixExpiry;
@@ -305,11 +311,11 @@ public class TomtomDevice {
 		return true;
 	}
 		
-	public final String getDeviceName() {
+	public final String getName() {
 		return name;
 	}
 	
-	public final String getDeviceUniqueID() {
+	public final String getSerialNumber() {
 		return serialNumber;
 	}
 
@@ -324,35 +330,24 @@ public class TomtomDevice {
 		return Integer.toString(systemVersion);
 	}
 
-	public final String getGpsVersion() {
+	public final String getProcessorVersion() {
 		return processorVersion;
 	}
 
 	public final String getBootloaderVersion() {
 		return Integer.toString(bootloaderVersion);
 	}
-
-	public final String getActiveMapName() {
-		if (activeMap != null) {
-			return activeMap.getName();
-		} else {
-			return "";
-		}
-	}
-
-	public final String getActiveMapVersion() {
-		if (activeMap != null) {
-			return activeMap.getVersion();
-		} else {
-			return "";
-		}
-	}
 	
 	public final TomtomMap getActiveMap() {
+		if (activeMap == null)
+			try {
+				activeMap = TomtomMap.createMapFromPath(readCurrentMapPath());
+			} catch (JTomtomException e) {}
+		
 		return activeMap;
 	}
 	
-	public Map<String, TomtomMap> getAllMaps() throws JTomtomException {
+	public Map<String, TomtomMap> getAvailableMaps() throws JTomtomException {
 		if (availableMaps == null) {
 			availableMaps = new HashMap<String, TomtomMap>();
 			for (TomtomMap map : TomtomMap.listAllGpsMap(this)) {
@@ -361,4 +356,5 @@ public class TomtomDevice {
 		}
 		return availableMaps;
 	}
+
 }
