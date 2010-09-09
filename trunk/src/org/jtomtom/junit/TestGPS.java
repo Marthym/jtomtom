@@ -27,6 +27,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.device.TomtomDevice;
+import org.jtomtom.device.TomtomDeviceFinder;
 import org.jtomtom.device.TomtomMap;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,18 +41,18 @@ public class TestGPS {
 		Logger.getRootLogger().setLevel(Level.DEBUG);
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Test
 	public void testGetMountedPoint() {
-		TomtomDevice myGPS = new TomtomDevice(false);
-		assertNotNull(myGPS);
-		
-		String mountPoint = null;
+		TomtomDevice myGPS = null;
 		try {
-			mountPoint = myGPS.getMountPoint(true);
+			myGPS = new TomtomDevice(TomtomDeviceFinder.findMountPoint());
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
+		assertNotNull(myGPS);
+		
+		String mountPoint = null;
+		mountPoint = myGPS.getMountPoint();
 		assertNotNull(mountPoint);
 		assertFalse(mountPoint.isEmpty());
 	}

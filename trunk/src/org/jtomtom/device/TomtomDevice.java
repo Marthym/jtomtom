@@ -69,18 +69,29 @@ public class TomtomDevice {
 	private long quickFixLastUpdate;
 
 	/**
-	 * Constructeur initialisant les variables membre lues dans le TT connecté
+	 * Create Tomtom device by search the device in the mount points
 	 * @throws JTomtomException 
 	 */
 	public TomtomDevice() throws JTomtomException {
+		try {
+			theFiles = 
+				new TomtomFilesProvider( TomtomDeviceFinder.findMountPoint() );
+		} catch (FileNotFoundException e) {
+			throw new JTomtomException("org.jtomtom.errors.gps.incorrectmountpoint", e);
+		}
+		
 		loadInformationsFromBif();
 	}
 	
-	public TomtomDevice(String p_moutPoint) throws JTomtomException {
+	/**
+	 * Create Tomtom device with the given mount point
+	 * @throws JTomtomException 
+	 */
+	public TomtomDevice(File p_moutPoint) throws JTomtomException {
 		try {
-			theFiles = new TomtomFilesProvider(new File(p_moutPoint));
+			theFiles = new TomtomFilesProvider(p_moutPoint);
 		} catch (FileNotFoundException e) {
-			throw new JTomtomException("org.jtomtom.errors.gps.incorrectmountpoint");
+			throw new JTomtomException("org.jtomtom.errors.gps.incorrectmountpoint", e);
 		}
 		
 		loadInformationsFromBif();
@@ -109,16 +120,7 @@ public class TomtomDevice {
 	 * @return					Chemin du TomTom ou chaine vide si erreur
 	 * @throws JTomtomException 
 	 */
-	public String getMountPoint(boolean p_forceRefresh) throws JTomtomException {
-		if (p_forceRefresh || theFiles == null) {
-			try {
-				theFiles = 
-					new TomtomFilesProvider( TomtomDeviceFinder.findMountPoint() );
-			} catch (FileNotFoundException e) {
-				throw new JTomtomException("org.jtomtom.errors.gps.incorrectmountpoint");
-			}
-		}
-		
+	public String getMountPoint() {
 		return theFiles.getRootDirectory().getAbsolutePath();
 	}
 	
@@ -127,7 +129,6 @@ public class TomtomDevice {
 	 * @throws JTomtomException
 	 */
 	public void loadInformationsFromBif() throws JTomtomException {
-		verifyMountPoint();
 		
 		Properties props = new Properties();
 		try { 
@@ -159,15 +160,6 @@ public class TomtomDevice {
 	}
 
 	/**
-	 * Verify if the device has a correct mount point and looking for it if it is not the case
-	 * @throws JTomtomException
-	 */
-	private void verifyMountPoint() throws JTomtomException {
-		if (theFiles == null)
-			getMountPoint(false);
-	}
-
-	/**
 	 * Read the currentmap.dat for finding the path of the active map in the given GPS
 	 * @param gpsMountPoint	Root of the GPS device
 	 * @return				Path of the active map
@@ -195,7 +187,7 @@ public class TomtomDevice {
 		}
 		LOGGER.debug("activeMapPath = "+activeMapPath);
 	
-		// TODO : To be refactor, that's shit like that
+		// TODO : To be refactor, that's bullshit
 		return theFiles.getRootDirectory()+File.separator+(new File(activeMapPath)).getName();
 	}
 	
@@ -290,7 +282,7 @@ public class TomtomDevice {
 	 * @throws JTomtomException	Si la copie des fichiers à échouée un exception est levé
 	 */
 	public boolean updateQuickFix(List<File> ephemFiles) throws JTomtomException {
-		String destDir = getMountPoint(false)+File.separator+"ephem"+File.separator;
+		String destDir = getMountPoint()+File.separator+"ephem"+File.separator;
 		
 		LOGGER.debug("Copie des fichiers dans "+destDir);
 		for (File current : ephemFiles) {

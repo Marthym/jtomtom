@@ -27,10 +27,13 @@ import java.util.ResourceBundle;
 import org.apache.log4j.Logger;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  *
  * Exception spécial JTomtom
  */
+//TODO : Make a unchecked RuntimeException for internal problems
+//TODO : Create an checked JTomtomUserException for user return message
+//TODO : Verify all function for remove throws JTomtomException if not needed
 public class JTomtomException extends Exception {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(JTomtomException.class);
@@ -47,8 +50,24 @@ public class JTomtomException extends Exception {
 		}
 	}
 	
+	public JTomtomException(String message, Throwable exception) {
+		super(translateMessage(message, null), exception);
+		LOGGER.error(getMessage());
+		if (LOGGER.isDebugEnabled()) {
+			printStackTrace();
+		}
+	}
+	
 	public JTomtomException(String message, String[] args) {
 		super(translateMessage(message, args));
+		LOGGER.error(getMessage());
+		if (LOGGER.isDebugEnabled()) {
+			printStackTrace();
+		}
+	}
+	
+	public JTomtomException(String message, String[] args, Throwable exception) {
+		super(translateMessage(message, args), exception);
 		LOGGER.error(getMessage());
 		if (LOGGER.isDebugEnabled()) {
 			printStackTrace();

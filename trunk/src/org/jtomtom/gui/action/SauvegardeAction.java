@@ -85,7 +85,7 @@ public class SauvegardeAction extends AbstractAction {
 			protected ActionResult doInBackground() throws Exception {
             	ActionResult result = new ActionResult(); 
                 try {
-                	String mountPoint = JTomtom.getTheGPS().getMountPoint(false);
+                	String mountPoint = JTomtom.getTheGPS().getMountPoint();
                 	if (mountPoint.isEmpty()) {
                 		throw new JTomtomException("org.jtomtom.errors.gps.nomountpoint");
                 	}
@@ -147,7 +147,7 @@ public class SauvegardeAction extends AbstractAction {
      * 			Si la création de l'ISO ne se passe pas bien
      */
     public boolean createGpsBackup(TomtomDevice p_GPS, boolean p_forTest) throws JTomtomException {
-    	File gpsDir = new File(p_GPS.getMountPoint(false));
+    	File gpsDir = new File(p_GPS.getMountPoint());
     	if (!gpsDir.exists() || !gpsDir.canRead()) {
     		throw new JTomtomException("org.jtomtom.errors.gps.directorycannotberead");
     	}

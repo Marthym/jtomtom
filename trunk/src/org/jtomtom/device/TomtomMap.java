@@ -89,7 +89,7 @@ public class TomtomMap {
 	 */
 	public static List<TomtomMap> listAllGpsMap(TomtomDevice p_gps) throws JTomtomException {
 		// So we will go through the first level of tree in search of a directory containing file .pna
-		File gpsRoot = new File(p_gps.getMountPoint(false));
+		File gpsRoot = new File(p_gps.getMountPoint());
 		String[] listRootFile = gpsRoot.list();
 		List<TomtomMap> mapsList = new ArrayList<TomtomMap>();
 		
@@ -120,7 +120,6 @@ public class TomtomMap {
 	 * @throws JTomtomException 
 	 */
 	public static TomtomMap createMapFromPath(String p_path) throws JTomtomException {
-		//TODO : C'est quoi une exception non vérifiée ?
 		if (p_path.isEmpty()) 
 			throw new JTomtomException(new IllegalArgumentException());
 		
