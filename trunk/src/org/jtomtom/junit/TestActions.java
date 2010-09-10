@@ -21,6 +21,7 @@
 package org.jtomtom.junit;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +33,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
+import org.jtomtom.connector.POIsDbInfos;
+import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.connector.radars.Tomtomax;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.action.CheckUpdateAction;
@@ -56,28 +59,37 @@ public class TestActions {
 	
 	@Test
 	public void testMajQuickFixAction() {
-		TomtomDevice theGPS = null;
 		try {
-			theGPS = new TomtomDevice();
-		} catch (JTomtomException e) {
-			fail(e.getLocalizedMessage());
-		}
-		assertNotNull(theGPS);
-		Long lastQuickFix = theGPS.getQuickFixLastUpdate();
-		assertTrue(lastQuickFix > 0);
-		
-		MajQuickFixAction action = new MajQuickFixAction("test QF");
-		try {
+			
+			TomtomDevice theGPS = new TomtomDevice();
+			assertNotNull(theGPS);
+			
+			removeEphemerideMetaFile(theGPS);
+			
+			MajQuickFixAction action = new MajQuickFixAction("test QF");
 			action.miseAJourQuickFix(theGPS);
+	
+			assertTrue(theGPS.theFiles.getEphemeridMeta().exists());
+			
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
+		} catch (FileNotFoundException e) {
+			fail(e.getLocalizedMessage());
 		}
-		assertTrue(theGPS.getQuickFixLastUpdate() > lastQuickFix);
 	}
 	
+	private static void removeEphemerideMetaFile(TomtomDevice gps) {
+		try {
+			File meta = gps.theFiles.getEphemeridMeta();
+			meta.delete();
+			assertFalse(meta.exists());
+		} catch (FileNotFoundException e) {}
+	}
+
 	@Test
 	public void testMajRadarsTomtomaxAction() {
 		JTomtom.loadProperties();
+		
 		TomtomDevice theGPS = null;
 		try {
 			theGPS = new TomtomDevice();
@@ -86,15 +98,24 @@ public class TestActions {
 		}
 		assertNotNull(theGPS);
 		
+		// - We delete TTMax DB file for be sure that the update is good
+		File ttmaxDbFile = new File(theGPS.getActiveMap().getPath(), Tomtomax.TOMTOMAX_DB_FILE);
+		if (ttmaxDbFile.exists() && ttmaxDbFile.canWrite()) ttmaxDbFile.delete();
+		
 		MajRadarsAction action = new MajRadarsAction("test Tomtomax");
+		RadarsConnector ttMaxRadars = RadarsConnector.createFromClass(Tomtomax.class);
 		try {
 			List<JCheckBox> chkList = new LinkedList<JCheckBox>();
-			chkList.add(new JCheckBox("France", true));
-			action.miseAJourRadars(theGPS, chkList, new Tomtomax());
+			chkList.add(new JCheckBox(theGPS.getActiveMap().getName(), true));
+			
+			action.miseAJourRadars(theGPS, chkList, ttMaxRadars);
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
-		assertTrue(theGPS.getActiveMap().getRadarsNombre() > 0);
+		
+		assertTrue(ttmaxDbFile.exists());
+		
+		assertFalse(POIsDbInfos.UNKNOWN.equals(theGPS.getActiveMap().getRadarsInfos(ttMaxRadars).getDbVersion()));
 	}
 	
 	@Test

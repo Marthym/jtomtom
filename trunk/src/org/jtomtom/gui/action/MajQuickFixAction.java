@@ -83,7 +83,8 @@ public class MajQuickFixAction extends AbstractAction {
             public ActionResult doInBackground() {
             	ActionResult result = new ActionResult(); 
                 try {
-                	result.status = miseAJourQuickFix(JTomtom.getTheGPS());
+                	miseAJourQuickFix(JTomtom.getTheGPS());
+                	result.status = true;
 					
 				} catch (JTomtomException e) {
 					LOGGER.error(e.getLocalizedMessage());
@@ -130,7 +131,7 @@ public class MajQuickFixAction extends AbstractAction {
 	 * @param theGPS	Le GPS à mettre à jour
 	 * @throws JTomtomException
 	 */
-	public boolean miseAJourQuickFix(TomtomDevice theGPS) throws JTomtomException {		
+	public void miseAJourQuickFix(TomtomDevice theGPS) throws JTomtomException {		
 		// Téléchargement du fichier de mise à jour
 		LOGGER.info("Téléchargement de la mise à jour QuickFix...");
 		HttpURLConnection conn = null;
@@ -176,14 +177,10 @@ public class MajQuickFixAction extends AbstractAction {
             }
 			
 		} catch (MalformedURLException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			return false;
+			throw new JTomtomException(e);
 			
 		} catch (IOException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			return false;
+			throw new JTomtomException(e);
 			
 		} finally {
 			LOGGER.debug("Fermeture des tout les flux de téléchargement");
@@ -250,7 +247,6 @@ public class MajQuickFixAction extends AbstractAction {
 		
 		// - Installation des la mise à jour
 		LOGGER.info("Installation des ephemerides dans le GPS...");
-		return theGPS.updateQuickFix(ephemFiles);
-		
+		theGPS.updateQuickFix(ephemFiles);
 	}
 }

@@ -40,24 +40,26 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
+import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.JTomtomFenetre;
 import org.jtomtom.gui.action.CheckUpdateAction;
 import org.jtomtom.gui.utilities.JarUtils;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  *
  */
+// TODO : Create NetworkAvailabilityChecker for check network and if necessary disable functionnality which use it.
 public class JTomtom {
 	private static final Logger LOGGER = Logger.getLogger(JTomtom.class);
 	
 	private static TomtomDevice theGPS;
-	private static Proxy m_proxy = null;
+	private static Proxy proxyServer = null;
 		
-	private static String m_versionNumber = "0.x";
-	private static String m_versionDate = (new java.util.Date()).toString();
-	
+	private static String versionNumber = "0.x";
+	private static String versionDate = (new java.util.Date()).toString();
+		
 	public static ResourceBundle theMainTranslator;
 
 	/**
@@ -79,10 +81,10 @@ public class JTomtom {
 		try {
 			Manifest man = JarUtils.getCurrentJarFile().getManifest();
 			if (man.getMainAttributes().getValue("Implementation-Version") != null)
-				m_versionNumber = man.getMainAttributes().getValue("Implementation-Version");
+				versionNumber = man.getMainAttributes().getValue("Implementation-Version");
 			if (man.getMainAttributes().getValue("Built-Date") != null)
-				m_versionDate = man.getMainAttributes().getValue("Built-Date");
-			LOGGER.info("jTomtom v"+m_versionNumber+" du "+m_versionDate);
+				versionDate = man.getMainAttributes().getValue("Built-Date");
+			LOGGER.info("jTomtom v"+versionNumber+" du "+versionDate);
 		} catch (Exception e) {
 			LOGGER.debug("Erreur de récupération de version !");
 		}
@@ -173,25 +175,25 @@ public class JTomtom {
 			loadProperties();
 		}
 		
-		if (m_proxy == null) {
+		if (proxyServer == null) {
 			if ("HTTP".equals(theProperties.getUserProperty("net.proxy.type"))) {
-				m_proxy = new Proxy(Type.HTTP, 
+				proxyServer = new Proxy(Type.HTTP, 
                         new InetSocketAddress(
                                         theProperties.getUserProperty("net.proxy.name"), 
                                         Integer.parseInt(theProperties.getUserProperty("net.proxy.port")) ));
 
 			} else if ("SOCKS".equals(theProperties.getUserProperty("net.proxy.type"))) {
-				m_proxy = new Proxy(Type.SOCKS, 
+				proxyServer = new Proxy(Type.SOCKS, 
                         new InetSocketAddress(
                                         theProperties.getUserProperty("net.proxy.name"), 
                                         Integer.parseInt(theProperties.getUserProperty("net.proxy.port")) ));
 					
 			} else {
-				m_proxy = Proxy.NO_PROXY;
+				proxyServer = Proxy.NO_PROXY;
 			}
 		} // end if (m_proxy == null)
 			
-		return m_proxy;
+		return proxyServer;
 	}
 	
 	/**
@@ -199,7 +201,7 @@ public class JTomtom {
 	 * @return	Numero de version/build
 	 */
 	public static final String getApplicationVersionNumber() {
-		return m_versionNumber;
+		return versionNumber;
 	}
 	
 	/**
@@ -207,7 +209,7 @@ public class JTomtom {
 	 * @return	Date du build
 	 */
 	public static final String getApplicationVersionDate() {
-		return m_versionDate;
+		return versionDate;
 	}
 	
 	/**
@@ -270,7 +272,18 @@ public class JTomtom {
 		}
 		
 		// - Ré-initialisation du proxy
-		m_proxy = null;
+		proxyServer = null;
 	}
 	
+	/**
+	 * Return the default radar connector create for the default Locale
+	 * @return
+	 */
+	public static final RadarsConnector getDefaultRadarConnector() {
+		String connectorClassName = theProperties.getApplicationProperty(
+										RadarsConnector.RADARS_CONNECTOR_PROPERTIES+"."+Locale.getDefault());
+		return RadarsConnector.createFromClass(connectorClassName);
+	}
+	
+
 }

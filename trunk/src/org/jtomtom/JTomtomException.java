@@ -31,10 +31,9 @@ import org.apache.log4j.Logger;
  *
  * Exception spécial JTomtom
  */
-//TODO : Make a unchecked RuntimeException for internal problems
 //TODO : Create an checked JTomtomUserException for user return message
 //TODO : Verify all function for remove throws JTomtomException if not needed
-public class JTomtomException extends Exception {
+public class JTomtomException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(JTomtomException.class);
 	

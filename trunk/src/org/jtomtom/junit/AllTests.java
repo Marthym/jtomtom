@@ -30,8 +30,8 @@ import org.junit.runners.Suite.SuiteClasses;
 	TestJTomtomProperties.class,
 	TestJarUtils.class,
 	TestJTTUtils.class,
-	TestGPS.class,
-	TestGpsMap.class,
+	TestTomtomDevice.class,
+	TestTomtomMap.class,
 	TestActions.class,
 	TestJTomtomException.class,
 	AllConnectorsTests.class

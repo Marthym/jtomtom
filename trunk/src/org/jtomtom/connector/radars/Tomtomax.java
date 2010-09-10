@@ -58,7 +58,7 @@ public final class Tomtomax extends RadarsConnector {
 	/**
 	 * Fichier de base présent dans les packages et installé sur le TT
 	 */
-	private static final String TOMTOMAX_DB_FILE = "maxipoi_radars.db";
+	public static final String TOMTOMAX_DB_FILE = "maxipoi_radars.db";
 	
 	private static final Locale TOMTOMAX_COUNTRY = Locale.FRANCE;
 	

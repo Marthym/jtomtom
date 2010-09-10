@@ -152,7 +152,7 @@ public class MajRadarsAction extends AbstractAction {
 			for (JCheckBox chk : p_checkList) { 
 				if (chk.isSelected()) {
 					TomtomMap map = theGPS.getAvailableMaps().get(chk.getText());
-					if (map != null && POIsDbInfos.UNKNOWN.equals(map.getRadarsDbVersion())) {
+					if (map != null && POIsDbInfos.UNKNOWN.equals(map.getRadarsInfos(p_radars).getDbVersion())) {
 						conn = p_radars.getConnectionForInstall();
 					}
 				}
@@ -243,7 +243,7 @@ public class MajRadarsAction extends AbstractAction {
 			if (chk.isSelected()) {
 				TomtomMap map = theGPS.getAvailableMaps().get(chk.getText());
 				if (map != null) {
-					retour &= map.updateRadars(filesToInstall);
+					retour &= map.updateRadars(filesToInstall, p_radars);
 				}
 			}
 		}
