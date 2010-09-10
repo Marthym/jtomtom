@@ -23,16 +23,12 @@ package org.jtomtom.device;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
 
 
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomTomUtils;
-import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
@@ -82,35 +78,12 @@ public class TomtomMap {
 	}
 	
 	/**
-	 * Returns the list of maps in a GPS
-	 * @param p_gps	GPS to explore
-	 * @return		Map list
-	 * @throws JTomtomException
+	 * Test if a directory is a map directory or not
+	 * @param directory		Directory under test
+	 * @return				True if the directory is a Tomtom Map directory
 	 */
-	public static List<TomtomMap> listAllGpsMap(TomtomDevice p_gps) throws JTomtomException {
-		// So we will go through the first level of tree in search of a directory containing file .pna
-		File gpsRoot = new File(p_gps.getMountPoint());
-		String[] listRootFile = gpsRoot.list();
-		List<TomtomMap> mapsList = new ArrayList<TomtomMap>();
-		
-		for (String currentFilePath : listRootFile) {
-			File currentFile = new File(gpsRoot,currentFilePath);
-			if (!currentFile.isDirectory()) continue;
-			String[] pnaFileList = currentFile.list(PNA_FILE_FILTER);
-			if (pnaFileList.length <= 0) continue;
-			
-			File pnaFile = new File(currentFile, pnaFileList[0]);
-			if (pnaFile.exists() && pnaFile.canRead()) {
-				// To save some memory if the card is current, we do not create a new object, we just add the link
-				if (p_gps.getActiveMap() != null && p_gps.getActiveMap().getName().equals(currentFile.getName())) {
-					mapsList.add(p_gps.getActiveMap());
-				} else {
-					mapsList.add(createMapFromPath(currentFile.getAbsolutePath()));
-				}
-			}
-		}
-		
-		return mapsList;
+	public final static boolean isMapDirectory(File directory) {
+		return (directory.isDirectory() && directory.list(PNA_FILE_FILTER).length != 0);
 	}
 	
 	/**
@@ -119,7 +92,7 @@ public class TomtomMap {
 	 * @return			Map not linked to a GPS
 	 * @throws JTomtomException 
 	 */
-	public static TomtomMap createMapFromPath(String p_path) throws JTomtomException {
+	public static TomtomMap createMapFromPath(String p_path) {
 		if (p_path.isEmpty()) 
 			throw new JTomtomException(new IllegalArgumentException());
 		
@@ -127,7 +100,7 @@ public class TomtomMap {
 		File mapDirectory = new File(p_path);
 		String[] pnaFileList = mapDirectory.list(PNA_FILE_FILTER);
 		if (pnaFileList.length <= 0) 
-			throw new JTomtomException(new FileNotFoundException());
+			throw new JTomtomException("The path '"+p_path+"' is not a Tomtom map directory !", new FileNotFoundException("*.pna"));
 		
 		File pnaFile = new File(mapDirectory, pnaFileList[0]);
 		Scanner sc = null;
@@ -142,7 +115,7 @@ public class TomtomMap {
 			version = version.trim() +"."+ build.trim().split("=")[1];	// Yeah it's almost not dirty ;)
 			
 		} catch (FileNotFoundException e) {
-			throw new JTomtomException(e);
+			throw new JTomtomException("The file "+pnaFile+" does not exists or can not be read !", e);
 			
 		} finally {
 			try {sc.close();} catch (Exception e){}
@@ -157,22 +130,11 @@ public class TomtomMap {
 	}
 	
 	/**
-	 * Reading Radar informations
-	 * @throws JTomtomException
+	 * Read or refresh radars informations of the map for a given radar conector
+	 * @param radars	RadarConnector
 	 */
-	public void readRadarsInfos() throws JTomtomException {
-		RadarsConnector radars = getDefaultRadarConnector();
+	public void readRadarsInfos(RadarsConnector radars) {
 		radarsInformations = radars.getLocalDbInfos(absolutePath);
-	}
-	
-	/**
-	 * Return the default radar connector create for the default Locale
-	 * @return
-	 */
-	private static final RadarsConnector getDefaultRadarConnector() {
-		String connectorClassName = JTomtom.theProperties.getApplicationProperty(
-										RadarsConnector.RADARS_CONNECTOR_PROPERTIES+"."+Locale.getDefault());
-		return RadarsConnector.createFromClass(connectorClassName);
 	}
 	
 	/**
@@ -181,7 +143,7 @@ public class TomtomMap {
 	 * @return
 	 * @throws JTomtomException
 	 */
-	public boolean updateRadars(List<File> files) throws JTomtomException {		
+	public boolean updateRadars(List<File> files, RadarsConnector radars) {		
 		// We search the directory of the map
 		File mapDirectory = new File(absolutePath);
 		if (!mapDirectory.exists()) {
@@ -206,7 +168,7 @@ public class TomtomMap {
 			}
 		}
 		
-		readRadarsInfos();
+		readRadarsInfos(radars);
 		
 		return true;
 	}
@@ -235,46 +197,9 @@ public class TomtomMap {
 		return version;
 	}
 	
-	/**
-	 * Give the installed Radar DB date
-	 * @return
-	 */
-	public final Date getRadarsDbDate() {
-		if (radarsInformations == null) {
-			try { readRadarsInfos(); } catch (JTomtomException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			}
-		}
-		return radarsInformations.getLastUpdateDate();
-	}
-	
-	/**
-	 * Give the installed Radar version date
-	 * @return
-	 */
-	public final String getRadarsDbVersion() {
-		if (radarsInformations == null) {
-			try { readRadarsInfos(); } catch (JTomtomException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			}
-		}
-		return radarsInformations.getDbVersion();
-	}
-
-	/**
-	 * Give the installed radar count
-	 * @return
-	 */
-	public final long getRadarsNombre() {
-		if (radarsInformations == null) {
-			try { readRadarsInfos(); } catch (JTomtomException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			}
-		}
-		return radarsInformations.getPoisNumber();
+	public final POIsDbInfos getRadarsInfos(RadarsConnector radars) {
+		if (radarsInformations == null) readRadarsInfos(radars);
+		return radarsInformations;
 	}
 
 } 

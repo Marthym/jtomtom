@@ -24,7 +24,6 @@ import static junit.framework.Assert.*;
 import static org.junit.Assert.assertFalse;
 
 import java.io.File;
-import java.util.List;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -32,14 +31,15 @@ import org.apache.log4j.Logger;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
-import org.jtomtom.device.TomtomDevice;
+import org.jtomtom.connector.RadarsConnector;
+import org.jtomtom.connector.radars.Tomtomax;
 import org.jtomtom.device.TomtomDeviceFinder;
 import org.jtomtom.device.TomtomMap;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 
-public class TestGpsMap {
+public class TestTomtomMap {
 	@BeforeClass
 	public static void initLogger() {
 		if (!Logger.getRootLogger().getAllAppenders().hasMoreElements())
@@ -63,27 +63,15 @@ public class TestGpsMap {
 	public void testReadRadarInfos() {
 		try {
 			JTomtom.loadProperties();
+			RadarsConnector radars = RadarsConnector.createFromClass(Tomtomax.class);
+			TomtomMap map = TomtomMap.createMapFromPath(
+					TomtomDeviceFinder.findMountPoint()+File.separator+"France");
+			map.readRadarsInfos(radars);
+			POIsDbInfos radarsInfos = map.getRadarsInfos(radars);
 			
-			TomtomMap map = TomtomMap.createMapFromPath(TomtomDeviceFinder.findMountPoint()+File.separator+"France");
-			map.readRadarsInfos();
-			assertNotNull(map.getRadarsDbDate());
-			assertFalse(map.getRadarsDbVersion().equals(POIsDbInfos.UNKNOWN));
-			assertTrue(map.getRadarsNombre() > 0);
-			
-		} catch (JTomtomException e) {
-			fail(e.getLocalizedMessage());
-		}
-	}
-	
-	@SuppressWarnings("deprecation")
-	@Test
-	public void testListAllGpsMap() {
-		try {
-			TomtomDevice myGPS = new TomtomDevice(false);
-			List<TomtomMap> map = TomtomMap.listAllGpsMap(myGPS);
-			
-			assertNotNull(map);
-			assertFalse(map.isEmpty());
+			assertNotNull(radarsInfos);
+			assertFalse(radarsInfos.getDbVersion().equals(POIsDbInfos.UNKNOWN));
+			assertTrue(radarsInfos.getPoisNumber() > 0);
 			
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());

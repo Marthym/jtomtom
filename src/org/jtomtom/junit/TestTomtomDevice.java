@@ -26,6 +26,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtomException;
+import org.jtomtom.device.Chipset;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.device.TomtomDeviceFinder;
 import org.jtomtom.device.TomtomMap;
@@ -33,7 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 
-public class TestGPS {
+public class TestTomtomDevice {
 	@BeforeClass
 	public static void initLogger() {
 		if (!Logger.getRootLogger().getAllAppenders().hasMoreElements())
@@ -57,10 +58,9 @@ public class TestGPS {
 		assertFalse(mountPoint.isEmpty());
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Test
-	public void testReadInformations() {
-		TomtomDevice myGPS = new TomtomDevice(false);
+	public void testLoadInformationsFromBif() {
+		TomtomDevice myGPS = new TomtomDevice(TomtomDeviceFinder.findMountPoint());
 		assertNotNull(myGPS);
 		try {
 			myGPS.loadInformationsFromBif();
@@ -76,11 +76,8 @@ public class TestGPS {
 	public void testGetChipset() {
 		try {
 			TomtomDevice myGPS = new TomtomDevice();
-			String chipset = myGPS.getChipset();
-			assertEquals("globalLocate", chipset);
-			assertTrue(myGPS.getQuickFixLastUpdate() != 0);
-			
-			System.out.println(new java.util.Date(myGPS.getQuickFixLastUpdate()));
+			Chipset chipset = myGPS.getChipset();
+			assertEquals(Chipset.globalLocate, chipset);
 			
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
