@@ -160,7 +160,7 @@ public class SauvegardeAction extends AbstractAction {
     			LOGGER.debug("Restriction du contenu de l'ISO pour fichier de test");
     			// - Si on fait un ISO pour test, on ne mets que le nécessaire dedans ...
     			java.util.Map<String, TomtomMap> mapsList = p_GPS.getAvailableMaps();
-    			isoRoot.addDirectory(gpsDir);
+
     			for (String currFileName: gpsDir.list()) {
     				File current = new File(gpsDir, currFileName);
     				
