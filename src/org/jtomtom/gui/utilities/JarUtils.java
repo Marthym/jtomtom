@@ -29,7 +29,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Some tools for getting jar files from classpath
- * @author marthym
+ * @author Frédéric Combes
  *
  */
 public class JarUtils {
@@ -78,7 +78,7 @@ public class JarUtils {
 		try {
 			jarFileName = URLDecoder.decode(
 					ClassLoader.getSystemResource(p_class.getCanonicalName().replace('.', '/')+".class").toString(), 
-					java.nio.charset.Charset.defaultCharset().name());
+					"UTF-8");
 			
 		} catch (UnsupportedEncodingException e) {
 			LOGGER.warn(e.getLocalizedMessage());
