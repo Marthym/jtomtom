@@ -44,13 +44,16 @@ import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.JTomtomFenetre;
 import org.jtomtom.gui.action.CheckUpdateAction;
-import org.jtomtom.gui.utilities.JarUtils;
+import org.jtomtom.tools.JarUtils;
 
 /**
+ * Main class
  * @author Frédéric Combes
  *
  */
 // TODO : Create NetworkAvailabilityChecker for check network and if necessary disable functionnality which use it.
+// TODO : Add possibility to set more the one login/password information in the settings tab
+// TODO : Pre-fill the export file name  with a file name containing a date in a default export directory
 public class JTomtom {
 	private static final Logger LOGGER = Logger.getLogger(JTomtom.class);
 	

@@ -28,10 +28,10 @@ import java.util.Scanner;
 
 
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomTomUtils;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
+import org.jtomtom.tools.JTomTomUtils;
 
 /**
  * Class for map management

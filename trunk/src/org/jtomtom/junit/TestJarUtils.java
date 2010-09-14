@@ -25,7 +25,7 @@ import java.util.jar.JarFile;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.gui.utilities.JarUtils;
+import org.jtomtom.tools.JarUtils;
 
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;

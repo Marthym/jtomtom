@@ -35,8 +35,8 @@ import java.util.Properties;
 import net.sf.jcablib.CabFile;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomTomUtils;
 import org.jtomtom.JTomtomException;
+import org.jtomtom.tools.JTomTomUtils;
 
 /**
  * @author Frédéric Combes

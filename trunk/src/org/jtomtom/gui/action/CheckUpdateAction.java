@@ -33,7 +33,7 @@ import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtom;
-import org.jtomtom.gui.utilities.JarUtils;
+import org.jtomtom.tools.JarUtils;
 
 /**
  * @author Frédéric Combes
