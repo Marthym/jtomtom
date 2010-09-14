@@ -26,10 +26,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomTomUtils;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.radars.DummyRadarsConnector;
+import org.jtomtom.tools.JTomTomUtils;
 
 /**
  * Abstract Class with factory for connect different radars database site 

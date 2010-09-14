@@ -18,7 +18,7 @@
  *  Frédéric Combes can be reached at:
  *  <belz12@yahoo.fr> 
  */
-package org.jtomtom;
+package org.jtomtom.tools;
 
 import java.io.File;
 import java.io.FileInputStream;

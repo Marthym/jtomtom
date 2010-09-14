@@ -25,9 +25,9 @@ import java.io.File;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomTomUtils;
 import org.jtomtom.JTomtom;
 import org.jtomtom.connector.RadarsConnector;
+import org.jtomtom.tools.JTomTomUtils;
 
 import static org.junit.Assert.*;
 import org.junit.BeforeClass;
