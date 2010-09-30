@@ -66,7 +66,7 @@ public class TestTomtomMap {
 			RadarsConnector radars = RadarsConnector.createFromClass(Tomtomax.class);
 			TomtomMap map = TomtomMap.createMapFromPath(
 					TomtomDeviceFinder.findMountPoint()+File.separator+"France");
-			map.readRadarsInfos(radars);
+			map.setRadarsInfos(radars);
 			POIsDbInfos radarsInfos = map.getRadarsInfos(radars);
 			
 			assertNotNull(radarsInfos);
