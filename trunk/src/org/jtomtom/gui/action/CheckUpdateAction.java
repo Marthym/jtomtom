@@ -34,6 +34,7 @@ import javax.swing.SwingWorker;
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtom;
 import org.jtomtom.tools.JarUtils;
+import org.jtomtom.tools.NetworkTester;
 
 /**
  * @author Frédéric Combes
@@ -52,10 +53,17 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 	@Override
 	protected ActionResult doInBackground() throws Exception {
 		
+		ActionResult result = new ActionResult();
+		
+		result.status = false;
+		if (!NetworkTester.getInstance().isNetworkAvailable(JTomtom.getApplicationProxy())) {
+			result.parameters = new LinkedList<String>();
+			result.parameters.add(JTomtom.theMainTranslator.getString("org.jtomtom.errors.network.unavailable"));
+		}
+		
+		
 		String message = checkUpdateNow();
 		
-		ActionResult result = new ActionResult();
-		result.status = false;
 		if (message != null) {
 			result.status = true;
 			result.parameters = new LinkedList<String>();

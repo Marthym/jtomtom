@@ -133,7 +133,7 @@ public class TomtomMap {
 	 * Read or refresh radars informations of the map for a given radar conector
 	 * @param radars	RadarConnector
 	 */
-	public void readRadarsInfos(RadarsConnector radars) {
+	public void setRadarsInfos(RadarsConnector radars) {
 		radarsInformations = radars.getLocalDbInfos(absolutePath);
 	}
 	
@@ -168,13 +168,13 @@ public class TomtomMap {
 			}
 		}
 		
-		readRadarsInfos(radars);
+		setRadarsInfos(radars);
 		
 		return true;
 	}
 	
 	/**
-	 * Retur map name
+	 * Return map name
 	 * @return
 	 */
 	public final String getName() {
@@ -197,8 +197,13 @@ public class TomtomMap {
 		return version;
 	}
 	
+	/**
+	 * Return the radars informations of the map inside POIsDbInfos object
+	 * @param radars	Radar connector used from find Radars infos
+	 * @return POIsDbInfos
+	 */
 	public final POIsDbInfos getRadarsInfos(RadarsConnector radars) {
-		if (radarsInformations == null) readRadarsInfos(radars);
+		if (radarsInformations == null) setRadarsInfos(radars);
 		return radarsInformations;
 	}
 

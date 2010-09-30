@@ -49,6 +49,7 @@ import org.jtomtom.JTomtomException;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.PatienterDialog;
 import org.jtomtom.gui.TabQuickFix;
+import org.jtomtom.tools.NetworkTester;
 
 /**
  * @author marthym
@@ -83,12 +84,12 @@ public class MajQuickFixAction extends AbstractAction {
             public ActionResult doInBackground() {
             	ActionResult result = new ActionResult(); 
                 try {
+                	NetworkTester.getInstance().validNetworkAvailability(JTomtom.getApplicationProxy());
                 	miseAJourQuickFix(JTomtom.getTheGPS());
                 	result.status = true;
 					
 				} catch (JTomtomException e) {
-					LOGGER.error(e.getLocalizedMessage());
-					if (LOGGER.isDebugEnabled()) e.printStackTrace();
+					result.status = false;
 					result.exception = e;
 				}
                 

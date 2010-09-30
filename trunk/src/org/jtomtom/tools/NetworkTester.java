@@ -23,9 +23,9 @@ package org.jtomtom.tools;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Date;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.JTomtomException;
 
 /**
  * Test if the network is available
@@ -35,7 +35,8 @@ import org.apache.log4j.Logger;
 public class NetworkTester {
 	private static final Logger LOGGER = Logger.getLogger(NetworkTester.class);
 	private static final int CHECK_DELAY = 60*1000; // in millisecond
-	private static final String TEST_URL = "http://jtomtom.sourceforge.net/";
+	private static final String REACH_TEST_URL = "http://jtomtom.sourceforge.net/";
+	private static final String RESPONSE_TEST_URL = "http://www.google.com/";
 	
 	private static NetworkTester instance;
 	private long lastCheckTime = 0;
@@ -61,10 +62,7 @@ public class NetworkTester {
 	 * @return	Network availability
 	 */
 	public boolean isNetworkAvailable() {
-		if (new Date().getTime() < (lastCheckTime + CHECK_DELAY)) 
-			lastCheckResult = checkNetworkAvailability(Proxy.NO_PROXY);
-		
-		return lastCheckResult;
+		return checkNetworkAvailability(Proxy.NO_PROXY);
 	}
 	
 	/**
@@ -73,10 +71,30 @@ public class NetworkTester {
 	 * @return Network availability
 	 */
 	public boolean isNetworkAvailable(Proxy proxy) {
-		if (new Date().getTime() > (lastCheckTime + CHECK_DELAY)) 
+		if (System.currentTimeMillis() > (lastCheckTime + CHECK_DELAY)) 
 			lastCheckResult = checkNetworkAvailability(proxy);
 		
 		return lastCheckResult;
+	}
+	
+	/**
+	 * Valid the network availability and throw an exception if no network found 
+	 * @throws JTomtomException
+	 */
+	public void validNetworkAvailability() {
+		validNetworkAvailability(Proxy.NO_PROXY);
+	}
+	
+	/**
+	 * Valid the network availability and throw an exception if no network found 
+	 * @param proxy	The proxy server to be used
+	 * @throws JTomtomException
+	 */
+	public void validNetworkAvailability(Proxy proxy) {
+		if (System.currentTimeMillis() > (lastCheckTime + CHECK_DELAY)) 
+			lastCheckResult = checkNetworkAvailability(proxy);
+		
+		if (!lastCheckResult) throw new JTomtomException("org.jtomtom.errors.network.unavailable");
 	}
 	
 	/**
@@ -86,10 +104,10 @@ public class NetworkTester {
 	 */
 	private boolean checkNetworkAvailability(Proxy proxy) {
 		try {
-			LOGGER.debug("Test network with "+TEST_URL);
-			lastCheckTime = new Date().getTime();
+			LOGGER.debug("Test network with "+REACH_TEST_URL);
+			lastCheckTime = System.currentTimeMillis();
 			
-			URL urlForTest = new URL(TEST_URL);
+			URL urlForTest = new URL(REACH_TEST_URL);
 			URLConnection testConnection = urlForTest.openConnection(proxy);
 			testConnection.connect();
 			
@@ -101,5 +119,32 @@ public class NetworkTester {
 		}
 		
 		return lastCheckResult;
+	}
+	
+	public long calculateResponseTime() {
+		return calculateResponseTime(Proxy.NO_PROXY);
+	}
+	
+	public long calculateResponseTime(Proxy proxy) {
+		try {
+			LOGGER.debug("Test network response time for "+RESPONSE_TEST_URL);
+			URL urlForTest = new URL(REACH_TEST_URL);
+			URLConnection testConnection = urlForTest.openConnection(proxy);
+			long startTime = System.currentTimeMillis();
+			
+			testConnection.connect();
+			testConnection.connect();
+			testConnection.connect();
+			testConnection.connect();
+			testConnection.connect();
+			
+			//TODO
+			//long 
+			
+		} catch (Exception e) {
+			LOGGER.error(e);
+		}
+		
+		return 0;
 	}
 }
