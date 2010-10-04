@@ -138,9 +138,12 @@ public class NetworkTester {
 			testConnection.connect();
 			testConnection.connect();
 			
-			//TODO
-			//long 
+			long endTime = System.currentTimeMillis();
 			
+			long responseTime = (endTime - startTime) / 5;
+			LOGGER.debug("Temps d'accès moyen : "+responseTime);
+			
+			return responseTime;
 		} catch (Exception e) {
 			LOGGER.error(e);
 		}
