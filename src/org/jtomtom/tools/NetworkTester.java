@@ -140,14 +140,14 @@ public class NetworkTester {
 			
 			long endTime = System.currentTimeMillis();
 			
-			long responseTime = (endTime - startTime) / 5;
-			LOGGER.debug("Temps d'accès moyen : "+responseTime);
+			long averageResponseTime = (endTime - startTime) / 5;
+			LOGGER.debug("Average access time in ms : "+averageResponseTime);
 			
-			return responseTime;
+			return averageResponseTime;
 		} catch (Exception e) {
 			LOGGER.error(e);
 		}
 		
-		return 0;
+		return -1;
 	}
 }
