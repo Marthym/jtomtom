@@ -48,5 +48,14 @@ public class TestNetworkTester {
 		
 		assertTrue(withProxy);
 	}
+	
+	@Test
+	public void testCalculateResponseTime() {
+		Proxy proxy = JTomtom.getApplicationProxy();
+		long accessTime = NetworkTester.getInstance().calculateResponseTime(proxy);
+		
+		assertFalse(accessTime <= 0);
+		assertFalse(accessTime > 10000);
+	}
 
 }
