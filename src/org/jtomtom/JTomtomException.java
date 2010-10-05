@@ -45,7 +45,7 @@ public class JTomtomException extends RuntimeException {
 		super(translateMessage(message, null));
 		LOGGER.error(getMessage());
 		if (LOGGER.isDebugEnabled()) {
-			printStackTrace();
+			LOGGER.debug("STACKTRACE", this);
 		}
 	}
 	
@@ -53,7 +53,7 @@ public class JTomtomException extends RuntimeException {
 		super(translateMessage(message, null), exception);
 		LOGGER.error(getMessage());
 		if (LOGGER.isDebugEnabled()) {
-			printStackTrace();
+			LOGGER.debug("STACKTRACE", this);
 		}
 	}
 	
@@ -61,7 +61,7 @@ public class JTomtomException extends RuntimeException {
 		super(translateMessage(message, args));
 		LOGGER.error(getMessage());
 		if (LOGGER.isDebugEnabled()) {
-			printStackTrace();
+			LOGGER.debug("STACKTRACE", this);
 		}
 	}
 	
@@ -69,7 +69,7 @@ public class JTomtomException extends RuntimeException {
 		super(translateMessage(message, args), exception);
 		LOGGER.error(getMessage());
 		if (LOGGER.isDebugEnabled()) {
-			printStackTrace();
+			LOGGER.debug("STACKTRACE", this);
 		}
 	}
 	
@@ -77,7 +77,7 @@ public class JTomtomException extends RuntimeException {
 		super(exception);
 		LOGGER.error(exception.getLocalizedMessage());
 		if (LOGGER.isDebugEnabled()) {
-			printStackTrace();
+			LOGGER.debug("STACKTRACE", this);
 		}
 
 	}

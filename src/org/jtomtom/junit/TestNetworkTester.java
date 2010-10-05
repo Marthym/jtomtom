@@ -20,12 +20,15 @@
  */
 package org.jtomtom.junit;
 
+import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.Proxy.Type;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtom;
+import org.jtomtom.JTomtomException;
 import org.jtomtom.tools.NetworkTester;
 
 import static org.junit.Assert.*;
@@ -58,4 +61,24 @@ public class TestNetworkTester {
 		assertFalse(accessTime > 10000);
 	}
 
+	@Test
+	public void testValidNetworkAvailability() {
+		boolean jttExceptionThrowed = false;
+		NetworkTester.getInstance().resetNetworkTesterInstance();
+		Proxy proxy = new Proxy(Type.HTTP, new InetSocketAddress("1.1.1.1", 1111));
+		try {
+			NetworkTester.getInstance().validNetworkAvailability(proxy);
+		} catch (JTomtomException e) {
+			jttExceptionThrowed = true;
+		}
+		assertTrue(jttExceptionThrowed);
+				
+		NetworkTester.getInstance().resetNetworkTesterInstance();
+		proxy = JTomtom.getApplicationProxy();
+		try {
+			NetworkTester.getInstance().validNetworkAvailability(proxy);
+		} catch (JTomtomException e) {
+			fail(e.getLocalizedMessage());
+		}
+	}
 }

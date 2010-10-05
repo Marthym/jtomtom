@@ -150,4 +150,12 @@ public class NetworkTester {
 		
 		return -1;
 	}
+	
+	/**
+	 * Reset class member for force testing next time
+	 */
+	public void resetNetworkTesterInstance() {
+		lastCheckTime = 0;
+		lastCheckResult = false;
+	}
 }
