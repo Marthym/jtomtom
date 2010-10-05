@@ -23,6 +23,9 @@ package org.jtomtom.gui;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -42,6 +45,7 @@ import org.jtomtom.gui.utilities.JTTabPanel;
 public class TabSauvegarde extends JTTabPanel implements MouseListener {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(TabSauvegarde.class);
+	private final String DEFAULT_FILE_NAME = "gpsbackup-"+(new SimpleDateFormat("yyyyMMddHHmmss")).format(new Date())+".iso";
 	
 	private JTextField 	m_isoFileChooser;
 	private JCheckBox 	m_makeTestISO;
@@ -73,6 +77,7 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 		m_isoFileChooser.setAlignmentX(LEFT_ALIGNMENT);
 		m_isoFileChooser.setToolTipText(m_rbControls.getString("org.jtomtom.tab.backup.textfield.filechooser.hint"));
 		m_isoFileChooser.addMouseListener(this);
+		m_isoFileChooser.setText(System.getProperty("user.home")+File.separator+DEFAULT_FILE_NAME);
 		add(m_isoFileChooser);
 		
 		m_makeTestISO = new JCheckBox(m_rbControls.getString("org.jtomtom.tab.backup.checkbox.isotest.label"));
