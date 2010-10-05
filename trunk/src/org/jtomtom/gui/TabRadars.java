@@ -55,6 +55,7 @@ import org.jtomtom.gui.action.ActionResult;
 import org.jtomtom.gui.action.MajRadarsAction;
 import org.jtomtom.gui.utilities.JTTabPanel;
 import org.jtomtom.gui.utilities.SpringUtilities;
+import org.jtomtom.tools.NetworkTester;
 
 /**
  * @author marthym
@@ -101,10 +102,13 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 							m_rbControls.getString("org.jtomtom.tab.radars.sw.error.title"), JOptionPane.ERROR_MESSAGE);
 					refreshButton.setEnabled(true);
 				} else {
-					infosHtml.setText(infos.parameters.get(0));
 					radarsButton.setEnabled(true);
-					refreshButton.setEnabled(true);
 				}
+				if (infos.parameters != null)
+					infosHtml.setText(infos.parameters.get(0));
+				
+				refreshButton.setEnabled(true);
+				
 				LOGGER.debug("Exécution de LoadInformationsWorker terminé.");
 				
 			} catch (InterruptedException e) {
@@ -260,6 +264,17 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		radars = (RadarsConnector)radarSiteList.getSelectedItem();
 		
 		if (remoteRadarsInfos == null) {
+			if (!NetworkTester.getInstance().isNetworkAvailable(JTomtom.getApplicationProxy())) {
+				remoteRadarsInfos = new POIsDbInfos();
+			}
+		} else {
+			if (POIsDbInfos.UNKNOWN.equals(remoteRadarsInfos.getDbVersion()) && 
+					NetworkTester.getInstance().isNetworkAvailable(JTomtom.getApplicationProxy())) {
+				remoteRadarsInfos = null;
+			}
+		}
+		
+		if (remoteRadarsInfos == null) {
 			// We try to connect before all
 			boolean isConnected = radars.connexion(
 									JTomtom.getApplicationProxy(), 
@@ -306,10 +321,15 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		}
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>")
 			.append(localRadarsInfos.getPoisNumber())
-			.append("</i> [")
-			.append(remoteRadarsInfos.getPoisNumber() - localRadarsInfos.getPoisNumber())
-			.append(m_rbControls.getString("org.jtomtom.tab.radars.missingradar")).append("]</td></tr>");
-		infos.append("</table>");
+			.append("</i>");
+		
+		if (remoteRadarsInfos.getPoisNumber() >= 0) {
+			infos.append(" [")
+				.append(remoteRadarsInfos.getPoisNumber() - localRadarsInfos.getPoisNumber())
+				.append(m_rbControls.getString("org.jtomtom.tab.radars.missingradar")).append("]");
+		}
+		
+		infos.append("</td></tr></table>");
 		infos.append("<br/><font size=\"2\"><p><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))
 			.append(" <a href=\"").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.url"))
 			.append("\">").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.label"))
@@ -322,6 +342,13 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		result.parameters.add(infos.toString());
 		
 		// - Enfin, on teste la connexion à Tomtomax pour vérifier que le user ai un compte
+		try {NetworkTester.getInstance().validNetworkAvailability(JTomtom.getApplicationProxy());}
+		catch (JTomtomException e) {
+			result.status = false;
+			result.exception = e;
+			return result;
+		}
+		
 		result.status = radars.connexion(
 				JTomtom.getApplicationProxy(), 
 				JTomtom.theProperties.getUserProperty("org.tomtomax.user"), 
