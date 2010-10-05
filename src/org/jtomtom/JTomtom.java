@@ -52,7 +52,6 @@ import org.jtomtom.tools.JarUtils;
  *
  */
 // TODO : Add possibility to set more the one login/password information in the settings tab
-// TODO : Pre-fill the export file name with a file name containing a date in a default export directory
 // TODO : Add experency date in the error message for GPS not found. Save expirency date in properties file. Maybe for more than one device
 public class JTomtom {
 	private static final Logger LOGGER = Logger.getLogger(JTomtom.class);
