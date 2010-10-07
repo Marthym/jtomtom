@@ -211,7 +211,7 @@ public class SauvegardeAction extends AbstractAction {
 			throw new JTomtomException(e);
 		}
 		
-		if (m_fichierDestination == null || m_fichierDestination == null || m_fichierDestination.isEmpty()) {
+		if (m_fichierDestination == null || m_fichierDestination.isEmpty()) {
 			throw new JTomtomException("org.jtomtom.errors.backup.destmustexist");
 		}
     	
