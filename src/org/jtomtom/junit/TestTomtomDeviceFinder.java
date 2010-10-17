@@ -19,29 +19,33 @@
  *  <belz12@yahoo.fr> 
  */
 package org.jtomtom.junit;
-import org.apache.log4j.BasicConfigurator;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
 
-@RunWith(Suite.class)
-@SuiteClasses(value={
-	TestNetworkTester.class,
-	TestTomtomDeviceFinder.class,
-	TestTomtomFilesProvider.class,
-	TestJTomtomProperties.class,
-	TestJarUtils.class,
-	TestJTTUtils.class,
-	TestTomtomDevice.class,
-	TestTomtomMap.class,
-	TestActions.class,
-	TestJTomtomException.class,
-	AllConnectorsTests.class
-})
-public class AllTests{
+import static junit.framework.Assert.*;
+
+import java.io.File;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.jtomtom.device.TomtomDeviceFinder;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+
+public class TestTomtomDeviceFinder {
 	@BeforeClass
 	public static void initLogger() {
-		BasicConfigurator.configure();
+		if (!Logger.getRootLogger().getAllAppenders().hasMoreElements())
+			BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 	}
+	
+	@Test
+	public void testFindMountPoint() {
+		File ttMoundPoint = TomtomDeviceFinder.findMountPoint();
+		assertNotNull(ttMoundPoint);
+		assertTrue(ttMoundPoint.exists());
+		assertTrue(new File(ttMoundPoint, "ttgo.bif").exists());
+	}
+	
 }
