@@ -79,7 +79,7 @@ public class TestPdisDotEs {
 		
 		POIsDbInfos infos = null;
 		try {
-			infos = radars.getLocalDbInfos((new TomtomDevice()).getAvailableMaps().get("Espagne").getPath());
+			infos = radars.getLocalDbInfos((new TomtomDevice()).getAvailableMaps().get("Iberia_850.2781").getPath());
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
