@@ -164,6 +164,10 @@ public class TomtomDevice {
 			LOGGER.debug("activeMapPath = "+activeMapPath);
 			
 			return theFiles.getRootDirectory()+File.separator+(new File(activeMapPath)).getName();
+		
+		} catch (FileNotFoundException e) {
+			LOGGER.warn("No active map found, assume the first map found is the current...");
+			return getAvailableMaps().values().iterator().next().getPath();
 			
 		} catch (IOException e) {
 			throw new JTomtomException(e);
@@ -172,7 +176,7 @@ public class TomtomDevice {
 			try {raf.close();} catch (Exception e) {};
 		}
 	}
-	
+
 	/**
 	 * Find and return the Chipset type of the GPS
 	 * @return

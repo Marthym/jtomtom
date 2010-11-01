@@ -67,8 +67,7 @@ public class TomtomFilesProvider {
 			}
 		}
 		if (currentMapFile == null || !currentMapFile.exists()) {
-			LOGGER.error("File currentmap.dat not found in the GPS root !");
-			throw new FileNotFoundException();
+			throw new FileNotFoundException("File currentmap.dat not found in the GPS root !");
 		}
 		return currentMapFile;
 	}
