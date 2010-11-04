@@ -194,14 +194,18 @@ public class TomtomDevice {
 					chipset = Chipset.SiRFStarIII;
 				
 				if (chipset == null)
-					throw new JTomtomException("org.jtomtom.errors.gps.unknownchipset");
+					chipset = Chipset.UNKNOWN;
 			}
 			
 			return chipset;
 			
 		} catch (FileNotFoundException e) {
-			throw new JTomtomException("org.jtomtom.errors.gps.unknownchipset", e);
+			throw new ChipsetNotFoundException(e);
 		}
+	}
+	
+	public void forceChipset(Chipset chipset) {
+		this.chipset = chipset;
 	}
 	
 	/**
@@ -219,7 +223,7 @@ public class TomtomDevice {
 			return quickFixLastUpdate;
 			
 		} catch (FileNotFoundException e) {
-			throw new JTomtomException("org.jtomtom.errors.gps.unknownchipset", e);
+			return 0;
 		}
 	}
 	
@@ -247,7 +251,7 @@ public class TomtomDevice {
 			
 			return quickFixExpiry;
 			
-		} catch (IOException e) { throw new JTomtomException(e);
+		} catch (IOException e) { return 0;
 			
 		} finally {
 			try {buff.close();}catch(Exception e){}

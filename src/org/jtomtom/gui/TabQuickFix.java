@@ -33,6 +33,8 @@ import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
+import org.jtomtom.device.Chipset;
+import org.jtomtom.device.ChipsetNotFoundException;
 import org.jtomtom.gui.action.MajQuickFixAction;
 import org.jtomtom.gui.utilities.JTTabPanel;
 
@@ -72,6 +74,12 @@ public class TabQuickFix extends JTTabPanel {
 		LOGGER.info("Récupération des informations QuickFix");
 		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
 		StringBuffer infos = new StringBuffer();
+		
+		try { JTomtom.getTheGPS().getChipset(); }
+		catch (ChipsetNotFoundException e) {
+			JTomtom.getTheGPS().forceChipset(askForChipset());
+		}
+		
 		try {
 			infos.append("<html><table>");
 			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.chipset")).append(" : </strong></td><td><i>").append(JTomtom.getTheGPS().getChipset()).append("</i></td></tr>");
@@ -103,6 +111,14 @@ public class TabQuickFix extends JTTabPanel {
 		}
 		
 		quickFixInfos.setText(infos.toString());
+	}
+	
+	private Chipset askForChipset() {
+		ChooseChipsetDialog chooseChipsetDial = new ChooseChipsetDialog();
+		chooseChipsetDial.setVisible(true);
+		Chipset myChipset = chooseChipsetDial.getSelectedChipset();
+		if (myChipset == null) myChipset = Chipset.UNKNOWN;
+		return myChipset;
 	}
 	
 }

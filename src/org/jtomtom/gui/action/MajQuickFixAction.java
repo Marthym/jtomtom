@@ -31,6 +31,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -46,6 +47,7 @@ import org.apache.log4j.Logger;
 import org.jtomtom.Constant;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
+import org.jtomtom.device.Chipset;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.PatienterDialog;
 import org.jtomtom.gui.TabQuickFix;
@@ -135,18 +137,28 @@ public class MajQuickFixAction extends AbstractAction {
 	public void miseAJourQuickFix(TomtomDevice theGPS) throws JTomtomException {		
 		// Téléchargement du fichier de mise à jour
 		LOGGER.info("Téléchargement de la mise à jour QuickFix...");
-		HttpURLConnection conn = null;
 		FileOutputStream fout = null;
 		InputStream is = null;
 		File ephemFile = null;
 		try {
 			if (LOGGER.isDebugEnabled()) LOGGER.debug("tomtomQuickFixURL = "+Constant.URL_EPHEMERIDE+theGPS.getChipset());
-			URL tomtomQuickFixURL = new URL(Constant.URL_EPHEMERIDE+theGPS.getChipset());
+			List<URL> filesToDownload = getDownloadableFilesURL(theGPS.getChipset());
 			
+			for (URL aQuickFixURL : filesToDownload) {
+				File aQuickFixFile = File.createTempFile("ephemeride", ".cab");
+				aQuickFixFile.deleteOnExit();
+				
+				HttpURLConnection conn = (HttpURLConnection) aQuickFixURL.openConnection(JTomtom.getApplicationProxy());
+				conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
+				conn.setDoInput(true);
+	            conn.setUseCaches(false);
+	            conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
+	            conn.connect();
+			}
 			ephemFile = File.createTempFile("ephemeride", ".cab");
 			ephemFile.deleteOnExit();
 			
-			conn = (HttpURLConnection) tomtomQuickFixURL.openConnection(JTomtom.getApplicationProxy());
+			conn = (HttpURLConnection) filesToDownload.openConnection(JTomtom.getApplicationProxy());
 			
 			conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
 			conn.setDoInput(true);
@@ -249,5 +261,22 @@ public class MajQuickFixAction extends AbstractAction {
 		// - Installation des la mise à jour
 		LOGGER.info("Installation des ephemerides dans le GPS...");
 		theGPS.updateQuickFix(ephemFiles);
+	}
+	
+	private final List<URL> getDownloadableFilesURL(Chipset gpsChipset) {
+		List<URL> filesUrl = new LinkedList<URL>();
+		try {
+			if (gpsChipset == Chipset.UNKNOWN) {
+				for(Chipset cs : Chipset.available()) {
+					filesUrl.add(new URL(Constant.URL_EPHEMERIDE+cs));
+				}
+			} else {
+				filesUrl.add(new URL(Constant.URL_EPHEMERIDE+gpsChipset));
+			}
+			
+		} catch (MalformedURLException e) {
+			LOGGER.warn(e);
+		}
+		return filesUrl;
 	}
 }
