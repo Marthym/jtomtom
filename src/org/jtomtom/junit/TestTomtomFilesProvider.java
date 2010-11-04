@@ -23,6 +23,7 @@ package org.jtomtom.junit;
 import static junit.framework.Assert.*;
 
 import java.io.File;
+import java.util.Set;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -58,9 +59,10 @@ public class TestTomtomFilesProvider {
 	public void testGetEphemeridData() {
 		try {
 			TomtomFilesProvider ttFilesProvider = new TomtomFilesProvider(TomtomDeviceFinder.findMountPoint());
-			File ephemDat = ttFilesProvider.getEphemeridData();
+			Set<File> ephemDat = ttFilesProvider.getEphemeridData();
 			assertNotNull(ephemDat);
-			assertTrue(ephemDat.exists());
+			assertFalse(ephemDat.isEmpty());
+			assertTrue(ephemDat.iterator().next().exists());
 		} catch (Exception e) {
 			fail(e.getLocalizedMessage());
 		}
