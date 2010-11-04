@@ -27,8 +27,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -263,12 +263,15 @@ public class TomtomDevice {
 	 * Reset quickfix informations for the device
 	 * @param ephemFiles		List of the files to install in the GPS
 	 */
-	public void updateQuickFix(List<File> ephemFiles) {
+	public void updateQuickFix(Collection<File> ephemFiles) {
 		String destDir = getMountPoint()+File.separator+"ephem"+File.separator;
+		
+		File ephemDir = new File(destDir);
+		if (!ephemDir.exists()) ephemDir.mkdir();
 		
 		LOGGER.debug("Copy files in "+destDir);
 		for (File current : ephemFiles) {
-			File destination = new File(destDir+current.getName());
+			File destination = new File(ephemDir, current.getName());
 			
 			if (!JTomTomUtils.deplacer(current, destination, true))
 				throw new JTomtomException("org.jtomtom.errors.gps.ephem.copyerror");

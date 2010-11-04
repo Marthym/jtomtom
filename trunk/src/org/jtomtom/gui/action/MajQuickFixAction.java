@@ -23,16 +23,16 @@ package org.jtomtom.gui.action;
 import java.awt.event.ActionEvent;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
@@ -135,135 +135,19 @@ public class MajQuickFixAction extends AbstractAction {
 	 * @throws JTomtomException
 	 */
 	public void miseAJourQuickFix(TomtomDevice theGPS) throws JTomtomException {		
-		// Téléchargement du fichier de mise à jour
-		LOGGER.info("Téléchargement de la mise à jour QuickFix...");
-		FileOutputStream fout = null;
-		InputStream is = null;
-		File ephemFile = null;
-		try {
-			if (LOGGER.isDebugEnabled()) LOGGER.debug("tomtomQuickFixURL = "+Constant.URL_EPHEMERIDE+theGPS.getChipset());
-			List<URL> filesToDownload = getDownloadableFilesURL(theGPS.getChipset());
-			
-			for (URL aQuickFixURL : filesToDownload) {
-				File aQuickFixFile = File.createTempFile("ephemeride", ".cab");
-				aQuickFixFile.deleteOnExit();
-				
-				HttpURLConnection conn = (HttpURLConnection) aQuickFixURL.openConnection(JTomtom.getApplicationProxy());
-				conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
-				conn.setDoInput(true);
-	            conn.setUseCaches(false);
-	            conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
-	            conn.connect();
-			}
-			ephemFile = File.createTempFile("ephemeride", ".cab");
-			ephemFile.deleteOnExit();
-			
-			conn = (HttpURLConnection) filesToDownload.openConnection(JTomtom.getApplicationProxy());
-			
-			conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
-			conn.setDoInput(true);
-            conn.setUseCaches(false);
-            conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
-            conn.connect();
-
-            int currentSize = 0;
-			if (LOGGER.isDebugEnabled()) LOGGER.debug("conn.getResponseCode() = "+conn.getResponseCode());
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            	int fileSize = conn.getContentLength();
-            	is = conn.getInputStream();
-                fout = new FileOutputStream(ephemFile);
-                byte buffer1[] = new byte[1024*128];
-                int k=0;
-
-                while( (k = is.read(buffer1)) != -1 ){
-                    fout.write(buffer1,0,k);
-                    currentSize += k;
-                    
-                    if (m_waitingDialog != null) { // On a besoin de ça pour les tests
-                    	m_waitingDialog.refreshProgressBar(currentSize, fileSize);
-                    }
-                }
-
-            } else {
-            	throw new JTomtomException("org.jtomtom.errors.connexion.fail", 
-            			new String[]{Integer.toString(conn.getResponseCode()),conn.getResponseMessage()});
-            }
-			
-		} catch (MalformedURLException e) {
-			throw new JTomtomException(e);
-			
-		} catch (IOException e) {
-			throw new JTomtomException(e);
-			
-		} finally {
-			LOGGER.debug("Fermeture des tout les flux de téléchargement");
-			conn.disconnect();
-			try {fout.close();} catch (Exception e){}
-			try {is.close();} catch (Exception e){}
-		}
+		
+		List<URL> filesToDownload = getEphemeridFilesURL(theGPS.getChipset());
+		List<File> filesToUncab = downloadEphemeridFiles(filesToDownload);
 		
 		if (m_waitingDialog != null) { // On a besoin de ça pour les tests
         	m_waitingDialog.refreshProgressBar(0, 0);
         }
 		
-		// - Extraction de l'archive
-		LOGGER.info("Décompression de la mise à jour QuickFix...");
-		CabFile ephemCabFile = null;
-		try {
-			ephemCabFile = new CabFile(ephemFile);
-		} catch (IOException e) {
-			throw new JTomtomException(e);
-		}
-		
-		List<File> ephemFiles = new ArrayList<File>();
-		
-		InputStream cabis = null;
-		BufferedOutputStream dest = null;
-		FileOutputStream fos = null;
-		try {
-			
-			final int BUFFER = 2048;
-
-			CabEntry[] entries = ephemCabFile.getEntries();
-			for (int i = 0; i < entries.length; i++) {
-				int count;
-				CabEntry entry =  entries[i];
-				
-				cabis = ephemCabFile.getInputStream(entry);
-	            byte data[] = new byte[BUFFER];
-	            
-	            File current = new File(ephemFile.getParent(), entry.getName());
-	            ephemFiles.add(current);
-	            fos = new FileOutputStream(current);
-	            dest = new BufferedOutputStream(fos, BUFFER);
-	            while((count = cabis.read(data)) != -1) {
-	            	dest.write(data, 0, count);
-	            }
-	            dest.flush();
-	            dest.close();
-	            
-	            LOGGER.debug("Extraction de "+current.getName()+" dans "+current.getParent());
-			}
-			
-		} catch (FileNotFoundException e) {
-			throw new JTomtomException(e);
-			
-		} catch (IOException e) {
-			throw new JTomtomException(e);
-			
-		} finally {
-			LOGGER.debug("Fermeture des flux de décompression...");
-			try {cabis.close();} catch (Exception e){};
-			try {dest.close();} catch (Exception e){};
-			try {fos.close();} catch (Exception e){};
-		}
-		
-		// - Installation des la mise à jour
-		LOGGER.info("Installation des ephemerides dans le GPS...");
-		theGPS.updateQuickFix(ephemFiles);
+		Set<File> filesToInstall = uncabEphemeridFiles(filesToUncab);
+		theGPS.updateQuickFix(filesToInstall);
 	}
 	
-	private final List<URL> getDownloadableFilesURL(Chipset gpsChipset) {
+	private final List<URL> getEphemeridFilesURL(Chipset gpsChipset) {
 		List<URL> filesUrl = new LinkedList<URL>();
 		try {
 			if (gpsChipset == Chipset.UNKNOWN) {
@@ -278,5 +162,113 @@ public class MajQuickFixAction extends AbstractAction {
 			LOGGER.warn(e);
 		}
 		return filesUrl;
+	}
+	
+	private List<File> downloadEphemeridFiles(List<URL> filesLocations) {
+		List<File> downloadedFiles = new LinkedList<File>();
+		try {
+			for (URL oneFileLocation : filesLocations) {
+				File ephemFile = File.createTempFile("ephem", ".cab");
+				ephemFile.deleteOnExit();
+							
+				HttpURLConnection conn = (HttpURLConnection) oneFileLocation.openConnection(JTomtom.getApplicationProxy());
+				conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
+				conn.setDoInput(true);
+	            conn.setUseCaches(false);
+	            conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
+	            conn.connect();
+	            
+	            int currentSize = 0;
+				if (LOGGER.isDebugEnabled()) LOGGER.debug("conn.getResponseCode() = "+conn.getResponseCode());
+				
+				int connResponseCode = conn.getResponseCode();
+				if (connResponseCode != HttpURLConnection.HTTP_OK) {
+					throw new JTomtomException("org.jtomtom.errors.connexion.fail", 
+	            			new String[]{Integer.toString(connResponseCode),conn.getResponseMessage()});
+				}
+
+            	int fileSize = conn.getContentLength();
+            	InputStream is = null;
+            	FileOutputStream fout = null;
+            	try {
+            		
+	            	is = conn.getInputStream();
+	            	fout = new FileOutputStream(ephemFile);
+	                byte buffer1[] = new byte[1024*128];
+	                int k=0;
+	
+	                while( (k = is.read(buffer1)) != -1 ){
+	                    fout.write(buffer1,0,k);
+	                    currentSize += k;
+	                    
+	                    if (m_waitingDialog != null) { // Need for test case
+	                    	m_waitingDialog.refreshProgressBar(currentSize, fileSize);
+	                    }
+	                }
+	            	
+	                downloadedFiles.add(ephemFile);
+	                
+            	} finally {
+        			try {fout.close();} catch (Exception e){};
+        			try {is.close();} catch (Exception e){};
+        			conn.disconnect();
+            	}
+	            	
+			}
+			
+		} catch (IOException e) {
+			throw new JTomtomException("Enable to download ephemerid files !", e);
+			
+		} 
+		return downloadedFiles;
+	}
+	
+	private Set<File> uncabEphemeridFiles(List<File> cabFiles) {
+		Set<File> uncompressedFiles = new LinkedHashSet<File>();
+		final int BUFFER = 2048;
+		
+		for (File oneCabinetFile : cabFiles) {
+			InputStream cabis = null;
+			BufferedOutputStream dest = null;
+			FileOutputStream fos = null;
+			
+			CabFile theCabinet;
+			try {
+				theCabinet = new CabFile(oneCabinetFile);
+				CabEntry[] entries = theCabinet.getEntries();
+				
+				for (CabEntry entry : entries) {
+					int count;
+					
+					cabis = theCabinet.getInputStream(entry);
+		            byte data[] = new byte[BUFFER];
+		            
+		            File current = new File(oneCabinetFile.getParent(), entry.getName());
+		            
+		            fos = new FileOutputStream(current);
+		            dest = new BufferedOutputStream(fos, BUFFER);
+		            while((count = cabis.read(data)) != -1) {
+		            	dest.write(data, 0, count);
+		            }
+		            dest.flush();
+		            dest.close();
+		            
+		            LOGGER.debug("Extract "+current.getName()+" in "+current.getParent());
+		            uncompressedFiles.add(current);
+				}
+				
+			} catch (IOException e) {
+				throw new JTomtomException(e);
+				
+			} finally {
+				LOGGER.debug("Fermeture des flux de décompression...");
+				try {cabis.close();} catch (Exception e){};
+				try {dest.close();} catch (Exception e){};
+				try {fos.close();} catch (Exception e){};				
+			}
+
+		}
+		
+		return uncompressedFiles;
 	}
 }
