@@ -23,6 +23,8 @@ package org.jtomtom.device;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -61,7 +63,7 @@ public class TomtomFilesProvider {
 		
 		File currentMapFile = null;
 		for (File aDatFile : datFiles) {
-			if ("currentmap.dat".equalsIgnoreCase(aDatFile.getName())) {
+			if (FILE_CURRENT_MAP.equalsIgnoreCase(aDatFile.getName())) {
 				currentMapFile = aDatFile;
 				break;
 			}
@@ -72,14 +74,21 @@ public class TomtomFilesProvider {
 		return currentMapFile;
 	}
 	
-	public File getEphemeridData() throws FileNotFoundException {
-		File globalLocate = new File(rootDirectory+File.separator+"ephem"+File.separator+FILE_GLOBAL_LOCATE);
-		if (globalLocate.exists()) return globalLocate;
-
-		File sirfStar = new File(rootDirectory+File.separator+"ephem"+File.separator+FILE_SIRFSTAR_III);
-		if (sirfStar.exists()) return sirfStar;
+	public Set<File> getEphemeridData() throws FileNotFoundException {
+		File ephemDir = new File(rootDirectory, "ephem");
+		if (!ephemDir.exists()) throw new FileNotFoundException();
 		
-		throw new FileNotFoundException();
+		Set<File> dataEphemFiles = new HashSet<File>();
+		File[] ephemFiles = ephemDir.listFiles();
+		for (File anEphemFile : ephemFiles) {
+			if (FILE_GLOBAL_LOCATE.equalsIgnoreCase(anEphemFile.getName()))
+				dataEphemFiles.add(anEphemFile);
+			
+			if (FILE_SIRFSTAR_III.equalsIgnoreCase(anEphemFile.getName()))
+				dataEphemFiles.add(anEphemFile);
+		}
+		
+		return dataEphemFiles;
 	}
 	
 	public File getEphemeridMeta() throws FileNotFoundException {

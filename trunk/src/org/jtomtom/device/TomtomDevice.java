@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import net.sf.jcablib.CabFile;
 
@@ -185,16 +186,22 @@ public class TomtomDevice {
 		try {
 			
 			if (chipset == null) {
-				String ephemFileName = theFiles.getEphemeridData().getName();
+				Set<File> ephemFiles = theFiles.getEphemeridData();
 				
-				if (TomtomFilesProvider.FILE_GLOBAL_LOCATE.equals(ephemFileName)) 
-					chipset = Chipset.globalLocate;
-				
-				if (TomtomFilesProvider.FILE_SIRFSTAR_III.equals(ephemFileName))
-					chipset = Chipset.SiRFStarIII;
-				
-				if (chipset == null)
+				if (ephemFiles.size() >= 2) {
 					chipset = Chipset.UNKNOWN;
+					
+				} else {
+					File theEphemFile = ephemFiles.iterator().next();
+					if (TomtomFilesProvider.FILE_GLOBAL_LOCATE.equalsIgnoreCase(theEphemFile.getName())) {
+						chipset = Chipset.globalLocate;
+						
+					} else if (TomtomFilesProvider.FILE_SIRFSTAR_III.equalsIgnoreCase(theEphemFile.getName())) {
+						chipset = Chipset.SiRFStarIII;
+					}
+				}
+				
+				if (chipset == null) chipset = Chipset.UNKNOWN;
 			}
 			
 			return chipset;
@@ -216,8 +223,11 @@ public class TomtomDevice {
 		try {
 			
 			if (quickFixLastUpdate == 0) {
-				File ephemeride = theFiles.getEphemeridData();
-				quickFixLastUpdate = ephemeride.lastModified();
+				Set<File> ephemFiles = theFiles.getEphemeridData();
+				if (!ephemFiles.isEmpty()) {
+					File ephemeride = theFiles.getEphemeridData().iterator().next();
+					quickFixLastUpdate = ephemeride.lastModified();
+				}
 			}
 			
 			return quickFixLastUpdate;
