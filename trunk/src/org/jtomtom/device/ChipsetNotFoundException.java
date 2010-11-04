@@ -20,19 +20,14 @@
  */
 package org.jtomtom.device;
 
-import java.util.Arrays;
-
 /**
  * @author Frédéric Combes
  *
  */
-public enum Chipset {
-	SiRFStarIII, 
-	globalLocate,
-	UNKNOWN;
-	
-	public static Chipset[] available() {
-		Chipset[] allChipset = Chipset.values();
-		return Arrays.copyOf(allChipset, allChipset.length -1);
+public class ChipsetNotFoundException extends RuntimeException {
+	private static final long serialVersionUID = 1L;
+		
+	public ChipsetNotFoundException(Throwable exception) {
+		super("Chipset not recognized !", exception);
 	}
 }
