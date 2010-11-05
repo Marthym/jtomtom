@@ -116,9 +116,8 @@ public class TabQuickFix extends JTTabPanel {
 	private Chipset askForChipset() {
 		ChooseChipsetDialog chooseChipsetDial = new ChooseChipsetDialog();
 		chooseChipsetDial.setVisible(true);
-		Chipset myChipset = chooseChipsetDial.getSelectedChipset();
-		if (myChipset == null) myChipset = Chipset.UNKNOWN;
-		return myChipset;
+
+		return chooseChipsetDial.getSelectedChipset();
 	}
 	
 }
