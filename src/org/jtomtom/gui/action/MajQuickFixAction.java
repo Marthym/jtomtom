@@ -139,15 +139,13 @@ public class MajQuickFixAction extends AbstractAction {
 		List<URL> filesToDownload = getEphemeridFilesURL(theGPS.getChipset());
 		List<File> filesToUncab = downloadEphemeridFiles(filesToDownload);
 		
-		if (m_waitingDialog != null) { // On a besoin de ça pour les tests
-        	m_waitingDialog.refreshProgressBar(0, 0);
-        }
+		updateProgressBar(0, 0);
 		
 		Set<File> filesToInstall = uncabEphemeridFiles(filesToUncab);
 		theGPS.updateQuickFix(filesToInstall);
 	}
 	
-	private final List<URL> getEphemeridFilesURL(Chipset gpsChipset) {
+	private static final List<URL> getEphemeridFilesURL(Chipset gpsChipset) {
 		List<URL> filesUrl = new LinkedList<URL>();
 		try {
 			if (gpsChipset == Chipset.UNKNOWN) {
@@ -164,7 +162,7 @@ public class MajQuickFixAction extends AbstractAction {
 		return filesUrl;
 	}
 	
-	private List<File> downloadEphemeridFiles(List<URL> filesLocations) {
+	private final List<File> downloadEphemeridFiles(List<URL> filesLocations) {
 		List<File> downloadedFiles = new LinkedList<File>();
 		try {
 			for (URL oneFileLocation : filesLocations) {
@@ -201,9 +199,7 @@ public class MajQuickFixAction extends AbstractAction {
 	                    fout.write(buffer1,0,k);
 	                    currentSize += k;
 	                    
-	                    if (m_waitingDialog != null) { // Need for test case
-	                    	m_waitingDialog.refreshProgressBar(currentSize, fileSize);
-	                    }
+	                    updateProgressBar(currentSize, fileSize);
 	                }
 	            	
 	                downloadedFiles.add(ephemFile);
@@ -214,7 +210,7 @@ public class MajQuickFixAction extends AbstractAction {
         			conn.disconnect();
             	}
 	            	
-			}
+			} // end for (URL oneFileLocation : filesLocations)
 			
 		} catch (IOException e) {
 			throw new JTomtomException("Enable to download ephemerid files !", e);
@@ -223,7 +219,7 @@ public class MajQuickFixAction extends AbstractAction {
 		return downloadedFiles;
 	}
 	
-	private Set<File> uncabEphemeridFiles(List<File> cabFiles) {
+	private final static Set<File> uncabEphemeridFiles(List<File> cabFiles) {
 		Set<File> uncompressedFiles = new LinkedHashSet<File>();
 		final int BUFFER = 2048;
 		
@@ -267,8 +263,14 @@ public class MajQuickFixAction extends AbstractAction {
 				try {fos.close();} catch (Exception e){};				
 			}
 
-		}
+		} // end for (File oneCabinetFile : cabFiles)
 		
 		return uncompressedFiles;
+	}
+	
+	private void updateProgressBar(int current, int max) {
+        if (m_waitingDialog != null) { // Need for test case
+        	m_waitingDialog.refreshProgressBar(current, max);
+        }
 	}
 }
