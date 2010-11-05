@@ -113,6 +113,7 @@ public class ChooseChipsetDialog extends JDialog implements ActionListener {
 			catch (IOException e) { LOGGER.warn(e.getLocalizedMessage()); }
 			
 		} else if (p_event.getSource() == cancelButton) {
+			selectedChipset = Chipset.UNKNOWN;
 			this.dispose();
 		}
 	}
