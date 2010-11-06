@@ -19,30 +19,43 @@
  *  <belz12@yahoo.fr> 
  */
 package org.jtomtom.junit;
-import org.apache.log4j.BasicConfigurator;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
-import org.junit.runners.Suite.SuiteClasses;
 
-@RunWith(Suite.class)
-@SuiteClasses(value={
-	TestNetworkTester.class,
-	TestTomtomDeviceFinder.class,
-	TestTomtomFilesProvider.class,
-	TestJTomtomProperties.class,
-	TestJarUtils.class,
-	TestJTTUtils.class,
-	TestTomtomDevice.class,
-	TestTomtomMap.class,
-	TestActions.class,
-	TestCheckNavcoreUpdateActions.class,
-	TestJTomtomException.class,
-	AllConnectorsTests.class
-})
-public class AllTests{
+import java.util.Map;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.jtomtom.gui.action.CheckNavcoreUpdateAction;
+
+import static org.junit.Assert.*;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+
+public class TestCheckNavcoreUpdateActions {
 	@BeforeClass
 	public static void initLogger() {
-		BasicConfigurator.configure();
+		if (!Logger.getRootLogger().getAllAppenders().hasMoreElements())
+			BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.DEBUG);
 	}
+	
+	@Test
+	public void testCreateDeviceMap() {
+		try {
+			
+			Map<String, String> deviceMap = CheckNavcoreUpdateAction.createDeviceMap();
+			
+			assertNotNull(deviceMap);
+			assertFalse(deviceMap.isEmpty());
+			
+			for (String name : deviceMap.values()) {
+				System.out.println(name);
+			}
+		} catch (Exception e) {
+			fail(e.getLocalizedMessage());
+		}
+	}
+
 }
