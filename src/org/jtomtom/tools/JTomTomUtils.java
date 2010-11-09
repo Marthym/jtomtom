@@ -20,14 +20,25 @@
  */
 package org.jtomtom.tools;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.channels.FileChannel;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.ws.http.HTTPException;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.JTomtom;
+import org.jtomtom.JTomtomException;
 
 public final class JTomTomUtils {
 	public static final Logger LOGGER = Logger.getLogger(JTomTomUtils.class);
@@ -106,6 +117,52 @@ public final class JTomTomUtils {
 	 */
 	public static final boolean deplacer (File source, File destination) {
 		return deplacer(source, destination, false);
+	}
+
+	public static final Map<String, String> createDeviceMap() {
+		final String TOMTOM_DEVICE_LIST_URL = "http://www.tomtom.com/lib/img/cs/javascript/reset.js";
+		final String DEVICESN_START = "devicesn=new Array(";
+		final String DEVICENAME_START = "devicenames=new Array(";
+		final String DEVICE_ARRAY_END = ");";
+		
+		try {
+			String[] deviceSN = null;
+			String[] deviceNames = null;
+			Map<String, String> deviceMap = new HashMap<String, String>();
+			
+			URL resetJsUrl = new URL(TOMTOM_DEVICE_LIST_URL);
+			HttpURLConnection conn = (HttpURLConnection)resetJsUrl.openConnection(JTomtom.getApplicationProxy());
+			int response = conn.getResponseCode();
+			if (response != HttpURLConnection.HTTP_OK) {
+				throw new HTTPException(response);
+			}
+			
+			InputStream is = conn.getInputStream();
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+			String line;
+			while((line = rd.readLine().trim()) != null) {
+				if (line.startsWith(DEVICESN_START)) {
+					int start = line.indexOf(DEVICESN_START)+DEVICESN_START.length();
+					int end = line.indexOf(DEVICE_ARRAY_END, start);
+					deviceSN = line.substring(start, end).replaceAll("\"", "").split(",");
+				}
+				if (line.startsWith(DEVICENAME_START)) {
+					int start = line.indexOf(DEVICENAME_START)+DEVICENAME_START.length();
+					int end = line.indexOf(DEVICE_ARRAY_END, start);
+					deviceNames = line.substring(start, end).replaceAll("\"", "").split(",");
+				}
+				if (deviceSN != null && deviceNames != null) break;
+			}
+			
+			for (int i = 0; i < deviceSN.length; i++) {
+				deviceMap.put(deviceSN[i], deviceNames[i]);
+			}
+			
+			return deviceMap;
+			
+		} catch (Exception e) {
+			throw new JTomtomException("Enable to create device map !", e);
+		}
 	}
 
 }
