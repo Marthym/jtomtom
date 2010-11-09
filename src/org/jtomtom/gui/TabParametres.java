@@ -26,7 +26,6 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 
 import javax.swing.BorderFactory;
@@ -44,6 +43,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jtomtom.Constant;
 import org.jtomtom.JTomtom;
+import org.jtomtom.JTomtomException;
 import org.jtomtom.gui.utilities.JTTabPanel;
 import org.jtomtom.gui.utilities.SpringUtilities;
 
@@ -221,23 +221,28 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource() == m_enregistrer) {
-			JTomtom.theProperties.setUserProperty("net.proxy.type", ((String)m_proxyType.getSelectedItem()));
-			JTomtom.theProperties.setUserProperty("net.proxy.name", m_proxyHost.getText());
-			JTomtom.theProperties.setUserProperty("net.proxy.port", m_proxyPort.getText());
-			JTomtom.theProperties.setUserProperty("org.jtomtom.logLevel", ((String)m_logLevel.getSelectedItem()));
-			JTomtom.theProperties.setUserProperty("org.jtomtom.logFile", m_logFile.getText());
-			JTomtom.theProperties.setUserProperty("org.tomtomax.user", m_ttmaxUser.getText());
-			JTomtom.theProperties.setUserProperty("org.tomtomax.password", m_ttmaxPassword.getText());
-			JTomtom.theProperties.setUserProperty("org.jtomtom.checkupdate", Boolean.toString(m_checkUpdate.isSelected()));
-			
 			try {
+				if (!"DIRECT".equals((String)m_proxyType.getSelectedItem())) {
+					if (m_proxyHost.getText().trim().isEmpty() || m_proxyPort.getText().trim().isEmpty()) {
+						throw new JTomtomException("org.jtomtom.errors.settings.proxy");
+					}
+				}
+				JTomtom.theProperties.setUserProperty("net.proxy.type", ((String)m_proxyType.getSelectedItem()));
+				JTomtom.theProperties.setUserProperty("net.proxy.name", m_proxyHost.getText());
+				JTomtom.theProperties.setUserProperty("net.proxy.port", m_proxyPort.getText());
+				JTomtom.theProperties.setUserProperty("org.jtomtom.logLevel", ((String)m_logLevel.getSelectedItem()));
+				JTomtom.theProperties.setUserProperty("org.jtomtom.logFile", m_logFile.getText());
+				JTomtom.theProperties.setUserProperty("org.tomtomax.user", m_ttmaxUser.getText());
+				JTomtom.theProperties.setUserProperty("org.tomtomax.password", m_ttmaxPassword.getText());
+				JTomtom.theProperties.setUserProperty("org.jtomtom.checkupdate", Boolean.toString(m_checkUpdate.isSelected()));
+			
 				JTomtom.theProperties.storeUserProperties(
 						new File(System.getProperty("user.home"), Constant.JTOMTOM_USER_PROPERTIES));
 				
-			} catch (IOException e) { 
+			} catch (Exception e) { 
 				LOGGER.error("An error occurred while writing properties file ("+System.getProperty("user.home")+File.separator+Constant.JTOMTOM_USER_PROPERTIES+") !");
 				JOptionPane.showMessageDialog(this, 
-						m_rbControls.getString("org.jtomtom.errors.io.filewriting"), 
+						e.getLocalizedMessage(), 
 						m_rbControls.getString("org.jtomtom.tab.parameters.dialog.save.title"), JOptionPane.ERROR_MESSAGE);
 				return;
 			}

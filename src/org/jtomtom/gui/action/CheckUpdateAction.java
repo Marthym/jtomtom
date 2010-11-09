@@ -28,25 +28,32 @@ import java.net.URLConnection;
 import java.util.Date;
 import java.util.LinkedList;
 
-import javax.swing.JOptionPane;
+import javax.swing.JLabel;
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtom;
+import org.jtomtom.JTomtomException;
 import org.jtomtom.tools.JarUtils;
 import org.jtomtom.tools.NetworkTester;
 
 /**
  * @author Frédéric Combes
  * 
- * Worker pour la vérification de nouvelles version de jTomtom
+ * Worker for checking jTomtom new version disponibility
  */
 public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 	
 	public static final String REMOTE_JTOMTOM_URL = "http://downloads.sourceforge.net/project/jtomtom/jTomtom.jar";
 	
 	private static final Logger LOGGER = Logger.getLogger(CheckUpdateAction.class);
+	private JLabel displayedMessage;
 
+	public CheckUpdateAction(JLabel message) {
+		super();
+		this.displayedMessage = message;
+	}
+	
 	/* (non-Javadoc)
 	 * @see javax.swing.SwingWorker#doInBackground()
 	 */
@@ -58,7 +65,8 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 		result.status = false;
 		if (!NetworkTester.getInstance().isNetworkAvailable(JTomtom.getApplicationProxy())) {
 			result.parameters = new LinkedList<String>();
-			result.parameters.add(JTomtom.theMainTranslator.getString("org.jtomtom.errors.network.unavailable"));
+			result.parameters.add(new JTomtomException("org.jtomtom.errors.network.unavailable").getLocalizedMessage());
+			return result;
 		}
 		
 		
@@ -80,10 +88,12 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 	protected void done() {
 		try {
 			ActionResult result = get();
+			LinkedList<String> messages = (LinkedList<String>)result.parameters;
 			if (result.status) {
-				LinkedList<String> messages = (LinkedList<String>)result.parameters;
-				JOptionPane.showMessageDialog(null, messages.getFirst(), 
-						JTomtom.theMainTranslator.getString("org.jtomtom.main.action.checkupdate.updateavailable"), JOptionPane.INFORMATION_MESSAGE);
+				displayedMessage.setText(messages.getFirst());
+			} else {
+				if (messages != null && !messages.isEmpty())
+					LOGGER.warn(messages.getFirst());
 			}
 			
 		} catch (Exception e) {
@@ -93,12 +103,12 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 	}
 	
 	public static final String checkUpdateNow() {
-		LOGGER.debug("Lancement de la vérification de version");
+		LOGGER.debug("Run to check new version availability ...");
 		String message = null;
 		
 		URL jarUrl = null;
 		try {
-			LOGGER.debug("URL de la version courante : "+REMOTE_JTOMTOM_URL);
+			LOGGER.debug("URL of the last version available : "+REMOTE_JTOMTOM_URL);
 			jarUrl = new URL(REMOTE_JTOMTOM_URL);
 			
 		} catch (MalformedURLException e) {
@@ -113,12 +123,12 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 			// On trouve le nom du fichier jar de jTomtom
 			File jttJarFile = JarUtils.getCurrentFile();
 			if (jttJarFile == null || !jttJarFile.exists()) {
-				LOGGER.warn("Fichier jar introuvable ! Vérification de MAJ annulé !");
+				LOGGER.warn("Jar file not found ! Check update canceled !");
 				return null;
 			}
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Version installé : "+new Date(jttJarFile.lastModified()));
-				LOGGER.debug("Dernière version : "+new Date(conn.getLastModified()));
+				LOGGER.debug("Installed version : "+new Date(jttJarFile.lastModified()));
+				LOGGER.debug("Last available version : "+new Date(conn.getLastModified()));
 			}
 			
 			if (conn.getLastModified()/1000 >= jttJarFile.lastModified()/1000) {
@@ -131,7 +141,7 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 		}
 		
 		if (message == null) {
-			LOGGER.info("Pas de nouvelle version trouvé.");
+			LOGGER.info("No new version found");
 		} else {
 			LOGGER.info(message);
 		}

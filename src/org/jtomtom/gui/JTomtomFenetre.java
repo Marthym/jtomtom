@@ -21,40 +21,59 @@
 package org.jtomtom.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.jtomtom.JTomtom;
+import org.jtomtom.gui.action.CheckUpdateAction;
 import org.jtomtom.gui.action.QuitterAction;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  *
  */
 public class JTomtomFenetre extends JFrame implements ChangeListener {
-	private static final long serialVersionUID = -6168627345507124480L;
-	
+	private static final long serialVersionUID = 1L;
+
 	private JTabbedPane tabbedPane;
+	
+	private JLabel newVersionMessage;
 	
 	public JTomtomFenetre() {
 		super();
 		
 		build();
+		
+		runNewVersionChecking();
+	}
+
+	private void runNewVersionChecking() {
+		if ("true".equals(JTomtom.theProperties.getUserProperty("org.jtomtom.checkupdate"))) {
+			SwingUtilities.invokeLater(new Runnable(){
+				public void run(){
+					CheckUpdateAction check = new CheckUpdateAction(newVersionMessage);
+					check.execute();
+				}
+			});
+		}
 	}
 
 	private void build() {
-		setTitle("jTomtom - "+JTomtom.getTheGPS().getName()); 			//On donne un titre à l'application
-		setSize(600,400); 				//On donne une taille à notre fenêtre
-		setLocationRelativeTo(null); 	//On centre la fenêtre sur l'écran
-		setResizable(false); 			//On interdit la redimensionnement de la fenêtre
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //On dit à l'application de se fermer lors du clic sur la croix
+		setTitle("jTomtom - "+JTomtom.getTheGPS().getName()); 			// Set the application title
+		setSize(600,400); 												// Set window size
+		setLocationRelativeTo(null); 									// Set window location at the center of the screen
+		setResizable(false); 											// Disable window resizing
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 				// Set close window on cross click
 		setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("resources/icon.png"))); 
 		
 		setContentPane(buildContentPane());
@@ -83,14 +102,20 @@ public class JTomtomFenetre extends JFrame implements ChangeListener {
 	private JPanel buildPageEndPanel() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		
+		newVersionMessage = new JLabel();
+		newVersionMessage.setForeground(Color.RED);
+		panel.add(newVersionMessage);
+		
 		JButton bouton = new JButton(new QuitterAction());
 		panel.add(bouton);
+		
 		return panel;
 	}
 
 	@Override
 	public void stateChanged(ChangeEvent event) {
-		// Permet de ne charger les infos qu'à l'affichage des onglets
+		// Load tab information just when they are displayed
 		if (tabbedPane == event.getSource()) {
 			if (TabQuickFix.class.isAssignableFrom(tabbedPane.getSelectedComponent().getClass())) {
 				TabQuickFix ongletQF = (TabQuickFix)tabbedPane.getSelectedComponent();
