@@ -25,7 +25,7 @@ import java.util.Map;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.gui.action.CheckNavcoreUpdateAction;
+import org.jtomtom.tools.JTomTomUtils;
 
 import static org.junit.Assert.*;
 
@@ -45,7 +45,7 @@ public class TestCheckNavcoreUpdateActions {
 	public void testCreateDeviceMap() {
 		try {
 			
-			Map<String, String> deviceMap = CheckNavcoreUpdateAction.createDeviceMap();
+			Map<String, String> deviceMap = JTomTomUtils.createDeviceMap();
 			
 			assertNotNull(deviceMap);
 			assertFalse(deviceMap.isEmpty());

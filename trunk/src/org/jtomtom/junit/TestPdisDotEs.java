@@ -86,8 +86,6 @@ public class TestPdisDotEs {
 		
 		assertNotNull(infos);
 		assertTrue(infos.getLastUpdateDate() != new Date(0));
-		assertTrue(infos.getPoisNumber() >= 0);
-		assertFalse(infos.getDbVersion().equals(POIsDbInfos.UNKNOWN));
 	}
 	
 	@Test
