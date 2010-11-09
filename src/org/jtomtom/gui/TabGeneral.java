@@ -59,7 +59,7 @@ public class TabGeneral extends JTTabPanel implements ActionListener {
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.general.name")).append(" : </strong></td><td><i>")
 			.append(JTomtom.getTheGPS().getName()).append("</i></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.general.unid")).append(" : </strong></td><td><i>")
-			.append(JTomtom.getTheGPS().getSerialNumber()).append("</i></td></tr>");
+			.append(JTomtom.getTheGPS().getDeviceUniqueID()).append("</i></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.general.bootloader")).append(" : </strong></td><td><i>")
 			.append(JTomtom.getTheGPS().getBootloaderVersion()).append("</i></td></tr>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.general.gpsversion")).append(" : </strong></td><td><i>")
@@ -91,7 +91,7 @@ public class TabGeneral extends JTTabPanel implements ActionListener {
 		if (event.getSource() == m_btCopier) {
 			StringBuffer infos = new StringBuffer();
 			infos.append(m_rbControls.getString("org.jtomtom.tab.general.name")).append(" : ").append(JTomtom.getTheGPS().getName()).append("\n");
-			infos.append(m_rbControls.getString("org.jtomtom.tab.general.unid")).append(" : ").append(JTomtom.getTheGPS().getSerialNumber()).append("\n");
+			infos.append(m_rbControls.getString("org.jtomtom.tab.general.unid")).append(" : ").append(JTomtom.getTheGPS().getDeviceUniqueID()).append("\n");
 			infos.append(m_rbControls.getString("org.jtomtom.tab.general.bootloader")).append(" : ").append(JTomtom.getTheGPS().getBootloaderVersion()).append("\n");
 			infos.append(m_rbControls.getString("org.jtomtom.tab.general.gpsversion")).append(" : ").append(JTomtom.getTheGPS().getProcessorVersion()).append("\n");
 			infos.append(m_rbControls.getString("org.jtomtom.tab.general.appversion")).append(" : ").append(JTomtom.getTheGPS().getAppVersion()).append("\n");

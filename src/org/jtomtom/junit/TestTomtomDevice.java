@@ -67,8 +67,8 @@ public class TestTomtomDevice {
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
-		assertNotNull(myGPS.getSerialNumber());
-		assertEquals("AK9AG BJKUJ", myGPS.getSerialNumber());
+		assertNotNull(myGPS.getDeviceUniqueID());
+		assertEquals("AK9AG BJKUJ", myGPS.getDeviceUniqueID());
 		System.out.println(myGPS.getAppVersion());
 	}
 	

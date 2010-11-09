@@ -41,8 +41,10 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
 import org.jtomtom.connector.RadarsConnector;
+import org.jtomtom.device.Chipset;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.JTomtomFenetre;
+import org.jtomtom.gui.action.SendUserInformationsAction;
 import org.jtomtom.tools.JarUtils;
 
 /**
@@ -136,6 +138,15 @@ public class JTomtom {
 			}
 		});
 		
+		if (isInformationsMustBeSend()) {
+			SwingUtilities.invokeLater(new Runnable(){
+				public void run(){
+					SendUserInformationsAction sendBackWorker = new SendUserInformationsAction();
+					sendBackWorker.execute();
+				}
+			});
+		}
+
 	}
 	
 	/**
@@ -207,6 +218,10 @@ public class JTomtom {
 	 */
 	public static final String getApplicationVersionDate() {
 		return versionDate;
+	}
+	
+	public static final String getUserAgent() {
+		return "jTomtom / "+getApplicationVersionNumber()+" ("+System.getProperty("java.version", "")+")";
 	}
 	
 	/**
@@ -282,5 +297,15 @@ public class JTomtom {
 		return RadarsConnector.createFromClass(connectorClassName);
 	}
 	
+	private final static boolean isInformationsMustBeSend() {
+		boolean sendInformations = true;
+		if (!"true".equals(JTomtom.theProperties.getUserProperty("org.jtomtom.sendbackinformations", "true"))) {
+			sendInformations = false;
+		}
+		if (sendInformations && JTomtom.getTheGPS().getChipset() == Chipset.UNKNOWN) {
+			sendInformations = false;
+		}
+		return sendInformations;
+	}
 
 }
