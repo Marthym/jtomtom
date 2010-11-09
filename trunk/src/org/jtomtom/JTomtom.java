@@ -43,7 +43,6 @@ import org.apache.log4j.PropertyConfigurator;
 import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.JTomtomFenetre;
-import org.jtomtom.gui.action.CheckUpdateAction;
 import org.jtomtom.tools.JarUtils;
 
 /**
@@ -136,16 +135,6 @@ public class JTomtom {
 				fenetre.setVisible(true);
 			}
 		});
-
-		// On vérifie les mises à jour si nécessaire
-		if ("true".equals(theProperties.getUserProperty("org.jtomtom.checkupdate"))) {
-			SwingUtilities.invokeLater(new Runnable(){
-				public void run(){
-					CheckUpdateAction check = new CheckUpdateAction();
-					check.execute();
-				}
-			});
-		}
 		
 	}
 	
@@ -178,17 +167,23 @@ public class JTomtom {
 		}
 		
 		if (proxyServer == null) {
+			String proxyName = theProperties.getUserProperty("net.proxy.name");
+			if (proxyName == null || proxyName.trim().isEmpty()) proxyName = "127.0.0.1";
+			
+			String proxyPort = theProperties.getUserProperty("net.proxy.port");
+			if (proxyPort == null || proxyPort.trim().isEmpty()) proxyPort = "3128";
+			
 			if ("HTTP".equals(theProperties.getUserProperty("net.proxy.type"))) {
 				proxyServer = new Proxy(Type.HTTP, 
                         new InetSocketAddress(
-                                        theProperties.getUserProperty("net.proxy.name"), 
-                                        Integer.parseInt(theProperties.getUserProperty("net.proxy.port")) ));
+                        		proxyName, 
+                                Integer.parseInt(proxyPort) ));
 
 			} else if ("SOCKS".equals(theProperties.getUserProperty("net.proxy.type"))) {
 				proxyServer = new Proxy(Type.SOCKS, 
                         new InetSocketAddress(
-                                        theProperties.getUserProperty("net.proxy.name"), 
-                                        Integer.parseInt(theProperties.getUserProperty("net.proxy.port")) ));
+                        		proxyName, 
+                                Integer.parseInt(proxyPort) ));
 					
 			} else {
 				proxyServer = Proxy.NO_PROXY;
