@@ -51,7 +51,8 @@ public class TomtomDevice {
 	
 	public TomtomFilesProvider theFiles;
 	
-	private String serialNumber;
+	private String deviceUniqueID;
+	private String deviceSerialNumber;
 	private String name;
 	private int applicationVersion;		// Navcore version
 	private int systemVersion;
@@ -126,7 +127,8 @@ public class TomtomDevice {
 		name = props.getProperty("DeviceName");
 		applicationVersion = Integer.parseInt(props.getProperty("ApplicationVersionVersionNumber"));
 		bootloaderVersion = Integer.parseInt(props.getProperty("BootLoaderVersion"));
-		serialNumber = props.getProperty("DeviceUniqueID");
+		deviceSerialNumber = props.getProperty("DeviceSerialNumber");
+		deviceUniqueID = props.getProperty("DeviceUniqueID");
 		processorVersion = props.getProperty("GPSFirmwareVersion");
 		systemVersion = Integer.parseInt(props.getProperty("LinuxVersion"));
 		
@@ -136,7 +138,8 @@ public class TomtomDevice {
 			LOGGER.debug("name = "+name);
 			LOGGER.debug("applicationVersion = "+applicationVersion);
 			LOGGER.debug("bootloaderVersion = "+bootloaderVersion);
-			LOGGER.debug("serialNumber = "+serialNumber);
+			LOGGER.debug("deviceSerialNumber = "+deviceSerialNumber);
+			LOGGER.debug("deviceUniqueID = "+deviceUniqueID);
 			LOGGER.debug("ActiveMapName = "+getActiveMap().getName());
 			LOGGER.debug("ActiveMmapVersion = "+getActiveMap().getVersion());
 			LOGGER.debug("systemVersion = "+systemVersion);
@@ -334,8 +337,12 @@ public class TomtomDevice {
 		return name;
 	}
 	
-	public final String getSerialNumber() {
-		return serialNumber;
+	public final String getDeviceUniqueID() {
+		return deviceUniqueID;
+	}
+	
+	public final String getDeviceSerialNumber() {
+		return deviceSerialNumber;
 	}
 
 	public final String getAppVersion() {
