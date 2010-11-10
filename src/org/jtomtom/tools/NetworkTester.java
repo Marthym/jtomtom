@@ -79,7 +79,6 @@ public class NetworkTester {
 	
 	/**
 	 * Valid the network availability and throw an exception if no network found 
-	 * @throws JTomtomException
 	 */
 	public void validNetworkAvailability() {
 		validNetworkAvailability(Proxy.NO_PROXY);
@@ -88,7 +87,6 @@ public class NetworkTester {
 	/**
 	 * Valid the network availability and throw an exception if no network found 
 	 * @param proxy	The proxy server to be used
-	 * @throws JTomtomException
 	 */
 	public void validNetworkAvailability(Proxy proxy) {
 		if (System.currentTimeMillis() > (lastCheckTime + CHECK_DELAY)) 

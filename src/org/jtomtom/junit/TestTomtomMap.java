@@ -70,8 +70,7 @@ public class TestTomtomMap {
 			POIsDbInfos radarsInfos = map.getRadarsInfos(radars);
 			
 			assertNotNull(radarsInfos);
-			assertFalse(radarsInfos.getDbVersion().equals(POIsDbInfos.UNKNOWN));
-			assertTrue(radarsInfos.getPoisNumber() > 0);
+			assertFalse(radarsInfos.isEmpty());
 			
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());

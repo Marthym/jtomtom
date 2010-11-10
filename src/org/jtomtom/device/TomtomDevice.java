@@ -72,9 +72,8 @@ public class TomtomDevice {
 
 	/**
 	 * Create Tomtom device by search the device in the mount points
-	 * @throws JTomtomException 
 	 */
-	public TomtomDevice() throws JTomtomException {
+	public TomtomDevice() {
 		try {
 			theFiles = 
 				new TomtomFilesProvider( TomtomDeviceFinder.findMountPoint() );
@@ -87,9 +86,8 @@ public class TomtomDevice {
 	
 	/**
 	 * Create Tomtom device with the given mount point
-	 * @throws JTomtomException 
 	 */
-	public TomtomDevice(File p_moutPoint) throws JTomtomException {
+	public TomtomDevice(File p_moutPoint) {
 		try {
 			theFiles = new TomtomFilesProvider(p_moutPoint);
 		} catch (FileNotFoundException e) {
@@ -109,7 +107,6 @@ public class TomtomDevice {
 	
 	/**
 	 * Read the GPS informations in the ttgo.bif file at the root directory
-	 * @throws JTomtomException
 	 */
 	public void loadInformationsFromBif() {
 		

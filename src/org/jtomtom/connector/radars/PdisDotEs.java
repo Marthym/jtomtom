@@ -72,8 +72,7 @@ public class PdisDotEs extends RadarsConnector {
 	 * @see org.jtomtom.RadarsConnector#getLocalDbInfos(java.lang.String)
 	 */
 	@Override
-	public POIsDbInfos getLocalDbInfos(String m_path)
-			throws JTomtomException {
+	public POIsDbInfos getLocalDbInfos(String m_path) {
 		
 		// We search the directory of the current map
 		File mapDirectory = new File(m_path);
@@ -93,8 +92,8 @@ public class PdisDotEs extends RadarsConnector {
 		infos.setLastUpdateDate(new Date(pdisesWhatsNewFile.lastModified()));
 		
 		// Add dummy value
-		infos.setDbVersion(Long.toString(infos.getLastUpdateDate().getTime()));
-		infos.setPoisNumber(0);
+		infos.setDatabaseVersion(Long.toString(infos.getLastUpdateDate().getTime()));
+		infos.setNumberOfPOIs(0);
 		
 		return infos;
 	}
@@ -155,8 +154,8 @@ public class PdisDotEs extends RadarsConnector {
 		}
 		
 		// Add dummy value
-		infos.setDbVersion(Long.toString(infos.getLastUpdateDate().getTime()));
-		infos.setPoisNumber(0);
+		infos.setDatabaseVersion(Long.toString(infos.getLastUpdateDate().getTime()));
+		infos.setNumberOfPOIs(0);
 		
 		return infos;
 	}

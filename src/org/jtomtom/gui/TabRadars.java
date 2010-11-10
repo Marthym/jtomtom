@@ -25,6 +25,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -256,7 +257,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	 */
 	private ActionResult loadInBackground() {
 		ActionResult result = new ActionResult();
-		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
+		SimpleDateFormat dateFormat = (SimpleDateFormat) DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
 		StringBuffer infos = new StringBuffer();
 		
 		// Si on a pas déjà les infos, on les demande au serveur TTMax
@@ -268,7 +269,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 				remoteRadarsInfos = new POIsDbInfos();
 			}
 		} else {
-			if (POIsDbInfos.UNKNOWN.equals(remoteRadarsInfos.getDbVersion()) && 
+			if (remoteRadarsInfos.isEmpty() && 
 					NetworkTester.getInstance().isNetworkAvailable(JTomtom.getApplicationProxy())) {
 				remoteRadarsInfos = null;
 			}
@@ -305,27 +306,27 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 			}
 		}
 		
-		boolean isInstalled = !POIsDbInfos.UNKNOWN.equals(localRadarsInfos.getDbVersion());
+		boolean isInstalled = !localRadarsInfos.isEmpty();
 
 		infos.append("<html><table>");
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.availableupdate")).append(" : </strong></td><td><i>")
-				.append(dateFormat.format(remoteRadarsInfos.getLastUpdateDate()))
+				.append(remoteRadarsInfos.getLastUpdateDateForPrint(dateFormat.toPattern()))
 				.append("</i></td></tr>");
 		if (isInstalled) {
 			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
-				.append(dateFormat.format(localRadarsInfos.getLastUpdateDate()))
+				.append(localRadarsInfos.getLastUpdateDateForPrint(dateFormat.toPattern()))
 				.append("</i></td></tr>");
 		} else {
 			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
 				.append(m_rbControls.getString("org.jtomtom.tab.radars.noversioninstalled")).append("</i></td></tr>");
 		}
 		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>")
-			.append(localRadarsInfos.getPoisNumber())
+			.append(localRadarsInfos.getNumberOfPOIsForPrint())
 			.append("</i>");
 		
-		if (remoteRadarsInfos.getPoisNumber() >= 0) {
+		if (remoteRadarsInfos.getNumberOfPOIs() != null) {
 			infos.append(" [")
-				.append(remoteRadarsInfos.getPoisNumber() - localRadarsInfos.getPoisNumber())
+				.append(remoteRadarsInfos.getNumberOfPOIs() - localRadarsInfos.getNumberOfPOIs())
 				.append(m_rbControls.getString("org.jtomtom.tab.radars.missingradar")).append("]");
 		}
 		

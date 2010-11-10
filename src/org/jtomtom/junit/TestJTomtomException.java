@@ -53,7 +53,6 @@ public class TestJTomtomException {
 		LOGGER.info(e.getLocalizedMessage());
 		
 		e = new JTomtomException("org.jtomtom.errors.connexion.fail", new String[]{"trous", "partout"});
-		LOGGER.info(e.getLocalizedMessage());
-
+		LOGGER.info(e.getLocalizedMessage());	
 	}
 }

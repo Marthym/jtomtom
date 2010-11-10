@@ -23,7 +23,6 @@ package org.jtomtom.junit;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
-import java.util.Date;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -68,9 +67,9 @@ public class TestPdisDotEs {
 		infos = radars.getRemoteDbInfos(proxy);
 		
 		assertNotNull(infos);
-		assertTrue(infos.getLastUpdateDate() != new Date(0));
-		assertTrue(infos.getPoisNumber() >= 0);
-		assertFalse(infos.getDbVersion().equals(POIsDbInfos.UNKNOWN));
+		assertNotNull(infos.getLastUpdateDate());
+		assertNotNull(infos.getNumberOfPOIs());
+		assertFalse(infos.getDatabaseVersion().equals(POIsDbInfos.NA));
 	}
 	
 	@Test
@@ -85,7 +84,7 @@ public class TestPdisDotEs {
 		}
 		
 		assertNotNull(infos);
-		assertTrue(infos.getLastUpdateDate() != new Date(0));
+		assertFalse(infos.isEmpty());
 	}
 	
 	@Test

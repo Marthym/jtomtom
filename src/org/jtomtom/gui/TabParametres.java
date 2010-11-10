@@ -150,7 +150,8 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		m_proxyType = new JComboBox(proxyTypeStrings);
 		m_proxyType.setSelectedIndex(Arrays.binarySearch(proxyTypeStrings, JTomtom.theProperties.getUserProperty("net.proxy.type")));
 		m_proxyType.setPrototypeDisplayValue("DIRECTI");	// Initialise la taille de la combo
-
+		m_proxyType.addActionListener(this);
+		
 		// - Serveur Proxy
 		m_proxyHost = new JTextField();
 		m_proxyHost.setColumns(15);
@@ -164,6 +165,15 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		m_proxyPort.setPreferredSize(new Dimension(0,25));
 		m_proxyPort.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.port.hint"));
 		m_proxyPort.setText(JTomtom.theProperties.getUserProperty("net.proxy.port"));
+		
+		if (m_proxyType.getSelectedItem().equals("DIRECT")) {
+			m_proxyHost.setEnabled(false);
+			m_proxyPort.setEnabled(false);
+		} else {
+			m_proxyHost.setEnabled(true);
+			m_proxyPort.setEnabled(true);
+		}
+
 	}
 	
 	/**
@@ -257,6 +267,16 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 			JOptionPane.showMessageDialog(this, 
 					m_rbControls.getString("org.jtomtom.tab.parameters.dialog.save.message"), 
 					m_rbControls.getString("org.jtomtom.tab.parameters.dialog.save.title"), JOptionPane.INFORMATION_MESSAGE);
+			
+		} else if (event.getSource() == m_proxyType) {
+			
+			if (m_proxyType.getSelectedItem().equals("DIRECT")) {
+				m_proxyHost.setEnabled(false);
+				m_proxyPort.setEnabled(false);
+			} else {
+				m_proxyHost.setEnabled(true);
+				m_proxyPort.setEnabled(true);
+			}
 		}
 		
 	}

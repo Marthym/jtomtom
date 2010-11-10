@@ -33,7 +33,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
-import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.connector.radars.Tomtomax;
 import org.jtomtom.device.TomtomDevice;
@@ -115,7 +114,7 @@ public class TestActions {
 		
 		assertTrue(ttmaxDbFile.exists());
 		
-		assertFalse(POIsDbInfos.UNKNOWN.equals(theGPS.getActiveMap().getRadarsInfos(ttMaxRadars).getDbVersion()));
+		assertFalse(theGPS.getActiveMap().getRadarsInfos(ttMaxRadars).isEmpty());
 	}
 	
 	@Test

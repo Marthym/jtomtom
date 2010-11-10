@@ -34,30 +34,31 @@ import org.apache.log4j.Logger;
 public class POIsDbInfos {
 	public final static Logger LOGGER = Logger.getLogger(POIsDbInfos.class);
 	
-	/**
-	 * Default value for the DB Version
-	 */
-	public final static String UNKNOWN = "Unknown";
+	public static final String NA = "N/A";
 	
-	private Date m_lastUpdateDate;
-	private int m_poisNumber;
-	private String m_dbVersion;
+	private Date lastUpdateDate;
+	private Integer numberOfPOIs;
+	private String databaseVersion;
 	
-	/**
-	 * Constructor of initialisation
-	 */
-	public POIsDbInfos() {
-		m_lastUpdateDate = new Date(0);
-		m_poisNumber = -1;
-		m_dbVersion = UNKNOWN;
-	}
-
 	public Date getLastUpdateDate() {
-		return m_lastUpdateDate;
+		return lastUpdateDate;
+	}
+	
+	public String getLastUpdateDateForPrint(String dateFormat) {
+		if (lastUpdateDate == null) {
+			return NA;
+		} else {
+			return (new SimpleDateFormat(dateFormat)).format(lastUpdateDate);
+		}
+	}
+	
+	public String getLastUpdateDateForPrint() {
+		LOGGER.debug("default date format : "+new SimpleDateFormat().toPattern());
+		return getLastUpdateDateForPrint(new SimpleDateFormat().toPattern());
 	}
 
 	public void setLastUpdateDate(Date m_lastUpdateDate) {
-		this.m_lastUpdateDate = m_lastUpdateDate;
+		this.lastUpdateDate = m_lastUpdateDate;
 	}
 
 	/**
@@ -65,30 +66,45 @@ public class POIsDbInfos {
 	 * @param p_format	Date format
 	 * @param p_date	Date as String
 	 */
-	public void setLastUpdateDate(String p_format, String p_date) {
+	public void setLastUpdateDate(String dateFormat, String p_date) {
 		try {
-			this.m_lastUpdateDate = (new SimpleDateFormat(p_format)).parse(p_date);
+			this.lastUpdateDate = (new SimpleDateFormat(dateFormat)).parse(p_date);
 		} catch (ParseException e) {
 			LOGGER.warn("Error while parsing last update date of POIs Database !");
 			LOGGER.debug(e);
 		}
 	}
 
-	public int getPoisNumber() {
-		return m_poisNumber;
-	}
-
-	public void setPoisNumber(int m_poisNumber) {
-		this.m_poisNumber = m_poisNumber;
-	}
-
-	public String getDbVersion() {
-		return m_dbVersion;
-	}
-
-	public void setDbVersion(String m_dbVersion) {
-		this.m_dbVersion = m_dbVersion;
+	public Integer getNumberOfPOIs() {
+		return numberOfPOIs;
 	}
 	
+	public String getNumberOfPOIsForPrint() {
+		if (numberOfPOIs == null) return "0";
+		else return numberOfPOIs.toString();
+	}
+
+	public void setNumberOfPOIs(int m_poisNumber) {
+		this.numberOfPOIs = m_poisNumber;
+	}
+
+	public String getDatabaseVersion() {
+		return databaseVersion;
+	}
+	
+	public String getDatabaseVersionForPrint() {
+		if (databaseVersion == null)
+			return NA;
+		else
+			return databaseVersion;
+	}
+
+	public void setDatabaseVersion(String m_dbVersion) {
+		this.databaseVersion = m_dbVersion;
+	}
+	
+	public boolean isEmpty() {
+		return (lastUpdateDate == null);
+	}
 	
 }

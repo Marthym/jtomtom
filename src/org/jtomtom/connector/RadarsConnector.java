@@ -27,7 +27,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtom;
-import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.radars.DummyRadarsConnector;
 import org.jtomtom.tools.JTomTomUtils;
 
@@ -99,9 +98,8 @@ public abstract class RadarsConnector {
 	 * Get the radars informations from the GPS connected
 	 * @param	String Path of the map
 	 * @return	HashMap with informations
-	 * @throws JTomtomException 
 	 */
-	public abstract POIsDbInfos getLocalDbInfos(String m_path) throws JTomtomException;
+	public abstract POIsDbInfos getLocalDbInfos(String m_path);
 	
 	/**
 	 * Get the radars information from the remote site database

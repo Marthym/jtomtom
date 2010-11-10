@@ -24,7 +24,6 @@ import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
 
-import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
 
@@ -39,7 +38,7 @@ public class DummyRadarsConnector extends RadarsConnector {
 	 * @see org.jtomtom.connector.RadarsConnector#getLocalDbInfos(java.lang.String)
 	 */
 	@Override
-	public POIsDbInfos getLocalDbInfos(String m_path) throws JTomtomException {
+	public POIsDbInfos getLocalDbInfos(String m_path) {
 		return new POIsDbInfos();
 	}
 

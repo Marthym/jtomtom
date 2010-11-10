@@ -44,7 +44,6 @@ import javax.swing.SwingWorker;
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
-import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.device.TomtomMap;
@@ -130,8 +129,7 @@ public class MajRadarsAction extends AbstractAction {
 
 	}
 
-	public boolean miseAJourRadars(TomtomDevice theGPS, List<JCheckBox> p_checkList, RadarsConnector p_radars) 
-	throws JTomtomException {	
+	public boolean miseAJourRadars(TomtomDevice theGPS, List<JCheckBox> p_checkList, RadarsConnector p_radars) {	
 		// Téléchargement du fichier de mise à jour
 		LOGGER.info("Téléchargement de la mise à jour Radar ...");
 		
@@ -153,7 +151,7 @@ public class MajRadarsAction extends AbstractAction {
 			for (JCheckBox chk : p_checkList) { 
 				if (chk.isSelected()) {
 					TomtomMap map = theGPS.getAvailableMaps().get(chk.getText());
-					if (map != null && POIsDbInfos.UNKNOWN.equals(map.getRadarsInfos(p_radars).getDbVersion())) {
+					if (map != null && map.getRadarsInfos(p_radars).isEmpty()) {
 						conn = p_radars.getConnectionForInstall();
 					}
 				}
