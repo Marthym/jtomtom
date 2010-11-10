@@ -132,9 +132,8 @@ public class MajQuickFixAction extends AbstractAction {
 	/**
 	 * Fonction effectuant la mise à jour du GPS en téléchargeant les fichiers de la mise à jour QuickFix
 	 * @param theGPS	Le GPS à mettre à jour
-	 * @throws JTomtomException
 	 */
-	public void miseAJourQuickFix(TomtomDevice theGPS) throws JTomtomException {		
+	public void miseAJourQuickFix(TomtomDevice theGPS) {		
 		
 		List<URL> filesToDownload = getEphemeridFilesURL(theGPS.getChipset());
 		List<File> filesToUncab = downloadEphemeridFiles(filesToDownload);

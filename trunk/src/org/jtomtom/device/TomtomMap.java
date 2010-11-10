@@ -90,7 +90,6 @@ public class TomtomMap {
 	 * Create a map without GPS from the name and path of the map
 	 * @param p_path	Absolute path of the map
 	 * @return			Map not linked to a GPS
-	 * @throws JTomtomException 
 	 */
 	public static TomtomMap createMapFromPath(String p_path) {
 		if (p_path.isEmpty()) 
@@ -141,7 +140,6 @@ public class TomtomMap {
 	 * Update radar database with a .ov2 files list
 	 * @param files	Files need to be installed
 	 * @return
-	 * @throws JTomtomException
 	 */
 	public boolean updateRadars(List<File> files, RadarsConnector radars) {		
 		// We search the directory of the map

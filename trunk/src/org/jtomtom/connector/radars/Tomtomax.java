@@ -102,15 +102,15 @@ public final class Tomtomax extends RadarsConnector {
 					while((line = rd.readLine()) != null) {
 						if (line.startsWith(TAG_DATE)) {
 							m_remoteInfos.setLastUpdateDate("dd/MM/yyyy", line.substring(TAG_DATE.length()).trim());
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+m_remoteInfos.getLastUpdateDate());
+							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+m_remoteInfos.getLastUpdateDateForPrint());
 							
 						} else if (line.startsWith(TAG_VERSION)) {
-							m_remoteInfos.setDbVersion(line.substring(TAG_VERSION.length()).trim());
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_VERSION+m_remoteInfos.getDbVersion());
+							m_remoteInfos.setDatabaseVersion(line.substring(TAG_VERSION.length()).trim());
+							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_VERSION+m_remoteInfos.getDatabaseVersionForPrint());
 							
 						} else if (line.startsWith(TAG_RADARS)) {
-							m_remoteInfos.setPoisNumber(Integer.parseInt(line.substring(TAG_RADARS.length()).trim()));
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_RADARS+m_remoteInfos.getDbVersion());
+							m_remoteInfos.setNumberOfPOIs(Integer.parseInt(line.substring(TAG_RADARS.length()).trim()));
+							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_RADARS+m_remoteInfos.getNumberOfPOIsForPrint());
 
 						} else if (line.startsWith(TAG_BASIC)) {
 							m_basicUpdateURL = new URL(line.substring(TAG_BASIC.length()).trim());
@@ -144,13 +144,12 @@ public final class Tomtomax extends RadarsConnector {
 	/* (non-Javadoc)
 	 * @see org.jtomtom.RadarsConnector#getLocalDbInfos(java.lang.String)
 	 */
-	public final POIsDbInfos getLocalDbInfos(String m_path) throws JTomtomException {
+	public final POIsDbInfos getLocalDbInfos(String m_path) {
 		m_localInfos = new POIsDbInfos();
 		
 		// We search the directory of the current map
 		File mapDirectory = new File(m_path);
 		if (!mapDirectory.exists() || !mapDirectory.isDirectory() || !mapDirectory.canRead()) {
-			m_localInfos.setDbVersion(POIsDbInfos.UNKNOWN);
 			throw new JTomtomException("org.jtomtom.errors.gps.map.notfound", new String[]{m_path});
 		}
 		
@@ -158,7 +157,6 @@ public final class Tomtomax extends RadarsConnector {
 		File ttMaxDbFile = new File(mapDirectory,TOMTOMAX_DB_FILE);
 		if (!ttMaxDbFile.exists()) {
 			LOGGER.info("Les Radars TomtomMax n'ont jamais été installé !");
-			m_localInfos.setDbVersion(POIsDbInfos.UNKNOWN);
 			return m_localInfos;
 		}
 		
@@ -171,15 +169,15 @@ public final class Tomtomax extends RadarsConnector {
 				while ((line = buff.readLine()) != null) {
 					if (line.startsWith("date=")) {
 						m_localInfos.setLastUpdateDate("dd/MM/yyyy", line.substring(5));
-						if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+" = "+m_localInfos.getLastUpdateDate());
+						if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+" = "+m_localInfos.getLastUpdateDateForPrint());
 						
 					} else if (line.startsWith("vers=")) {
-						m_localInfos.setDbVersion(line.substring(5));
-						if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_VERSION+" = "+m_localInfos.getDbVersion());
+						m_localInfos.setDatabaseVersion(line.substring(5));
+						if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_VERSION+" = "+m_localInfos.getDatabaseVersionForPrint());
 						
 					} else if (line.startsWith("radar=")) {
-						m_localInfos.setPoisNumber(Integer.parseInt(line.substring(6)));
-						if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_RADARS+" = "+m_localInfos.getPoisNumber());
+						m_localInfos.setNumberOfPOIs(Integer.parseInt(line.substring(6)));
+						if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_RADARS+" = "+m_localInfos.getNumberOfPOIsForPrint());
 						
 					} else if (line.startsWith("#####")) {
 						break;

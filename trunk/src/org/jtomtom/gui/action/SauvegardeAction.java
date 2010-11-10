@@ -142,11 +142,8 @@ public class SauvegardeAction extends AbstractAction {
      * @param p_mountPoint	Point de montage du GPS, source de l'ISO
      * @param p_forTest		Vrai si l'ISO est un fichier pour test (option caché coché), il sera alors réduit
      * @return				true si OK
-     * @throws JTomtomException
-     * 			Retourne une exception si la source n'existe pas
-     * 			Si la création de l'ISO ne se passe pas bien
      */
-    public boolean createGpsBackup(TomtomDevice p_GPS, boolean p_forTest) throws JTomtomException {
+    public boolean createGpsBackup(TomtomDevice p_GPS, boolean p_forTest) {
     	File gpsDir = new File(p_GPS.getMountPoint());
     	if (!gpsDir.exists() || !gpsDir.canRead()) {
     		throw new JTomtomException("org.jtomtom.errors.gps.directorycannotberead");
@@ -263,11 +260,10 @@ public class SauvegardeAction extends AbstractAction {
      * Crée un fichier ISO du GPS
      * @param p_mountPoint	Point de montage du GPS, source de l'ISO
      * @return				true si OK
-     * @throws JTomtomException
      * 			Retourne une exception si la source n'existe pas
      * 			Si la création de l'ISO ne se passe pas bien
      */
-    public boolean createGpsBackup(TomtomDevice p_GPS) throws JTomtomException {
+    public boolean createGpsBackup(TomtomDevice p_GPS) {
     	return createGpsBackup(p_GPS, m_makeTestISO);
     }
 

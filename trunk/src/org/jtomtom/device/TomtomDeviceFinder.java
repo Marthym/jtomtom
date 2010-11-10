@@ -35,7 +35,6 @@ import org.jtomtom.JTomtomException;
  * @author Frédéric Combes
  *
  */
-//TODO : JUnit test case for TomtomDeviceFinder
 public class TomtomDeviceFinder {
 	private static final Logger LOGGER = Logger.getLogger(TomtomDeviceFinder.class);
 	
@@ -45,9 +44,8 @@ public class TomtomDeviceFinder {
 	/**
 	 * Return the mount point of the first Tomtom GPS find
 	 * @return					File pointing on the root directory of the GPS
-	 * @throws JTomtomException
 	 */
-	public static final File findMountPoint() throws JTomtomException {
+	public static final File findMountPoint() {
 		File[] systemMountPoints = getSystemMountPoints();
 		
 		for (File currentMountPoints : systemMountPoints) {
