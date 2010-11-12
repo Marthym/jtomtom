@@ -1,3 +1,6 @@
+** jTomtom build 48 **
+- Some spanish translations forget :s
+
 ** jTomtom build 47 **
 - Improve: Move new version warning on the bottom of the main window and remove the popup
 - Fix: Some translations were no longer needed
