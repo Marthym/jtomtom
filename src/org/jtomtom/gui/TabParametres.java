@@ -97,20 +97,6 @@ public class TabParametres extends JTTabPanel implements ActionListener {
                 6, 6);       //xPad, yPad
 		add(proxyPanel);
 		
-		// Paramètres des log
-		buildLogsFields();
-		JPanel logsPanel = new JPanel(new SpringLayout());
-		logsPanel.setBorder(BorderFactory.createTitledBorder(m_rbControls.getString("org.jtomtom.tab.parameters.border.log.label")));
-		logsPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.label")));
-		logsPanel.add(m_logLevel);
-		logsPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.logfile.label")));
-		logsPanel.add(m_logFile);
-		SpringUtilities.makeCompactGrid(logsPanel,
-                2, 2, 		 //rows, cols
-                6, 6,        //initX, initY
-                6, 6);       //xPad, yPad
-		add(logsPanel);
-
 		// Paramètres Tomtomax
 		buildConnexionFields();
 		JPanel tomtomaxPanel = new JPanel(new SpringLayout());
@@ -126,6 +112,20 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 
 		add(tomtomaxPanel);
 		
+		// Paramètres des log
+		buildLogsFields();
+		JPanel logsPanel = new JPanel(new SpringLayout());
+		logsPanel.setBorder(BorderFactory.createTitledBorder(m_rbControls.getString("org.jtomtom.tab.parameters.border.log.label")));
+		logsPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.label")));
+		logsPanel.add(m_logLevel);
+		logsPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.logfile.label")));
+		logsPanel.add(m_logFile);
+		SpringUtilities.makeCompactGrid(logsPanel,
+                2, 2, 		 //rows, cols
+                6, 6,        //initX, initY
+                6, 6);       //xPad, yPad
+		add(logsPanel);
+
 		// Paramètres divers
 		buildDummyFields();
 		JPanel dummyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));

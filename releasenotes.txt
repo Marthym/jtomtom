@@ -1,4 +1,4 @@
-** jTomtom build 48 **
+** jTomtom build 47 **
 - Improve: Move new version warning on the bottom of the main window and remove the popup
 - Fix: Some translations were no longer needed
 - Fix: Java Exception when proxy was set to HTTP or SOCKS without server and port
@@ -8,3 +8,5 @@
 - Add: Function for send GPS informations to jTomtom server
 - Add: this release note
 - Improve: Exceptions localization mechanism
+- Add: Buttons on the About tab for easy contact with developer
+- Improve: Move up POIs account section in parameters tab
