@@ -48,7 +48,7 @@ public class TomtomFilesProvider {
 		this.rootDirectory = rootDirectory;
 		
 		if (!rootDirectory.exists() || !rootDirectory.canRead())
-			throw new FileNotFoundException();
+			throw new FileNotFoundException(rootDirectory.getAbsolutePath());
 	}
 	
 	/**
@@ -57,7 +57,7 @@ public class TomtomFilesProvider {
 	 * @return
 	 * @throws FileNotFoundException
 	 */
-	public final File getCurrentMapDat() throws FileNotFoundException {
+	public File getCurrentMapDat() throws FileNotFoundException {
 		
 		File[] datFiles = rootDirectory.listFiles(createExtensionFilter("dat"));
 		
