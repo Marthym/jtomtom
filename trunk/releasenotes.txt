@@ -1,5 +1,9 @@
-** jTomtom build 48 **
-- Some spanish translations forget :s
+** jTomtom build 50 **
+- Add: Carminat Tomtom support
+- Fix:Some spanish translations forget ... again :p
+
+** jTomtom build 49 **
+- Fix:Some spanish translations forget :s
 
 ** jTomtom build 47 **
 - Improve: Move new version warning on the bottom of the main window and remove the popup

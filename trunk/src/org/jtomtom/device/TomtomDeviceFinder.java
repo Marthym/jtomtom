@@ -49,8 +49,8 @@ public class TomtomDeviceFinder {
 		File[] systemMountPoints = getSystemMountPoints();
 		
 		for (File currentMountPoints : systemMountPoints) {
-			if (isTomtomRootDirectory(currentMountPoints)) {
-				LOGGER.info("Détection du GPS : "+currentMountPoints.getAbsolutePath());
+			if (isTomtomRootDirectory(currentMountPoints) || isCarminatRootDirectory(currentMountPoints)) {
+				LOGGER.info("GPS detected : "+currentMountPoints.getAbsolutePath());
 				return currentMountPoints;
 			}
 		}
@@ -80,6 +80,16 @@ public class TomtomDeviceFinder {
 	 */
 	private static final boolean isTomtomRootDirectory(File directory) {
 		File ttgo = new File(directory, TomtomFilesProvider.FILE_TOMTOM_INFORMATIONS);
+		return ttgo.exists() && ttgo.isFile() && ttgo.canRead();
+	}
+	
+	/**
+	 * Test if a directory is a Tomtom root directory
+	 * @param directory	Directory to test
+	 * @return
+	 */
+	private static final boolean isCarminatRootDirectory(File directory) {
+		File ttgo = new File(directory, CarminatFilesProvider.DIR_CARMINAT_LOOPBACK+File.separator+CarminatFilesProvider.FILE_CARMINAT_LOOPBACK);
 		return ttgo.exists() && ttgo.isFile() && ttgo.canRead();
 	}
 	
