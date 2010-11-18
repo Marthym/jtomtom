@@ -29,6 +29,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtomException;
+import org.jtomtom.device.providers.CarminatFilesProvider;
+import org.jtomtom.device.providers.TomtomFilesProvider;
 
 /**
  * Used for search the Tomtom GPS Device
