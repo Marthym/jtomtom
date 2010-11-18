@@ -18,12 +18,13 @@
  *  Frédéric Combes can be reached at:
  *  <belz12@yahoo.fr> 
  */
-package org.jtomtom.device;
+package org.jtomtom.device.providers;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +37,7 @@ import org.jtomtom.tools.BoyerMoore;
 /**
  * @author Frédéric Combes
  *
+ * Specific files provider for Carminat Tomtom device
  */
 public class CarminatFilesProvider extends TomtomFilesProvider {
 	private static final Logger LOGGER = Logger.getLogger(CarminatFilesProvider.class);
@@ -43,6 +45,7 @@ public class CarminatFilesProvider extends TomtomFilesProvider {
 	public static final String FILE_CARMINAT_LOOPBACK = "ext3_loopback";
 	public static final String DIR_CARMINAT_LOOPBACK = "loopdir";
 	private static final String TTGOBIF_START_TAG = "[TomTomGo]";
+	private static final byte[] CURRENTMAP_START_TAG = new byte[]{20,0,0,0,47,109,110,116,47};
 
 	private File loopback;
 	private File carminatInformations;
@@ -115,9 +118,54 @@ public class CarminatFilesProvider extends TomtomFilesProvider {
 
 	@Override
 	public File getCurrentMapDat() throws FileNotFoundException {
-		// TODO Auto-generated method stub
+		if (carminatCurrentMap == null || !carminatCurrentMap.exists())
+			carminatCurrentMap = extractCurrentMapFromLoopback();
+		
 		return carminatCurrentMap;
 	}
 	
+
+	private final File extractCurrentMapFromLoopback() {
+		InputStream is = null;
+		FileOutputStream out = null;
+		File tempCurrentMapFile = null;
+		try {
+			is = new FileInputStream(loopback);
+			int ttgoBifStart = BoyerMoore.findBytes(is, CURRENTMAP_START_TAG);
+			LOGGER.debug("find CurrentMap.dat at "+ttgoBifStart);
+			
+			tempCurrentMapFile = File.createTempFile("CurrentMap", ".dat");
+			tempCurrentMapFile.deleteOnExit();
+			
+			out = new FileOutputStream(tempCurrentMapFile);
+			
+			RandomAccessFile raf = new RandomAccessFile(loopback, "r");
+			raf.seek(ttgoBifStart);
+			
+			byte[] dummyBytes = new byte[4];
+			raf.read(dummyBytes);
+			out.write(dummyBytes);
+			
+			String map = raf.readUTF();
+			out.write(map.getBytes());
+			
+			out.write(raf.readByte());
+			
+			out.flush();
+			
+			LOGGER.debug("write temporary file "+tempCurrentMapFile.getAbsolutePath());
+		} catch (FileNotFoundException e) {
+			throw new JTomtomException(e);
+			
+		} catch (IOException e) {
+			throw new JTomtomException(e);
+			
+		} finally {
+			try { is.close(); } catch (Exception e) {}
+			try { out.close(); } catch (Exception e) {}
+		}
+		
+		return tempCurrentMapFile;
+	}
 
 }

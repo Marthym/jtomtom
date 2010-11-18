@@ -28,9 +28,9 @@ import java.util.Set;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.device.CarminatFilesProvider;
 import org.jtomtom.device.TomtomDeviceFinder;
-import org.jtomtom.device.TomtomFilesProvider;
+import org.jtomtom.device.providers.CarminatFilesProvider;
+import org.jtomtom.device.providers.TomtomFilesProvider;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

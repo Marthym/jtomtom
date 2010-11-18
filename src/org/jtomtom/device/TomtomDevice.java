@@ -37,6 +37,8 @@ import net.sf.jcablib.CabFile;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtomException;
+import org.jtomtom.device.providers.FilesProviderFactory;
+import org.jtomtom.device.providers.TomtomFilesProvider;
 import org.jtomtom.tools.JTomTomUtils;
 
 /**
@@ -75,8 +77,8 @@ public class TomtomDevice {
 	 */
 	public TomtomDevice() {
 		try {
-			theFiles = 
-				new TomtomFilesProvider( TomtomDeviceFinder.findMountPoint() );
+			theFiles = FilesProviderFactory.getFilesProvider( TomtomDeviceFinder.findMountPoint() );
+			
 		} catch (FileNotFoundException e) {
 			throw new JTomtomException("org.jtomtom.errors.gps.incorrectmountpoint", e);
 		}
@@ -89,7 +91,7 @@ public class TomtomDevice {
 	 */
 	public TomtomDevice(File p_moutPoint) {
 		try {
-			theFiles = new TomtomFilesProvider(p_moutPoint);
+			theFiles = FilesProviderFactory.getFilesProvider(p_moutPoint);
 		} catch (FileNotFoundException e) {
 			throw new JTomtomException("org.jtomtom.errors.gps.incorrectmountpoint", e);
 		}

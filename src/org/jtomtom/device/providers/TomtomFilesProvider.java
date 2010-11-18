@@ -18,7 +18,7 @@
  *  Frédéric Combes can be reached at:
  *  <belz12@yahoo.fr> 
  */
-package org.jtomtom.device;
+package org.jtomtom.device.providers;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -31,6 +31,8 @@ import org.apache.log4j.Logger;
 /**
  * @author Frédéric Combes
  *
+ * Global files provider for all Tomtom device
+ * 
  */
 public class TomtomFilesProvider {
 	private static final Logger LOGGER = Logger.getLogger(TomtomFilesProvider.class);
