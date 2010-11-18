@@ -58,11 +58,10 @@ public class TestCarminatFilesProvider {
 	@Test
 	public void testGetCurrentMapDat() {
 		try {
-			TomtomFilesProvider ttFilesProvider = new TomtomFilesProvider(TomtomDeviceFinder.findMountPoint());
+			TomtomFilesProvider ttFilesProvider = new CarminatFilesProvider(TomtomDeviceFinder.findMountPoint());
 			File mapDat = ttFilesProvider.getCurrentMapDat();
 			assertNotNull(mapDat);
 			assertTrue(mapDat.exists());
-			assertTrue("currentmap.dat".equalsIgnoreCase(mapDat.getName()));
 		} catch (Exception e) {
 			fail(e.getLocalizedMessage());
 		}

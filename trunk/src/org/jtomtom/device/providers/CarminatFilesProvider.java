@@ -24,11 +24,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+
+import net.sf.jcablib.CabFile;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.JTomtomException;
@@ -45,7 +46,7 @@ public class CarminatFilesProvider extends TomtomFilesProvider {
 	public static final String FILE_CARMINAT_LOOPBACK = "ext3_loopback";
 	public static final String DIR_CARMINAT_LOOPBACK = "loopdir";
 	private static final String TTGOBIF_START_TAG = "[TomTomGo]";
-	private static final byte[] CURRENTMAP_START_TAG = new byte[]{20,0,0,0,47,109,110,116,47};
+	private static final String CURRENTMAP_START_TAG = "/mnt/movinand";
 
 	private File loopback;
 	private File carminatInformations;
@@ -76,6 +77,7 @@ public class CarminatFilesProvider extends TomtomFilesProvider {
 		FileWriter writer = null;
 		BufferedWriter out = null;
 		File tempInforamtionsFile = null;
+		RandomAccessFile raf = null;
 		try {
 			is = new FileInputStream(loopback);
 			int ttgoBifStart = BoyerMoore.findBytes(is, TTGOBIF_START_TAG.getBytes());
@@ -87,7 +89,7 @@ public class CarminatFilesProvider extends TomtomFilesProvider {
 			writer = new FileWriter(tempInforamtionsFile);
 			out = new BufferedWriter(writer);
 			
-			RandomAccessFile raf = new RandomAccessFile(loopback, "r");
+			raf = new RandomAccessFile(loopback, "r");
 			raf.seek(ttgoBifStart);
 			String line;
 			while ((line = raf.readLine()) != null) {
@@ -127,31 +129,28 @@ public class CarminatFilesProvider extends TomtomFilesProvider {
 
 	private final File extractCurrentMapFromLoopback() {
 		InputStream is = null;
-		FileOutputStream out = null;
+		RandomAccessFile out = null;
 		File tempCurrentMapFile = null;
+		RandomAccessFile raf = null;
 		try {
 			is = new FileInputStream(loopback);
-			int ttgoBifStart = BoyerMoore.findBytes(is, CURRENTMAP_START_TAG);
+			int ttgoBifStart = BoyerMoore.findBytes(is, CURRENTMAP_START_TAG.getBytes());
 			LOGGER.debug("find CurrentMap.dat at "+ttgoBifStart);
 			
 			tempCurrentMapFile = File.createTempFile("CurrentMap", ".dat");
 			tempCurrentMapFile.deleteOnExit();
 			
-			out = new FileOutputStream(tempCurrentMapFile);
+			out = new RandomAccessFile(tempCurrentMapFile, "rw");
 			
-			RandomAccessFile raf = new RandomAccessFile(loopback, "r");
+			raf = new RandomAccessFile(loopback, "r");
 			raf.seek(ttgoBifStart);
 			
-			byte[] dummyBytes = new byte[4];
-			raf.read(dummyBytes);
-			out.write(dummyBytes);
+			String map = CabFile.readCString(raf);
 			
-			String map = raf.readUTF();
+			out.writeInt(Integer.reverseBytes(map.length()+1));
 			out.write(map.getBytes());
 			
-			out.write(raf.readByte());
-			
-			out.flush();
+			out.writeByte(0);
 			
 			LOGGER.debug("write temporary file "+tempCurrentMapFile.getAbsolutePath());
 		} catch (FileNotFoundException e) {
@@ -163,6 +162,7 @@ public class CarminatFilesProvider extends TomtomFilesProvider {
 		} finally {
 			try { is.close(); } catch (Exception e) {}
 			try { out.close(); } catch (Exception e) {}
+			try { raf.close(); } catch (Exception e) {}
 		}
 		
 		return tempCurrentMapFile;
