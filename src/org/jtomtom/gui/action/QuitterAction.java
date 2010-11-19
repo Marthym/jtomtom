@@ -24,18 +24,17 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import org.jtomtom.JTomtom;
+import org.jtomtom.Application;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  *
  */
 public class QuitterAction extends AbstractAction {
-
 	private static final long serialVersionUID = 1L;
-
+	
 	public QuitterAction() {
-		super(JTomtom.theMainTranslator.getString("org.jtomtom.main.button.quit.label"));
+		super(Application.getInstance().getMainTranslator().getString("org.jtomtom.main.button.quit.label"));
 	}
 	
 	/* (non-Javadoc)

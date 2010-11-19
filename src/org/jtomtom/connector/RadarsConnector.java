@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomtom;
+import org.jtomtom.Application;
 import org.jtomtom.connector.radars.DummyRadarsConnector;
 import org.jtomtom.tools.JTomTomUtils;
 
@@ -135,7 +135,9 @@ public abstract class RadarsConnector {
 	 * @return	Array of RadarsConnector
 	 */
 	public static final RadarsConnector[] getAllRadarsConnectors() {
-		Map<String, String> connectorList = JTomtom.theProperties.getApplicationProperties(RADARS_CONNECTOR_PROPERTIES);
+		Application theApp = Application.getInstance();
+		
+		Map<String, String> connectorList = theApp.getGlobalProperties().getApplicationProperties(RADARS_CONNECTOR_PROPERTIES);
 		RadarsConnector[] result = new RadarsConnector[connectorList.size()+1];
 		result[0] = EMPTY_RADAR_CONNECTOR;
 		int i = 1;

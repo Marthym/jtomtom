@@ -31,21 +31,23 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomtom;
+import org.jtomtom.Application;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.device.Chipset;
 import org.jtomtom.device.ChipsetNotFoundException;
+import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.action.MajQuickFixAction;
 import org.jtomtom.gui.utilities.JTTabPanel;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  *
  */
 public class TabQuickFix extends JTTabPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(TabQuickFix.class);
 	
+	private final TomtomDevice theDevice = Application.getInstance().getTheGPS();
 	private JLabel quickFixInfos;
 	private JButton quickFixButton;
 	
@@ -75,21 +77,21 @@ public class TabQuickFix extends JTTabPanel {
 		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
 		StringBuffer infos = new StringBuffer();
 		
-		try { JTomtom.getTheGPS().getChipset(); }
+		try { theDevice.getChipset(); }
 		catch (ChipsetNotFoundException e) {
-			JTomtom.getTheGPS().forceChipset(askForChipset());
+			theDevice.forceChipset(askForChipset());
 		}
 		
 		try {
 			infos.append("<html><table>");
-			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.chipset")).append(" : </strong></td><td><i>").append(JTomtom.getTheGPS().getChipset()).append("</i></td></tr>");
+			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.chipset")).append(" : </strong></td><td><i>").append(theDevice.getChipset()).append("</i></td></tr>");
 			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.lastupdate")).append(" : </strong></td><td><i>")
-				.append(dateFormat.format(new Date(JTomtom.getTheGPS().getQuickFixLastUpdate())))
+				.append(dateFormat.format(new Date(theDevice.getQuickFixLastUpdate())))
 				.append("</i></td></tr>");
 			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.expirency")).append(" : </strong></td><td><i>")
-				.append(dateFormat.format(new Date(JTomtom.getTheGPS().getQuickFixExpiry())))
+				.append(dateFormat.format(new Date(theDevice.getQuickFixExpiry())))
 				.append("</i></td></tr>");
-			if ((new Date()).getTime() > JTomtom.getTheGPS().getQuickFixExpiry()) {
+			if ((new Date()).getTime() > theDevice.getQuickFixExpiry()) {
 				infos.append("<tr><td></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.ephemtoold")).append("</i></td></tr>");
 			} else {
 				infos.append("<tr><td></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.ephemuptodate")).append("</i></td></tr>");

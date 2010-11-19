@@ -37,7 +37,7 @@ import java.util.Map;
 import javax.xml.ws.http.HTTPException;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomtom;
+import org.jtomtom.Application;
 import org.jtomtom.JTomtomException;
 
 public final class JTomTomUtils {
@@ -131,7 +131,7 @@ public final class JTomTomUtils {
 			Map<String, String> deviceMap = new HashMap<String, String>();
 			
 			URL resetJsUrl = new URL(TOMTOM_DEVICE_LIST_URL);
-			HttpURLConnection conn = (HttpURLConnection)resetJsUrl.openConnection(JTomtom.getApplicationProxy());
+			HttpURLConnection conn = (HttpURLConnection)resetJsUrl.openConnection(Application.getInstance().getProxyServer());
 			int response = conn.getResponseCode();
 			if (response != HttpURLConnection.HTTP_OK) {
 				throw new HTTPException(response);

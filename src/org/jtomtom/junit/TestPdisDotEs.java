@@ -27,7 +27,7 @@ import java.net.Proxy;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomtom;
+import org.jtomtom.Application;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
@@ -51,7 +51,7 @@ public class TestPdisDotEs {
 	@Test
 	public void testConnexion() {
 		RadarsConnector radars = new PdisDotEs();
-		Proxy proxy = JTomtom.getApplicationProxy();
+		Proxy proxy = Application.getInstance().getProxyServer();
 		assertFalse(radars.connexion(proxy, "martm", "myhtram"));
 		assertFalse(radars.connexion(proxy, "marthym", "myhtram"));
 		assertTrue(radars.connexion(proxy, "jtomFrederic", "jtomtom159"));
@@ -60,7 +60,7 @@ public class TestPdisDotEs {
 	@Test
 	public void testGetRemoteDbInfos() {
 		RadarsConnector radars = new PdisDotEs();
-		Proxy proxy = JTomtom.getApplicationProxy();
+		Proxy proxy = Application.getInstance().getProxyServer();
 		assertTrue(radars.connexion(proxy, "jtomFrederic", "jtomtom159"));
 		
 		POIsDbInfos infos;
@@ -93,7 +93,7 @@ public class TestPdisDotEs {
 		HttpURLConnection conn = radars.getConnectionForUpdate();
 		assertNull(conn);
 		
-		radars.connexion(JTomtom.getApplicationProxy(), "jtomFrederic", "jtomtom159");
+		radars.connexion(Application.getInstance().getProxyServer(), "jtomFrederic", "jtomtom159");
 		conn = radars.getConnectionForUpdate();
 		
 		assertNotNull(conn);
@@ -117,7 +117,7 @@ public class TestPdisDotEs {
 		HttpURLConnection conn = radars.getConnectionForUpdate();
 		assertNull(conn);
 		
-		radars.connexion(JTomtom.getApplicationProxy(), "jtomFrederic", "jtomtom159");
+		radars.connexion(Application.getInstance().getProxyServer(), "jtomFrederic", "jtomtom159");
 		conn = radars.getConnectionForInstall();
 		
 		assertNotNull(conn);

@@ -44,8 +44,8 @@ import net.sf.jcablib.CabEntry;
 import net.sf.jcablib.CabFile;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.Application;
 import org.jtomtom.Constant;
-import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.device.Chipset;
 import org.jtomtom.device.TomtomDevice;
@@ -54,7 +54,7 @@ import org.jtomtom.gui.TabQuickFix;
 import org.jtomtom.tools.NetworkTester;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  *
  */
 public class MajQuickFixAction extends AbstractAction {
@@ -86,8 +86,10 @@ public class MajQuickFixAction extends AbstractAction {
             public ActionResult doInBackground() {
             	ActionResult result = new ActionResult(); 
                 try {
-                	NetworkTester.getInstance().validNetworkAvailability(JTomtom.getApplicationProxy());
-                	miseAJourQuickFix(JTomtom.getTheGPS());
+                	Application theApp = Application.getInstance();
+                	
+                	NetworkTester.getInstance().validNetworkAvailability(theApp.getProxyServer());
+                	miseAJourQuickFix(theApp.getTheGPS());
                 	result.status = true;
 					
 				} catch (JTomtomException e) {
@@ -112,7 +114,7 @@ public class MajQuickFixAction extends AbstractAction {
 	            	if (!result.status) {
 	            		// En cas d'erreur on affiche un message
 		            	JOptionPane.showMessageDialog(null, result.exception.getLocalizedMessage(), 
-		            			JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.default.error.title"), JOptionPane.ERROR_MESSAGE);
+		            			Application.getInstance().getMainTranslator().getString("org.jtomtom.main.dialog.default.error.title"), JOptionPane.ERROR_MESSAGE);
 	            	}
             	} catch (ExecutionException e) {
             		LOGGER.warn(e.getLocalizedMessage());
@@ -168,7 +170,9 @@ public class MajQuickFixAction extends AbstractAction {
 				File ephemFile = File.createTempFile("ephem", ".cab");
 				ephemFile.deleteOnExit();
 							
-				HttpURLConnection conn = (HttpURLConnection) oneFileLocation.openConnection(JTomtom.getApplicationProxy());
+				HttpURLConnection conn = 
+					(HttpURLConnection) oneFileLocation.openConnection(
+							Application.getInstance().getProxyServer());
 				conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
 				conn.setDoInput(true);
 	            conn.setUseCaches(false);

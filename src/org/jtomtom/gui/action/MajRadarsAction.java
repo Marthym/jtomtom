@@ -42,7 +42,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomtom;
+import org.jtomtom.Application;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.device.TomtomDevice;
@@ -52,7 +52,7 @@ import org.jtomtom.gui.TabRadars;
 import org.jtomtom.tools.NetworkTester;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  *
  */
 public class MajRadarsAction extends AbstractAction {
@@ -82,10 +82,12 @@ public class MajRadarsAction extends AbstractAction {
         SwingWorker<ActionResult, Void> worker = new SwingWorker<ActionResult, Void>() {
             @Override
             public ActionResult doInBackground() {
+            	Application theApp = Application.getInstance();
+            	
             	ActionResult result = new ActionResult(); 
                 try {
-                	NetworkTester.getInstance().validNetworkAvailability(JTomtom.getApplicationProxy());
-                	result.status = miseAJourRadars(JTomtom.getTheGPS(), m_tabRadars.getMapsCheckList(), m_tabRadars.getSelectedRadarConnector());
+                	NetworkTester.getInstance().validNetworkAvailability(theApp.getProxyServer());
+                	result.status = miseAJourRadars(theApp.getTheGPS(), m_tabRadars.getMapsCheckList(), m_tabRadars.getSelectedRadarConnector());
 					
 				} catch (JTomtomException e) {
 					result.status = false;
@@ -109,7 +111,8 @@ public class MajRadarsAction extends AbstractAction {
 	            	if (!result.status) {
 	            		// En cas d'erreur on affiche un message
 		            	JOptionPane.showMessageDialog(null, result.exception.getLocalizedMessage(), 
-		            			JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.default.error.title"), JOptionPane.ERROR_MESSAGE);
+		            			Application.getInstance().getMainTranslator().getString("org.jtomtom.main.dialog.default.error.title"), 
+		            			JOptionPane.ERROR_MESSAGE);
 	            	}
             	} catch (ExecutionException e) {
             		LOGGER.warn(e.getLocalizedMessage());
@@ -130,13 +133,13 @@ public class MajRadarsAction extends AbstractAction {
 	}
 
 	public boolean miseAJourRadars(TomtomDevice theGPS, List<JCheckBox> p_checkList, RadarsConnector p_radars) {	
-		// Téléchargement du fichier de mise à jour
 		LOGGER.info("Téléchargement de la mise à jour Radar ...");
+		Application theApp = Application.getInstance();
 		
 		boolean connStatus = p_radars.connexion(
-				JTomtom.getApplicationProxy(), 
-				JTomtom.theProperties.getUserProperty("org.tomtomax.user"), 
-				JTomtom.theProperties.getUserProperty("org.tomtomax.password"));
+				theApp.getProxyServer(), 
+				theApp.getGlobalProperties().getUserProperty("org.tomtomax.user"), 
+				theApp.getGlobalProperties().getUserProperty("org.tomtomax.password"));
 		if (!connStatus) {
 			throw new JTomtomException("org.jtomtom.errors.radars.tomtomax.account");
 		}

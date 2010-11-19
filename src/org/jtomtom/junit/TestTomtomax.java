@@ -27,7 +27,7 @@ import java.net.Proxy;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomtom;
+import org.jtomtom.Application;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
@@ -51,7 +51,7 @@ public class TestTomtomax {
 	@Test
 	public void testConnexion() {
 		RadarsConnector radars = new Tomtomax();
-		Proxy proxy = JTomtom.getApplicationProxy();
+		Proxy proxy = Application.getInstance().getProxyServer();
 		assertFalse(radars.connexion(proxy, "marthym", "prout"));
 		assertFalse(radars.connexion(proxy, "martm", "myhtram"));
 		assertTrue(radars.connexion(proxy, "marthym", "myhtram"));
@@ -60,7 +60,7 @@ public class TestTomtomax {
 	@Test
 	public void testGetRemoteDbInfos() {
 		RadarsConnector radars = new Tomtomax();
-		Proxy proxy = JTomtom.getApplicationProxy();
+		Proxy proxy = Application.getInstance().getProxyServer();
 		
 		POIsDbInfos infos;
 		infos = radars.getRemoteDbInfos(proxy);
@@ -94,7 +94,7 @@ public class TestTomtomax {
 		HttpURLConnection conn = radars.getConnectionForUpdate();
 		assertNull(conn);
 		
-		radars.connexion(JTomtom.getApplicationProxy(), "marthym", "myhtram");
+		radars.connexion(Application.getInstance().getProxyServer(), "marthym", "myhtram");
 		conn = radars.getConnectionForUpdate();
 		
 		assertNotNull(conn);
@@ -118,7 +118,7 @@ public class TestTomtomax {
 		HttpURLConnection conn = radars.getConnectionForUpdate();
 		assertNull(conn);
 		
-		radars.connexion(JTomtom.getApplicationProxy(), "marthym", "myhtram");
+		radars.connexion(Application.getInstance().getProxyServer(), "marthym", "myhtram");
 		conn = radars.getConnectionForInstall();
 		
 		assertNotNull(conn);
