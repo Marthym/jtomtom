@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
+import java.util.ResourceBundle;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -34,7 +35,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.jtomtom.JTomtom;
+import org.jtomtom.Application;
 import org.jtomtom.gui.action.CheckUpdateAction;
 import org.jtomtom.gui.action.QuitterAction;
 
@@ -45,8 +46,9 @@ import org.jtomtom.gui.action.QuitterAction;
 public class JTomtomFenetre extends JFrame implements ChangeListener {
 	private static final long serialVersionUID = 1L;
 
-	private JTabbedPane tabbedPane;
+	private final Application theApp = Application.getInstance();
 	
+	private JTabbedPane tabbedPane;	
 	private JLabel newVersionMessage;
 	
 	public JTomtomFenetre() {
@@ -58,7 +60,7 @@ public class JTomtomFenetre extends JFrame implements ChangeListener {
 	}
 
 	private void runNewVersionChecking() {
-		if ("true".equals(JTomtom.theProperties.getUserProperty("org.jtomtom.checkupdate"))) {
+		if ("true".equals(theApp.getGlobalProperties().getUserProperty("org.jtomtom.checkupdate"))) {
 			SwingUtilities.invokeLater(new Runnable(){
 				public void run(){
 					CheckUpdateAction check = new CheckUpdateAction(newVersionMessage);
@@ -69,7 +71,7 @@ public class JTomtomFenetre extends JFrame implements ChangeListener {
 	}
 
 	private void build() {
-		setTitle("jTomtom - "+JTomtom.getTheGPS().getName()); 			// Set the application title
+		setTitle("jTomtom - "+theApp.getTheGPS().getName()); 			// Set the application title
 		setSize(600,400); 												// Set window size
 		setLocationRelativeTo(null); 									// Set window location at the center of the screen
 		setResizable(false); 											// Disable window resizing
@@ -80,17 +82,19 @@ public class JTomtomFenetre extends JFrame implements ChangeListener {
 	}
 
 	private JPanel buildContentPane() {
+		ResourceBundle theTranslator = theApp.getMainTranslator();
+		
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		
 		tabbedPane = new JTabbedPane();
 		
-		tabbedPane.addTab(JTomtom.theMainTranslator.getString("org.jtomtom.main.tab.general.label"), new TabGeneral());
-		tabbedPane.addTab(JTomtom.theMainTranslator.getString("org.jtomtom.main.tab.quickfix.label"), new TabQuickFix());
-		tabbedPane.addTab(JTomtom.theMainTranslator.getString("org.jtomtom.main.tab.radars.label"), new TabRadars());
-		tabbedPane.addTab(JTomtom.theMainTranslator.getString("org.jtomtom.main.tab.backup.label"), new TabSauvegarde());
-		tabbedPane.addTab(JTomtom.theMainTranslator.getString("org.jtomtom.main.tab.settings.label"), new TabParametres());
-		tabbedPane.addTab(JTomtom.theMainTranslator.getString("org.jtomtom.main.tab.about.label"), new TabAbout());
+		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.general.label"), new TabGeneral());
+		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.quickfix.label"), new TabQuickFix());
+		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.radars.label"), new TabRadars());
+		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.backup.label"), new TabSauvegarde());
+		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.settings.label"), new TabParametres());
+		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.about.label"), new TabAbout());
 		tabbedPane.addChangeListener(this);
 		
 		panel.add(tabbedPane, BorderLayout.CENTER);

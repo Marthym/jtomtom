@@ -23,11 +23,10 @@ package org.jtomtom;
 import javax.swing.JOptionPane;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  * 
- * Va permettre le lancement d'un message d'erreur avant tout démarrage de l'interface
- * Ca permet de respecter la règle de lancement à l'intérieur de l'EDT
- *
+ * Used for show error or information message before initialise jTomtom UI
+ * Lets respect the rule of launch within the EDT
  */
 public class InitialErrorRun implements Runnable {
 
@@ -39,9 +38,11 @@ public class InitialErrorRun implements Runnable {
 	
 	@Override
 	public void run() {
+		Application theApp = Application.getInstance();
+		
 		JOptionPane.showMessageDialog(null, 
 				m_error.getLocalizedMessage(), 
-				JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.default.error.title"), JOptionPane.ERROR_MESSAGE);
+				theApp.getMainTranslator().getString("org.jtomtom.main.dialog.default.error.title"), JOptionPane.ERROR_MESSAGE);
 	}
 
 }

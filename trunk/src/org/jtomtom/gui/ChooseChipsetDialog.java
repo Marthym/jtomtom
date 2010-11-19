@@ -25,6 +25,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -34,7 +35,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomtom;
+import org.jtomtom.Application;
 import org.jtomtom.device.Chipset;
 
 /**
@@ -45,7 +46,9 @@ public class ChooseChipsetDialog extends JDialog implements ActionListener {
 	private static final Logger LOGGER = Logger.getLogger(ChooseChipsetDialog.class);
 	private static final long serialVersionUID = 1L;
 	private static final String QUICK_FIX_MOREINFO_URL = "http://jtomtom.sourceforge.net/?q=doc/utilisation/gpsquickfix#nochipset";
-
+	
+	private final ResourceBundle theTranslator = Application.getInstance().getMainTranslator();
+	
 	private JButton selectButton;
 	private JButton cancelButton;
 	private JButton moreInformationsButton;
@@ -61,7 +64,7 @@ public class ChooseChipsetDialog extends JDialog implements ActionListener {
 	
 	private void build() {
 		// - Définition des propriétés
-		setTitle(JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.choosechipset.title"));
+		setTitle(theTranslator.getString("org.jtomtom.main.dialog.choosechipset.title"));
 		setSize(400, 120);
 		setModal(true);
 		setLocationRelativeTo(null);
@@ -76,7 +79,7 @@ public class ChooseChipsetDialog extends JDialog implements ActionListener {
 		panel.setLayout(new BorderLayout());
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
 		
-		JLabel label = new JLabel(JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.choosechipset.message"));
+		JLabel label = new JLabel(theTranslator.getString("org.jtomtom.main.dialog.choosechipset.message"));
 		label.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
 		panel.add(label, BorderLayout.PAGE_START);
 		
@@ -85,15 +88,15 @@ public class ChooseChipsetDialog extends JDialog implements ActionListener {
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		cancelButton = new JButton(JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.choosechipset.button.cancel.label"));
+		cancelButton = new JButton(theTranslator.getString("org.jtomtom.main.dialog.choosechipset.button.cancel.label"));
 		cancelButton.addActionListener(this);
 		buttonPanel.add(cancelButton);
 		
-		moreInformationsButton = new JButton(JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.choosechipset.button.infos.label"));
+		moreInformationsButton = new JButton(theTranslator.getString("org.jtomtom.main.dialog.choosechipset.button.infos.label"));
 		moreInformationsButton.addActionListener(this);
 		buttonPanel.add(moreInformationsButton);
 		
-		selectButton = new JButton(JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.choosechipset.button.select.label"));
+		selectButton = new JButton(theTranslator.getString("org.jtomtom.main.dialog.choosechipset.button.select.label"));
 		selectButton.addActionListener(this);
 		buttonPanel.add(selectButton);
 		

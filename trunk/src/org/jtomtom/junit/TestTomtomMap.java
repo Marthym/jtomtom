@@ -28,7 +28,6 @@ import java.io.File;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
@@ -62,7 +61,6 @@ public class TestTomtomMap {
 	@Test
 	public void testReadRadarInfos() {
 		try {
-			JTomtom.loadProperties();
 			RadarsConnector radars = RadarsConnector.createFromClass(Tomtomax.class);
 			TomtomMap map = TomtomMap.createMapFromPath(
 					TomtomDeviceFinder.findMountPoint()+File.separator+"France");

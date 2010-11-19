@@ -24,6 +24,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.Proxy;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
@@ -46,11 +47,13 @@ import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.Application;
 import org.jtomtom.InitialErrorRun;
-import org.jtomtom.JTomtom;
 import org.jtomtom.JTomtomException;
+import org.jtomtom.JTomtomProperties;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
+import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.device.TomtomMap;
 import org.jtomtom.gui.action.ActionResult;
 import org.jtomtom.gui.action.MajRadarsAction;
@@ -59,7 +62,7 @@ import org.jtomtom.gui.utilities.SpringUtilities;
 import org.jtomtom.tools.NetworkTester;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  *
  * Onglet de mise à jour des radars
  * La mise à jour se fait grâce au site Tomtomax qui fourni les POIs
@@ -67,6 +70,8 @@ import org.jtomtom.tools.NetworkTester;
 public class TabRadars extends JTTabPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(TabRadars.class);
+	
+	private final TomtomDevice theDevice = Application.getInstance().getTheGPS();
 	
 	private JLabel infosHtml;
 	private JButton radarsButton;
@@ -177,12 +182,12 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		checkBoxPane.setLayout(new BoxLayout(checkBoxPane, BoxLayout.PAGE_AXIS));
 		mapsCheckList = new LinkedList<JCheckBox>();
 		try {
-			Iterator<TomtomMap> it = JTomtom.getTheGPS().getAvailableMaps().values().iterator();
+			Iterator<TomtomMap> it = theDevice.getAvailableMaps().values().iterator();
 			while (it.hasNext()) {
 				TomtomMap map = it.next();
 				JCheckBox chk = new JCheckBox(map.getName());
 				chk.setToolTipText(m_rbControls.getString("org.jtomtom.tab.radars.panel.maplist.hint"));
-				if (map.getName().equals(JTomtom.getTheGPS().getActiveMap().getName())) {
+				if (map.getName().equals(theDevice.getActiveMap().getName())) {
 					chk.setSelected(true);
 				}
 				mapsCheckList.add(chk);
@@ -260,17 +265,20 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		SimpleDateFormat dateFormat = (SimpleDateFormat) DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
 		StringBuffer infos = new StringBuffer();
 		
+		Proxy applicationProxy = Application.getInstance().getProxyServer();
+		JTomtomProperties applicationProperties = Application.getInstance().getGlobalProperties();
+		
 		// Si on a pas déjà les infos, on les demande au serveur TTMax
 		RadarsConnector radars;
 		radars = (RadarsConnector)radarSiteList.getSelectedItem();
 		
 		if (remoteRadarsInfos == null) {
-			if (!NetworkTester.getInstance().isNetworkAvailable(JTomtom.getApplicationProxy())) {
+			if (!NetworkTester.getInstance().isNetworkAvailable(applicationProxy)) {
 				remoteRadarsInfos = new POIsDbInfos();
 			}
 		} else {
 			if (remoteRadarsInfos.isEmpty() && 
-					NetworkTester.getInstance().isNetworkAvailable(JTomtom.getApplicationProxy())) {
+					NetworkTester.getInstance().isNetworkAvailable(applicationProxy)) {
 				remoteRadarsInfos = null;
 			}
 		}
@@ -278,16 +286,16 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		if (remoteRadarsInfos == null) {
 			// We try to connect before all
 			boolean isConnected = radars.connexion(
-									JTomtom.getApplicationProxy(), 
-									JTomtom.theProperties.getUserProperty("org.tomtomax.user"), 
-									JTomtom.theProperties.getUserProperty("org.tomtomax.password"));
+									applicationProxy, 
+									applicationProperties.getUserProperty("org.tomtomax.user"), 
+									applicationProperties.getUserProperty("org.tomtomax.password"));
 			if (!isConnected) {
 				result.exception = new JTomtomException("org.jtomtom.errors.radars.tomtomax.account");
 				LOGGER.debug("Erreur lors de la connexion au site "+radars.toString()+" pour récupérer les informations distantes");
 				result.status = false;
 				return result;
 			}
-			remoteRadarsInfos = radars.getRemoteDbInfos(JTomtom.getApplicationProxy());
+			remoteRadarsInfos = radars.getRemoteDbInfos(applicationProxy);
 			if (remoteRadarsInfos == null) {
 				result.exception = new JTomtomException("org.jtomtom.errors.radars.tomtomax.getinfo");
 				LOGGER.debug("Erreur lors de la récupération des informations Tomtomax ...");
@@ -298,7 +306,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		
 		if (localRadarsInfos == null) {
 			try {
-				localRadarsInfos = radars.getLocalDbInfos(JTomtom.getTheGPS().getActiveMap().getPath());
+				localRadarsInfos = radars.getLocalDbInfos(theDevice.getActiveMap().getPath());
 			} catch (JTomtomException e) {
 				result.exception = e;
 				result.status = false;
@@ -343,7 +351,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		result.parameters.add(infos.toString());
 		
 		// - Enfin, on teste la connexion à Tomtomax pour vérifier que le user ai un compte
-		try {NetworkTester.getInstance().validNetworkAvailability(JTomtom.getApplicationProxy());}
+		try {NetworkTester.getInstance().validNetworkAvailability(applicationProxy);}
 		catch (JTomtomException e) {
 			result.status = false;
 			result.exception = e;
@@ -351,9 +359,9 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		}
 		
 		result.status = radars.connexion(
-				JTomtom.getApplicationProxy(), 
-				JTomtom.theProperties.getUserProperty("org.tomtomax.user"), 
-				JTomtom.theProperties.getUserProperty("org.tomtomax.password"));
+				applicationProxy, 
+				applicationProperties.getUserProperty("org.tomtomax.user"), 
+				applicationProperties.getUserProperty("org.tomtomax.password"));
 		if (!result.status) {
 			result.exception = new JTomtomException("org.jtomtom.errors.radars.tomtomax.account");
 			LOGGER.debug("Erreur de compte Tomtomax ...");

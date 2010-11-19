@@ -205,6 +205,11 @@ public final class Tomtomax extends RadarsConnector {
 	 * @see org.jtomtom.RadarsConnector#connexion(java.net.Proxy, java.lang.String, java.lang.String)
 	 */
 	public final boolean connexion(Proxy p_proxy, String p_user, String p_password) {
+		if (p_user == null || p_password == null ||
+				p_user.isEmpty() || p_password.isEmpty()) {
+			return false;
+		}
+		
 		m_proxy = p_proxy;
 		Map<String, String> cookies = null;
 		String urlParameters = "";

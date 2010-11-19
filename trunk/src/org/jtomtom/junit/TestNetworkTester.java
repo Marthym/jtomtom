@@ -27,7 +27,7 @@ import java.net.Proxy.Type;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomtom;
+import org.jtomtom.Application;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.tools.NetworkTester;
 
@@ -45,7 +45,7 @@ public class TestNetworkTester {
 	
 	@Test
 	public void testIsNetworkAvailable() {
-		Proxy proxy = JTomtom.getApplicationProxy();
+		Proxy proxy = Application.getInstance().getProxyServer();
 		boolean withProxy = NetworkTester.getInstance().isNetworkAvailable(proxy);
 		withProxy = NetworkTester.getInstance().isNetworkAvailable(proxy);
 		
@@ -54,7 +54,7 @@ public class TestNetworkTester {
 	
 	@Test
 	public void testCalculateResponseTime() {
-		Proxy proxy = JTomtom.getApplicationProxy();
+		Proxy proxy = Application.getInstance().getProxyServer();
 		long accessTime = NetworkTester.getInstance().calculateResponseTime(proxy);
 		
 		assertFalse(accessTime <= 0);
@@ -74,7 +74,7 @@ public class TestNetworkTester {
 		assertTrue(jttExceptionThrowed);
 				
 		NetworkTester.getInstance().resetNetworkTesterInstance();
-		proxy = JTomtom.getApplicationProxy();
+		proxy = Application.getInstance().getProxyServer();
 		try {
 			NetworkTester.getInstance().validNetworkAvailability(proxy);
 		} catch (JTomtomException e) {

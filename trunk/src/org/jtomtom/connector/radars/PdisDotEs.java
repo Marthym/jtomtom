@@ -165,6 +165,11 @@ public class PdisDotEs extends RadarsConnector {
 	 */
 	@Override
 	public boolean connexion(Proxy p_proxy, String p_user, String p_password) {
+		if (p_user == null || p_password == null ||
+				p_user.isEmpty() || p_password.isEmpty()) {
+			return false;
+		}
+		
 		m_proxy = p_proxy;
 		String urlParameters = "";
 		try {

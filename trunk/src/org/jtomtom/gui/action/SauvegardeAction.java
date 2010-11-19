@@ -32,7 +32,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomtom;
+import org.jtomtom.Application;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.device.TomtomMap;
@@ -50,7 +50,7 @@ import de.tu_darmstadt.informatik.rbg.mhartle.sabre.HandlerException;
 import de.tu_darmstadt.informatik.rbg.mhartle.sabre.StreamHandler;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  *
  */
 public class SauvegardeAction extends AbstractAction {
@@ -83,13 +83,15 @@ public class SauvegardeAction extends AbstractAction {
 
 			@Override
 			protected ActionResult doInBackground() throws Exception {
+				final TomtomDevice theDevice = Application.getInstance().getTheGPS();
+				
             	ActionResult result = new ActionResult(); 
                 try {
-                	String mountPoint = JTomtom.getTheGPS().getMountPoint();
+                	String mountPoint = theDevice.getMountPoint();
                 	if (mountPoint.isEmpty()) {
                 		throw new JTomtomException("org.jtomtom.errors.gps.nomountpoint");
                 	}
-                	result.status = createGpsBackup(JTomtom.getTheGPS());
+                	result.status = createGpsBackup(theDevice);
 					
 				} catch (JTomtomException e) {
 					LOGGER.error(e.getLocalizedMessage());
@@ -114,7 +116,8 @@ public class SauvegardeAction extends AbstractAction {
 	            	if (!result.status) {
 	            		// En cas d'erreur on affiche un message
 		            	JOptionPane.showMessageDialog(null, result.exception.getLocalizedMessage(), 
-		            			JTomtom.theMainTranslator.getString("org.jtomtom.main.dialog.default.error.title"), JOptionPane.ERROR_MESSAGE);
+		            			Application.getInstance().getMainTranslator().getString("org.jtomtom.main.dialog.default.error.title"), 
+		            			JOptionPane.ERROR_MESSAGE);
 	            	}
             	} catch (ExecutionException e) {
             		LOGGER.warn(e.getLocalizedMessage());

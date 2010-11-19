@@ -36,7 +36,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomtom;
+import org.jtomtom.Application;
 import org.jtomtom.gui.utilities.JTTabPanel;
 import org.jtomtom.gui.utilities.SpringUtilities;
 
@@ -47,9 +47,8 @@ import org.jtomtom.gui.utilities.SpringUtilities;
  */
 public class TabAbout extends JTTabPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
-	
 	private static final Logger LOGGER = Logger.getLogger(TabAbout.class);
-	
+		
 	public static final String LICENSE_URL = "http://www.gnu.org/licenses/gpl.html";
 	public static final String WEBSITE_URL = "http://jtomtom.sourceforge.net/";
 	public static final String DEVELOPER_URL = "belz12@yahoo.fr";
@@ -88,9 +87,9 @@ public class TabAbout extends JTTabPanel implements ActionListener {
 		JPanel informationsPanel = new JPanel(new SpringLayout());
 		
 		informationsPanel.add(new JLabel("<html><strong>"+m_rbControls.getString("org.jtomtom.tab.about.version")+"</strong></html>"));
-		informationsPanel.add(new JLabel(JTomtom.getApplicationVersionNumber()));
+		informationsPanel.add(new JLabel(Application.getInstance().getVersionNumber()));
 		informationsPanel.add(new JLabel("<html><strong>"+m_rbControls.getString("org.jtomtom.tab.about.date")+"</strong></html>"));
-		informationsPanel.add(new JLabel(JTomtom.getApplicationVersionDate()));
+		informationsPanel.add(new JLabel(Application.getInstance().getVersionDate()));
 		informationsPanel.add(new JLabel("<html><strong>"+m_rbControls.getString("org.jtomtom.tab.about.developer")+"</strong></html>"));
 		
 		sendMeaMail = new JButton("<html>Frédéric Combes @ <a href=\"mailto:"+DEVELOPER_URL+"\">"+DEVELOPER_URL+"</a></html>");

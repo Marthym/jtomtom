@@ -33,10 +33,11 @@ import org.jtomtom.device.providers.CarminatFilesProvider;
 import org.jtomtom.device.providers.TomtomFilesProvider;
 
 /**
- * Used for search the Tomtom GPS Device
  * @author Frédéric Combes
- *
+ * 
+ * Used for search the Tomtom GPS Device
  */
+//TODO: Add timeout diring device search. When we search the good mount point, if one of them is an invalid network mount point jTomtom stay blocked
 public class TomtomDeviceFinder {
 	private static final Logger LOGGER = Logger.getLogger(TomtomDeviceFinder.class);
 	

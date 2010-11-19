@@ -32,7 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.JTomtom;
+import org.jtomtom.Application;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.tools.JarUtils;
 import org.jtomtom.tools.NetworkTester;
@@ -63,7 +63,7 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 		ActionResult result = new ActionResult();
 		
 		result.status = false;
-		if (!NetworkTester.getInstance().isNetworkAvailable(JTomtom.getApplicationProxy())) {
+		if (!NetworkTester.getInstance().isNetworkAvailable(Application.getInstance().getProxyServer())) {
 			result.parameters = new LinkedList<String>();
 			result.parameters.add(new JTomtomException("org.jtomtom.errors.network.unavailable").getLocalizedMessage());
 			return result;
@@ -118,7 +118,8 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 		}
 		
 		try {
-			URLConnection conn = jarUrl.openConnection(JTomtom.getApplicationProxy());
+			URLConnection conn = jarUrl.openConnection(
+					Application.getInstance().getProxyServer());
 			
 			// On trouve le nom du fichier jar de jTomtom
 			File jttJarFile = JarUtils.getCurrentFile();
@@ -132,7 +133,8 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 			}
 			
 			if (conn.getLastModified()/1000 >= jttJarFile.lastModified()/1000) {
-				message = JTomtom.theMainTranslator.getString("org.jtomtom.main.action.checkupdate.newversion")+new Date(conn.getLastModified());
+				message = Application.getInstance().getMainTranslator().getString("org.jtomtom.main.action.checkupdate.newversion")
+							+new Date(conn.getLastModified());
 			}
 			
 		} catch (IOException e) {
