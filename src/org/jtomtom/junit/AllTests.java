@@ -28,6 +28,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses(value={
 	TestNetworkTester.class,
+	TestApplication.class,
 	TestTomtomDeviceFinder.class,
 	TestTomtomFilesProvider.class,
 	TestJTomtomProperties.class,

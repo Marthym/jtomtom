@@ -71,7 +71,7 @@ public class JTomtomFenetre extends JFrame implements ChangeListener {
 	}
 
 	private void build() {
-		setTitle("jTomtom - "+theApp.getTheGPS().getName()); 			// Set the application title
+		setTitle("jTomtom - "+theApp.getTheDevice().getName()); 			// Set the application title
 		setSize(600,400); 												// Set window size
 		setLocationRelativeTo(null); 									// Set window location at the center of the screen
 		setResizable(false); 											// Disable window resizing

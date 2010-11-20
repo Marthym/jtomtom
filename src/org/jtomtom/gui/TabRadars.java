@@ -71,7 +71,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(TabRadars.class);
 	
-	private final TomtomDevice theDevice = Application.getInstance().getTheGPS();
+	private final TomtomDevice theDevice = Application.getInstance().getTheDevice();
 	
 	private JLabel infosHtml;
 	private JButton radarsButton;

@@ -132,6 +132,7 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 				LOGGER.debug("Last available version : "+new Date(conn.getLastModified()));
 			}
 			
+			//TODO: Translate the displayed date !!
 			if (conn.getLastModified()/1000 >= jttJarFile.lastModified()/1000) {
 				message = Application.getInstance().getMainTranslator().getString("org.jtomtom.main.action.checkupdate.newversion")
 							+new Date(conn.getLastModified());
