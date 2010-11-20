@@ -89,7 +89,7 @@ public class MajQuickFixAction extends AbstractAction {
                 	Application theApp = Application.getInstance();
                 	
                 	NetworkTester.getInstance().validNetworkAvailability(theApp.getProxyServer());
-                	miseAJourQuickFix(theApp.getTheGPS());
+                	miseAJourQuickFix(theApp.getTheDevice());
                 	result.status = true;
 					
 				} catch (JTomtomException e) {

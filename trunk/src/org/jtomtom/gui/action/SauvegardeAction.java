@@ -83,7 +83,7 @@ public class SauvegardeAction extends AbstractAction {
 
 			@Override
 			protected ActionResult doInBackground() throws Exception {
-				final TomtomDevice theDevice = Application.getInstance().getTheGPS();
+				final TomtomDevice theDevice = Application.getInstance().getTheDevice();
 				
             	ActionResult result = new ActionResult(); 
                 try {

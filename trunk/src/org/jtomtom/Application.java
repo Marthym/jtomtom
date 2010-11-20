@@ -77,7 +77,7 @@ public class Application {
 		return instance;
 	}
 
-	public TomtomDevice getTheGPS() {
+	public TomtomDevice getTheDevice() {
 		if (theGPS == null) {
 			initTomtomDevice();
 		}
@@ -193,7 +193,7 @@ public class Application {
 		}
 	}
 	
-	public void initTomtomDevice() {
+	private void initTomtomDevice() {
 		theGPS = new TomtomDevice();
 	}
 	

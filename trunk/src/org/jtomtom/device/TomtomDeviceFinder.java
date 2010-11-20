@@ -38,6 +38,7 @@ import org.jtomtom.device.providers.TomtomFilesProvider;
  * Used for search the Tomtom GPS Device
  */
 //TODO: Add timeout diring device search. When we search the good mount point, if one of them is an invalid network mount point jTomtom stay blocked
+//TODO: Found how add timeout ?
 public class TomtomDeviceFinder {
 	private static final Logger LOGGER = Logger.getLogger(TomtomDeviceFinder.class);
 	
@@ -104,16 +105,16 @@ public class TomtomDeviceFinder {
 		
 		List<File> systemMountPoints = new ArrayList<File>();
 		try {
-			// On exécute la commande système qui liste les points de montages
+			// Run system command for list all mount point
 			Process cmd = Runtime.getRuntime().exec("mount");
 			BufferedReader br = new BufferedReader(new InputStreamReader(cmd.getInputStream()));
 			
-			// Et on en extrait les répertoires de montage
+			// We extract mount directories
 			String line = new String();
 			LOGGER.debug("Liste des points de montage :");
 			while ((line = br.readLine()) != null) {
 				if (line.startsWith("none")) {
-					// On vire les périphériques non monté
+					// We ignore unmounted directories
 					continue;
 				} 
 				

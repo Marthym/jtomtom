@@ -37,6 +37,7 @@ import org.jtomtom.gui.action.SendUserInformationsAction;
  */
 // TODO : Add possibility to set more the one login/password information in the settings tab
 // TODO : Add experency date in the error message for GPS not found. Save expirency date in properties file. Maybe for more than one device
+// TODO : Add Command line argument for start in DEBUG mode
 public class JTomtom {
 	static final Logger LOGGER = Logger.getLogger(JTomtom.class);
 	
@@ -64,7 +65,7 @@ public class JTomtom {
 			return;
 		
 		// Try to initiate GPS
-		try { theApp.initTomtomDevice(); } 
+		try { theApp.getTheDevice(); } 
 		catch (JTomtomException e) {
 			SwingUtilities.invokeLater(new InitialErrorRun(e));	
 			return;
@@ -129,7 +130,7 @@ public class JTomtom {
 		if (!"true".equals(theApp.getGlobalProperties().getUserProperty("org.jtomtom.sendbackinformations", "true"))) {
 			sendInformations = false;
 		}
-		if (sendInformations && theApp.getTheGPS().getChipset() == Chipset.UNKNOWN) {
+		if (sendInformations && theApp.getTheDevice().getChipset() == Chipset.UNKNOWN) {
 			sendInformations = false;
 		}
 		return sendInformations;

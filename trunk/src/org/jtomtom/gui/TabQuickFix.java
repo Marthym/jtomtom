@@ -47,7 +47,7 @@ public class TabQuickFix extends JTTabPanel {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(TabQuickFix.class);
 	
-	private final TomtomDevice theDevice = Application.getInstance().getTheGPS();
+	private final TomtomDevice theDevice = Application.getInstance().getTheDevice();
 	private JLabel quickFixInfos;
 	private JButton quickFixButton;
 	

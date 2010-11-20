@@ -42,7 +42,7 @@ import org.jtomtom.gui.utilities.JTTabPanel;
 public class TabGeneral extends JTTabPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	
-	private TomtomDevice theDevice = Application.getInstance().getTheGPS();
+	private TomtomDevice theDevice = Application.getInstance().getTheDevice();
 	
 	private JButton m_btCopier;
 	

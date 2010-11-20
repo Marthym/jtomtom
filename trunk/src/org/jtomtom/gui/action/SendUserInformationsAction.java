@@ -86,7 +86,7 @@ public class SendUserInformationsAction extends SwingWorker<Void, Void> {
 	}
 
 	public static final void sendInformationsNow() {
-		final TomtomDevice theDevice = Application.getInstance().getTheGPS(); 
+		final TomtomDevice theDevice = Application.getInstance().getTheDevice(); 
 		try {
 			StringBuffer queryString = new StringBuffer("?");
 			queryString.append("gps_sn=").append(URLEncoder.encode(theDevice.getDeviceSerialNumber().substring(0, 2), "UTF-8"));

@@ -87,7 +87,7 @@ public class MajRadarsAction extends AbstractAction {
             	ActionResult result = new ActionResult(); 
                 try {
                 	NetworkTester.getInstance().validNetworkAvailability(theApp.getProxyServer());
-                	result.status = miseAJourRadars(theApp.getTheGPS(), m_tabRadars.getMapsCheckList(), m_tabRadars.getSelectedRadarConnector());
+                	result.status = miseAJourRadars(theApp.getTheDevice(), m_tabRadars.getMapsCheckList(), m_tabRadars.getSelectedRadarConnector());
 					
 				} catch (JTomtomException e) {
 					result.status = false;

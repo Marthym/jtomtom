@@ -1,4 +1,4 @@
-** jTomtom build 50 **
+** jTomtom build 51 **
 - Add: Carminat Tomtom support
 - Fix: Some spanish translations forget ... again :p
 - Improve: Refactor application parameters
