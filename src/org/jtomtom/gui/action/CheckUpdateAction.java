@@ -25,8 +25,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Locale;
 
 import javax.swing.JLabel;
 import javax.swing.SwingWorker;
@@ -127,15 +129,17 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 				LOGGER.warn("Jar file not found ! Check update canceled !");
 				return null;
 			}
+			
+			DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
+			String lastModifiedFormatedDate = dateFormat.format(new Date(conn.getLastModified()));
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Installed version : "+new Date(jttJarFile.lastModified()));
-				LOGGER.debug("Last available version : "+new Date(conn.getLastModified()));
+				LOGGER.debug("Installed version : "+lastModifiedFormatedDate);
+				LOGGER.debug("Last available version : "+lastModifiedFormatedDate);
 			}
 			
-			//TODO: Translate the displayed date !!
 			if (conn.getLastModified()/1000 >= jttJarFile.lastModified()/1000) {
 				message = Application.getInstance().getMainTranslator().getString("org.jtomtom.main.action.checkupdate.newversion")
-							+new Date(conn.getLastModified());
+							+lastModifiedFormatedDate;
 			}
 			
 		} catch (IOException e) {
