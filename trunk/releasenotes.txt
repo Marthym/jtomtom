@@ -1,21 +1,26 @@
+** jTomtom build 55 **
+- Add: New command line argument for enter in debug mode
+- Improve: Use translated and formated date for new version information
+- Improve: Give more details when no GPS was found
+
 ** jTomtom build 51 **
 - Add: Carminat Tomtom support
-- Fix: Some spanish translations forget ... again :p
 - Improve: Refactor application parameters
 - Fix: Remote POIs informations get without first account setting crash with NullPointerException 
+- Fix: Some spanish translations forget ... again :p
 
 ** jTomtom build 49 **
 - Fix: Some spanish translations forget :s
 
 ** jTomtom build 47 **
-- Improve: Move new version warning on the bottom of the main window and remove the popup
-- Fix: Some translations were no longer needed
-- Fix: Java Exception when proxy was set to HTTP or SOCKS without server and port
-- Improve: Check the proxy settings validity before save paraméters
-- Improve: Some code rewrote for better lisibility
-- Fix: Inconsistent text in the tab "Radars" when no POIs are installed
 - Add: Function for send GPS informations to jTomtom server
 - Add: this release note
-- Improve: Exceptions localization mechanism
 - Add: Buttons on the About tab for easy contact with developer
+- Improve: Move new version warning on the bottom of the main window and remove the popup
+- Improve: Check the proxy settings validity before save paraméters
+- Improve: Some code rewrote for better lisibility
+- Improve: Exceptions localization mechanism
 - Improve: Move up POIs account section in parameters tab
+- Fix: Some translations were no longer needed
+- Fix: Java Exception when proxy was set to HTTP or SOCKS without server and port
+- Fix: Inconsistent text in the tab "Radars" when no POIs are installed

@@ -24,6 +24,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.jtomtom.device.Chipset;
@@ -37,7 +38,6 @@ import org.jtomtom.gui.action.SendUserInformationsAction;
  */
 // TODO : Add possibility to set more the one login/password information in the settings tab
 // TODO : Add experency date in the error message for GPS not found. Save expirency date in properties file. Maybe for more than one device
-// TODO : Add Command line argument for start in DEBUG mode
 public class JTomtom {
 	static final Logger LOGGER = Logger.getLogger(JTomtom.class);
 	
@@ -52,6 +52,13 @@ public class JTomtom {
 		LOGGER.warn("under certain conditions.");
 		
 		Application theApp = Application.getInstance();
+		
+		// Treat command line arguments
+		for (String arg : args) {
+			if ("--debug".equals(arg)) {
+				Logger.getLogger(JTomtom.class.getPackage().getName()).setLevel(Level.DEBUG);
+			}
+		}
 		
 		// First fo all, change Look at feel
 		SwingUtilities.invokeLater(new Runnable() {
@@ -117,10 +124,13 @@ public class JTomtom {
 		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 		        if (p_lafName.equals(info.getName())) {
 		            UIManager.setLookAndFeel(info.getClassName());
+		            LOGGER.debug("Look At Feel \""+p_lafName+"\" found");
 		            break;
 		        }
 		    }
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			LOGGER.debug("Look At Feel \""+p_lafName+"\" not found, use defaut !");
+		}
 	}
 	
 	private final static boolean isInformationsMustBeSend() {

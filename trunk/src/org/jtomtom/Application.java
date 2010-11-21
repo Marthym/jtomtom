@@ -133,7 +133,7 @@ public class Application {
 			if (LOGGER.isDebugEnabled()) e.printStackTrace();
 			SwingUtilities.invokeLater(new InitialErrorRun(e));
 		}
-				
+		
 		// - Mise à jour de la langue par défaut
 		if (globalProperties.getUserProperty("org.jtomtom.locale") != null) {
 			try {
@@ -186,10 +186,10 @@ public class Application {
 				versionNumber = man.getMainAttributes().getValue("Implementation-Version");
 			if (man.getMainAttributes().getValue("Built-Date") != null)
 				versionDate = man.getMainAttributes().getValue("Built-Date");
-			JTomtom.LOGGER.info("jTomtom v"+versionNumber+" du "+versionDate);
+			LOGGER.info("jTomtom v"+versionNumber+" du "+versionDate);
 			
 		} catch (Exception e) {
-			JTomtom.LOGGER.debug("Error reading jTomtom version informations !");
+			LOGGER.debug("Error reading jTomtom version informations !");
 		}
 	}
 	
