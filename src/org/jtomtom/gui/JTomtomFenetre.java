@@ -38,6 +38,7 @@ import javax.swing.event.ChangeListener;
 import org.jtomtom.Application;
 import org.jtomtom.gui.action.CheckUpdateAction;
 import org.jtomtom.gui.action.QuitterAction;
+import org.jtomtom.gui.utilities.JTTabPanel;
 
 /**
  * @author Frédéric Combes
@@ -60,7 +61,7 @@ public class JTomtomFenetre extends JFrame implements ChangeListener {
 	}
 
 	private void runNewVersionChecking() {
-		if ("true".equals(theApp.getGlobalProperties().getUserProperty("org.jtomtom.checkupdate"))) {
+		if ("true".equals(theApp.getGlobalProperties().getUserProperty("org.jtomtom.checkupdate", "true"))) {
 			SwingUtilities.invokeLater(new Runnable(){
 				public void run(){
 					CheckUpdateAction check = new CheckUpdateAction(newVersionMessage);
@@ -89,7 +90,7 @@ public class JTomtomFenetre extends JFrame implements ChangeListener {
 		
 		tabbedPane = new JTabbedPane();
 		
-		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.general.label"), new TabGeneral());
+		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.general.label"), new TabGeneral().build());
 		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.quickfix.label"), new TabQuickFix());
 		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.radars.label"), new TabRadars());
 		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.backup.label"), new TabSauvegarde());
@@ -119,8 +120,13 @@ public class JTomtomFenetre extends JFrame implements ChangeListener {
 
 	@Override
 	public void stateChanged(ChangeEvent event) {
-		// Load tab information just when they are displayed
 		if (tabbedPane == event.getSource()) {
+			// Build tab UI at last time
+			if (JTTabPanel.class.isAssignableFrom(tabbedPane.getSelectedComponent().getClass())) {
+				((JTTabPanel)tabbedPane.getSelectedComponent()).build();
+			}
+			
+			// Load tab information just when they are displayed
 			if (TabQuickFix.class.isAssignableFrom(tabbedPane.getSelectedComponent().getClass())) {
 				TabQuickFix ongletQF = (TabQuickFix)tabbedPane.getSelectedComponent();
 				ongletQF.loadQuickFixInfos();

@@ -29,6 +29,7 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 import org.jtomtom.Application;
@@ -52,21 +53,23 @@ public class TabQuickFix extends JTTabPanel {
 	private JButton quickFixButton;
 	
 	public TabQuickFix() {
-		super(m_rbControls.getString("org.jtomtom.tab.quickfix.title"));
-		
-		build();
+		super(getTabTranslations().getString("org.jtomtom.tab.quickfix.title"));
+		setPanelLeftImage(getClass().getResource("resources/quickfix.png"));
 	}
 	
-	private void build() {
-		super.build(getClass().getResource("resources/quickfix.png"));
+	public JPanel build() {
+		super.build();
+		LOGGER.trace("Building TabQuickFix ...");
+		
 		add(Box.createRigidArea(new Dimension(0,5)));
 		
 		quickFixInfos = new JLabel("");
 		add(quickFixInfos);
 		
-		quickFixButton = new JButton(new MajQuickFixAction(m_rbControls.getString("org.jtomtom.tab.quickfix.button.update.label")));
+		quickFixButton = new JButton(new MajQuickFixAction(getTabTranslations().getString("org.jtomtom.tab.quickfix.button.update.label")));
 		addActionButton(quickFixButton);
 		
+		return this;
 	}
 	
 	/**
@@ -84,17 +87,17 @@ public class TabQuickFix extends JTTabPanel {
 		
 		try {
 			infos.append("<html><table>");
-			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.chipset")).append(" : </strong></td><td><i>").append(theDevice.getChipset()).append("</i></td></tr>");
-			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.lastupdate")).append(" : </strong></td><td><i>")
+			infos.append("<tr><td><strong>").append(getTabTranslations().getString("org.jtomtom.tab.quickfix.chipset")).append(" : </strong></td><td><i>").append(theDevice.getChipset()).append("</i></td></tr>");
+			infos.append("<tr><td><strong>").append(getTabTranslations().getString("org.jtomtom.tab.quickfix.lastupdate")).append(" : </strong></td><td><i>")
 				.append(dateFormat.format(new Date(theDevice.getQuickFixLastUpdate())))
 				.append("</i></td></tr>");
-			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.expirency")).append(" : </strong></td><td><i>")
+			infos.append("<tr><td><strong>").append(getTabTranslations().getString("org.jtomtom.tab.quickfix.expirency")).append(" : </strong></td><td><i>")
 				.append(dateFormat.format(new Date(theDevice.getQuickFixExpiry())))
 				.append("</i></td></tr>");
 			if ((new Date()).getTime() > theDevice.getQuickFixExpiry()) {
-				infos.append("<tr><td></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.ephemtoold")).append("</i></td></tr>");
+				infos.append("<tr><td></td><td><i>").append(getTabTranslations().getString("org.jtomtom.tab.quickfix.ephemtoold")).append("</i></td></tr>");
 			} else {
-				infos.append("<tr><td></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.quickfix.ephemuptodate")).append("</i></td></tr>");
+				infos.append("<tr><td></td><td><i>").append(getTabTranslations().getString("org.jtomtom.tab.quickfix.ephemuptodate")).append("</i></td></tr>");
 			}
 			infos.append("</table>");
 			infos.append("</html>");

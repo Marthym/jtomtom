@@ -74,25 +74,26 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 	private JButton		m_enregistrer;
 	
 	public TabParametres() {
-		super(m_rbControls.getString("org.jtomtom.tab.parameters.title"));
-		build();
+		super(getTabTranslations().getString("org.jtomtom.tab.parameters.title"));
+		setPanelLeftImage(getClass().getResource("resources/parametres.png"));
 	}
 	
 	/**
 	 * Construction de l'interface graphique
 	 */
-	private void build() {
-		super.build(getClass().getResource("resources/parametres.png"));
+	public JPanel build() {
+		super.build();
+		LOGGER.trace("Building TabParametres ...");
 		
 		// Paramètres du proxy
 		buildProxyFields();
 		JPanel proxyPanel = new JPanel(new SpringLayout());
-		proxyPanel.setBorder(BorderFactory.createTitledBorder(m_rbControls.getString("org.jtomtom.tab.parameters.border.network.label")));
-		proxyPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.conn.label")));
+		proxyPanel.setBorder(BorderFactory.createTitledBorder(getTabTranslations().getString("org.jtomtom.tab.parameters.border.network.label")));
+		proxyPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.conn.label")));
 		proxyPanel.add(m_proxyType);
-		proxyPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.proxy.label")));
+		proxyPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.proxy.label")));
 		proxyPanel.add(m_proxyHost);
-		proxyPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.port.label")));
+		proxyPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.port.label")));
 		proxyPanel.add(m_proxyPort);
 		SpringUtilities.makeCompactGrid(proxyPanel,
                 3, 2, 		 //rows, cols
@@ -103,10 +104,10 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		// Paramètres Tomtomax
 		buildConnexionFields();
 		JPanel tomtomaxPanel = new JPanel(new SpringLayout());
-		tomtomaxPanel.setBorder(BorderFactory.createTitledBorder(m_rbControls.getString("org.jtomtom.tab.parameters.border.poisradars.label")));
-		tomtomaxPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.user.label")));
+		tomtomaxPanel.setBorder(BorderFactory.createTitledBorder(getTabTranslations().getString("org.jtomtom.tab.parameters.border.poisradars.label")));
+		tomtomaxPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.user.label")));
 		tomtomaxPanel.add(m_ttmaxUser);
-		tomtomaxPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.password.label")));
+		tomtomaxPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.password.label")));
 		tomtomaxPanel.add(m_ttmaxPassword);
 		SpringUtilities.makeCompactGrid(tomtomaxPanel,
                 2, 2, 		 //rows, cols
@@ -118,10 +119,10 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		// Paramètres des log
 		buildLogsFields();
 		JPanel logsPanel = new JPanel(new SpringLayout());
-		logsPanel.setBorder(BorderFactory.createTitledBorder(m_rbControls.getString("org.jtomtom.tab.parameters.border.log.label")));
-		logsPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.label")));
+		logsPanel.setBorder(BorderFactory.createTitledBorder(getTabTranslations().getString("org.jtomtom.tab.parameters.border.log.label")));
+		logsPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.label")));
 		logsPanel.add(m_logLevel);
-		logsPanel.add(new JLabel(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.logfile.label")));
+		logsPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.logfile.label")));
 		logsPanel.add(m_logFile);
 		SpringUtilities.makeCompactGrid(logsPanel,
                 2, 2, 		 //rows, cols
@@ -132,16 +133,18 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		// Paramètres divers
 		buildDummyFields();
 		JPanel dummyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		dummyPanel.setBorder(BorderFactory.createTitledBorder(m_rbControls.getString("org.jtomtom.tab.parameters.border.dummy.label")));
+		dummyPanel.setBorder(BorderFactory.createTitledBorder(getTabTranslations().getString("org.jtomtom.tab.parameters.border.dummy.label")));
 		dummyPanel.add(m_checkUpdate);
 		add(dummyPanel);
 		
 		// Création du panneau de bouton
-		m_enregistrer = new JButton(m_rbControls.getString("org.jtomtom.tab.parameters.button.save.label"));
+		m_enregistrer = new JButton(getTabTranslations().getString("org.jtomtom.tab.parameters.button.save.label"));
 		m_enregistrer.addActionListener(this);
 		addActionButton(m_enregistrer);
 		
 		addScrollVerticalBar();
+		
+		return this;
 	}	
 	
 	/**
@@ -159,14 +162,14 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		m_proxyHost = new JTextField();
 		m_proxyHost.setColumns(15);
 		m_proxyHost.setPreferredSize(new Dimension(0,25));
-		m_proxyHost.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.proxy.hint"));
+		m_proxyHost.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.proxy.hint"));
 		m_proxyHost.setText(globalProperties.getUserProperty("net.proxy.name"));
 
 		// - Port du proxy
 		m_proxyPort = new JTextField();
 		m_proxyPort.setColumns(4);
 		m_proxyPort.setPreferredSize(new Dimension(0,25));
-		m_proxyPort.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.port.hint"));
+		m_proxyPort.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.port.hint"));
 		m_proxyPort.setText(globalProperties.getUserProperty("net.proxy.port"));
 		
 		if (m_proxyType.getSelectedItem().equals("DIRECT")) {
@@ -187,14 +190,14 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		m_ttmaxUser = new JTextField();
 		m_ttmaxUser.setColumns(20);
 		m_ttmaxUser.setPreferredSize(new Dimension(0,25));
-		m_ttmaxUser.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.user.hint"));
+		m_ttmaxUser.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.user.hint"));
 		m_ttmaxUser.setText(globalProperties.getUserProperty("org.tomtomax.user"));
 
 		// - Password Tomtomax
 		m_ttmaxPassword = new JPasswordField();
 		m_ttmaxPassword.setColumns(20);
 		m_ttmaxPassword.setPreferredSize(new Dimension(0,25));
-		m_ttmaxPassword.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.textfield.password.hint"));
+		m_ttmaxPassword.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.password.hint"));
 		m_ttmaxPassword.setText(globalProperties.getUserProperty("org.tomtomax.password"));
 	}
 
@@ -215,7 +218,7 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		m_logFile = new JTextField();
 		m_logFile.setColumns(17);
 		m_logFile.setPreferredSize(new Dimension(0,25));
-		m_logFile.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.border.log.hint"));
+		m_logFile.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.border.log.hint"));
 		m_logFile.setText(globalProperties.getUserProperty("org.jtomtom.logFile"));
 	}
 
@@ -223,11 +226,11 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 	 * Crée et initialise les champs de paramètre divers
 	 */
 	private void buildDummyFields() {
-		m_checkUpdate = new JCheckBox(m_rbControls.getString("org.jtomtom.tab.parameters.checkbox.update.label"));
-		m_checkUpdate.setToolTipText(m_rbControls.getString("org.jtomtom.tab.parameters.checkbox.update.hint"));
+		m_checkUpdate = new JCheckBox(getTabTranslations().getString("org.jtomtom.tab.parameters.checkbox.update.label"));
+		m_checkUpdate.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.checkbox.update.hint"));
 		
 		// Initialisation
-		boolean checkUpdate = "true".equals(globalProperties.getUserProperty("org.jtomtom.checkupdate"));
+		boolean checkUpdate = "true".equals(globalProperties.getUserProperty("org.jtomtom.checkupdate", "true"));
 		m_checkUpdate.setSelected(checkUpdate);
 	}
 
@@ -256,7 +259,7 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 				LOGGER.error("An error occurred while writing properties file ("+System.getProperty("user.home")+File.separator+Constant.JTOMTOM_USER_PROPERTIES+") !");
 				JOptionPane.showMessageDialog(this, 
 						e.getLocalizedMessage(), 
-						m_rbControls.getString("org.jtomtom.tab.parameters.dialog.save.title"), JOptionPane.ERROR_MESSAGE);
+						getTabTranslations().getString("org.jtomtom.tab.parameters.dialog.save.title"), JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 			
@@ -268,8 +271,8 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 				}
 			}
 			JOptionPane.showMessageDialog(this, 
-					m_rbControls.getString("org.jtomtom.tab.parameters.dialog.save.message"), 
-					m_rbControls.getString("org.jtomtom.tab.parameters.dialog.save.title"), JOptionPane.INFORMATION_MESSAGE);
+					getTabTranslations().getString("org.jtomtom.tab.parameters.dialog.save.message"), 
+					getTabTranslations().getString("org.jtomtom.tab.parameters.dialog.save.title"), JOptionPane.INFORMATION_MESSAGE);
 			
 		} else if (event.getSource() == m_proxyType) {
 			

@@ -2,6 +2,8 @@
 - Add: New command line argument for enter in debug mode
 - Improve: Use translated and formated date for new version information
 - Improve: Give more details when no GPS was found
+- Improve: Application class refactor for better code lisibility
+- Improve: Tab build at last time for save memory and reduce startup time
 
 ** jTomtom build 51 **
 - Add: Carminat Tomtom support

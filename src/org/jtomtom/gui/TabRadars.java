@@ -105,7 +105,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 				if (!infos.status) {
 					JOptionPane.showMessageDialog(null, 
 							infos.exception.getLocalizedMessage(), 
-							m_rbControls.getString("org.jtomtom.tab.radars.sw.error.title"), JOptionPane.ERROR_MESSAGE);
+							getTabTranslations().getString("org.jtomtom.tab.radars.sw.error.title"), JOptionPane.ERROR_MESSAGE);
 					refreshButton.setEnabled(true);
 				} else {
 					radarsButton.setEnabled(true);
@@ -134,17 +134,19 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	 * Initialise l'affichage et instancie le woker
 	 */
 	public TabRadars() {
-		super(m_rbControls.getString("org.jtomtom.tab.radars.title"));
+		super(getTabTranslations().getString("org.jtomtom.tab.radars.title"));
+		setPanelLeftImage(getClass().getResource("resources/radars.png"));
 		m_loadWorker = new LoadInformationsWorker();
-		build();
 	}
 	
 	/**
 	 * Fabrication de l'interface
 	 */
-	private void build() {
-		super.build(getClass().getResource("resources/radars.png"));
-		m_scrolledPanel.setLayout(new SpringLayout());	// For better layout we use SpringLayout for this tab
+	public JPanel build() {
+		super.build();
+		LOGGER.trace("Building TabRadars ...");
+
+		getScrollPanel().setLayout(new SpringLayout());	// For better layout we use SpringLayout for this tab
 		
 		// Add informations about Radars
 		infosHtml = new JLabel("");
@@ -152,8 +154,8 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		
 		// Add Refresh button
 		JPanel buttonPanel = new JPanel(new GridLayout(1, 2));
-		refreshButton = new JButton(m_rbControls.getString("org.jtomtom.tab.radars.button.refresh.label"));
-		refreshButton.setToolTipText(m_rbControls.getString("org.jtomtom.tab.radars.button.refresh.hint"));
+		refreshButton = new JButton(getTabTranslations().getString("org.jtomtom.tab.radars.button.refresh.label"));
+		refreshButton.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.radars.button.refresh.hint"));
 		refreshButton.setEnabled(false);
 		refreshButton.addActionListener(this);
 		buttonPanel.add(refreshButton);
@@ -186,7 +188,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 			while (it.hasNext()) {
 				TomtomMap map = it.next();
 				JCheckBox chk = new JCheckBox(map.getName());
-				chk.setToolTipText(m_rbControls.getString("org.jtomtom.tab.radars.panel.maplist.hint"));
+				chk.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.radars.panel.maplist.hint"));
 				if (map.getName().equals(theDevice.getActiveMap().getName())) {
 					chk.setSelected(true);
 				}
@@ -199,19 +201,21 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		JScrollPane scroll = new JScrollPane(checkBoxPane);
 		checkBoxPane.setMaximumSize(new Dimension(200, (int)checkBoxPane.getMaximumSize().getHeight()));
 		scroll.setMaximumSize(new Dimension(200, (int)scroll.getMaximumSize().getHeight()));
-		scroll.setToolTipText(m_rbControls.getString("org.jtomtom.tab.radars.panel.maplist.hint"));
+		scroll.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.radars.panel.maplist.hint"));
 		add(scroll);
 		
 		// Add the action button at the bottom
-		radarsButton = new JButton(new MajRadarsAction(m_rbControls.getString("org.jtomtom.tab.radars.button.update.label")));
+		radarsButton = new JButton(new MajRadarsAction(getTabTranslations().getString("org.jtomtom.tab.radars.button.update.label")));
 		radarsButton.setEnabled(false);
 		addActionButton(radarsButton);
 
 		// When we finish to add Component, we make a pretty layout
-		SpringUtilities.makeCompactGrid(m_scrolledPanel,
-				m_scrolledPanel.getComponentCount(), 1, // rows, cols
+		SpringUtilities.makeCompactGrid(getScrollPanel(),
+				getScrollPanel().getComponentCount(), 1, // rows, cols
                 0, 0,        							// initX, initY
                 0, 3);       							// xPad, yPad
+		
+		return this;
 	}
 	
 	/**
@@ -226,17 +230,17 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		
 		StringBuffer infos = new StringBuffer();
 		infos.append("<html><table>");
-		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.availableupdate"))
-			.append(" : </strong></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.loading")).append("</i></td></tr>");
-		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate"))
-			.append(" : </strong></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.loading")).append("</i></td></tr>");
-		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount"))
-			.append(" : </strong></td><td><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.loading")).append("</i></td></tr>");
+		infos.append("<tr><td><strong>").append(getTabTranslations().getString("org.jtomtom.tab.radars.availableupdate"))
+			.append(" : </strong></td><td><i>").append(getTabTranslations().getString("org.jtomtom.tab.radars.loading")).append("</i></td></tr>");
+		infos.append("<tr><td><strong>").append(getTabTranslations().getString("org.jtomtom.tab.radars.installedupdate"))
+			.append(" : </strong></td><td><i>").append(getTabTranslations().getString("org.jtomtom.tab.radars.loading")).append("</i></td></tr>");
+		infos.append("<tr><td><strong>").append(getTabTranslations().getString("org.jtomtom.tab.radars.radarcount"))
+			.append(" : </strong></td><td><i>").append(getTabTranslations().getString("org.jtomtom.tab.radars.loading")).append("</i></td></tr>");
 		infos.append("</table>");
 		infos.append("<br/><font size=\"2\"><p><i>")
-			.append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))
-			.append(" <a href=\"").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.url")).append("\">")
-			.append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.label"))
+			.append(getTabTranslations().getString("org.jtomtom.tab.radars.radarprovidedby"))
+			.append(" <a href=\"").append(getTabTranslations().getString("org.jtomtom.tab.radars.tomtomax.url")).append("\">")
+			.append(getTabTranslations().getString("org.jtomtom.tab.radars.tomtomax.label"))
 			.append("</a></i></p></font>");
 		infos.append("</html>");
 		infosHtml.setText(infos.toString());
@@ -317,31 +321,31 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		boolean isInstalled = !localRadarsInfos.isEmpty();
 
 		infos.append("<html><table>");
-		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.availableupdate")).append(" : </strong></td><td><i>")
+		infos.append("<tr><td><strong>").append(getTabTranslations().getString("org.jtomtom.tab.radars.availableupdate")).append(" : </strong></td><td><i>")
 				.append(remoteRadarsInfos.getLastUpdateDateForPrint(dateFormat.toPattern()))
 				.append("</i></td></tr>");
 		if (isInstalled) {
-			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
+			infos.append("<tr><td><strong>").append(getTabTranslations().getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
 				.append(localRadarsInfos.getLastUpdateDateForPrint(dateFormat.toPattern()))
 				.append("</i></td></tr>");
 		} else {
-			infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
-				.append(m_rbControls.getString("org.jtomtom.tab.radars.noversioninstalled")).append("</i></td></tr>");
+			infos.append("<tr><td><strong>").append(getTabTranslations().getString("org.jtomtom.tab.radars.installedupdate")).append(" : </strong></td><td><i>")
+				.append(getTabTranslations().getString("org.jtomtom.tab.radars.noversioninstalled")).append("</i></td></tr>");
 		}
-		infos.append("<tr><td><strong>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>")
+		infos.append("<tr><td><strong>").append(getTabTranslations().getString("org.jtomtom.tab.radars.radarcount")).append(" : </strong></td><td><i>")
 			.append(localRadarsInfos.getNumberOfPOIsForPrint())
 			.append("</i>");
 		
 		if (remoteRadarsInfos.getNumberOfPOIs() != null) {
 			infos.append(" [")
 				.append(remoteRadarsInfos.getNumberOfPOIs() - localRadarsInfos.getNumberOfPOIs())
-				.append(m_rbControls.getString("org.jtomtom.tab.radars.missingradar")).append("]");
+				.append(getTabTranslations().getString("org.jtomtom.tab.radars.missingradar")).append("]");
 		}
 		
 		infos.append("</td></tr></table>");
-		infos.append("<br/><font size=\"2\"><p><i>").append(m_rbControls.getString("org.jtomtom.tab.radars.radarprovidedby"))
-			.append(" <a href=\"").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.url"))
-			.append("\">").append(m_rbControls.getString("org.jtomtom.tab.radars.tomtomax.label"))
+		infos.append("<br/><font size=\"2\"><p><i>").append(getTabTranslations().getString("org.jtomtom.tab.radars.radarprovidedby"))
+			.append(" <a href=\"").append(getTabTranslations().getString("org.jtomtom.tab.radars.tomtomax.url"))
+			.append("\">").append(getTabTranslations().getString("org.jtomtom.tab.radars.tomtomax.label"))
 			.append("</a></i></p></font>");
 		infos.append("</html>");
 		

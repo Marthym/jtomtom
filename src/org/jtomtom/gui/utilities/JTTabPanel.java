@@ -37,50 +37,55 @@ import javax.swing.JScrollPane;
 
 /**
  * Classe intermédiaire d'homogénisation des onglets
- * @author marthym
+ * @author Frédéric Combes
  *
  */
 public class JTTabPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
-	protected static final ResourceBundle m_rbControls = ResourceBundle.getBundle("org.jtomtom.gui.resources.lang.jTomtom-tab", Locale.getDefault());
+	private static final ResourceBundle tabTranslations = ResourceBundle.getBundle("org.jtomtom.gui.resources.lang.jTomtom-tab", Locale.getDefault());
 	
-	private JLabel m_image;
+	private JLabel leftImage;
 	
-	private String	m_title;
+	private String	tabTitle;
 	
-	protected JPanel m_centerPanel;
-	protected JPanel m_scrolledPanel;
+	private JPanel centralPanel;
+	private JPanel scrolledPanel;
 
 	public JTTabPanel(String p_title) {
 		super();
-		m_title = p_title;
+		tabTitle = p_title;
 	}
 	
 	/**
 	 * Construit l'onglet vide
 	 * @param p_imageUrl	Image de gauche de l'onglet
 	 */
-	protected void build(URL p_imageUrl) {
+	public JPanel build() {
 		setLayout(new BorderLayout());
 		
-		// Création du panneau de gauche
-		m_image = new JLabel(new ImageIcon(p_imageUrl, p_imageUrl.getFile()));
-		add(m_image, BorderLayout.LINE_START);
+		if (leftImage != null)
+			add(leftImage, BorderLayout.LINE_START);
 		
 		// Création du paneau central
-		m_centerPanel = new JPanel();
-		m_centerPanel.setLayout(new BoxLayout(m_centerPanel, BoxLayout.PAGE_AXIS));
+		centralPanel = new JPanel();
+		centralPanel.setLayout(new BoxLayout(centralPanel, BoxLayout.PAGE_AXIS));
 		
 		// Entête de l'onglet
-		m_centerPanel.setBorder(new HeaderTitleBorder(m_title));
+		centralPanel.setBorder(new HeaderTitleBorder(tabTitle));
 
 		// Création du paneau central
-		m_scrolledPanel = new JPanel();
-		m_scrolledPanel.setLayout(new BoxLayout(m_scrolledPanel, BoxLayout.PAGE_AXIS));
-		m_centerPanel.add(m_scrolledPanel);
+		scrolledPanel = new JPanel();
+		scrolledPanel.setLayout(new BoxLayout(scrolledPanel, BoxLayout.PAGE_AXIS));
+		centralPanel.add(scrolledPanel);
 		
-		add(m_centerPanel, BorderLayout.CENTER);
+		add(centralPanel, BorderLayout.CENTER);
+		
+		return this;
+	}
+	
+	protected void setPanelLeftImage(URL p_imageUrl) {
+		leftImage = new JLabel(new ImageIcon(p_imageUrl, p_imageUrl.getFile()));
 	}
 	
 	/**
@@ -88,8 +93,8 @@ public class JTTabPanel extends JPanel {
 	 * @param p_component	Composant à rajouter
 	 */
 	public Component add(Component p_component) {
-		m_scrolledPanel.add(p_component);
-		return m_scrolledPanel;
+		scrolledPanel.add(p_component);
+		return scrolledPanel;
 	}
 		
 	/**
@@ -104,15 +109,22 @@ public class JTTabPanel extends JPanel {
 	 * Ajoute un ascenseur vertical à à l'onglet
 	 */
 	public void addScrollVerticalBar() {
-		JScrollPane scroll = new JScrollPane(m_scrolledPanel, 
+		JScrollPane scroll = new JScrollPane(scrolledPanel, 
 				   JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 				   JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scroll.setBorder(BorderFactory.createEmptyBorder());
-		//scroll.getVerticalScrollBar().setUnitIncrement(3); // Je le laisse là au cas où ...
-		m_centerPanel.add(scroll, BorderLayout.CENTER);
+		centralPanel.add(scroll, BorderLayout.CENTER);
 		
 		// On retaille le panel pour inclure la scrollbar
-		Dimension dim = m_scrolledPanel.getPreferredSize();
-		m_scrolledPanel.setPreferredSize(new Dimension((int)dim.getWidth()-20, (int)dim.getHeight()));
+		Dimension dim = scrolledPanel.getPreferredSize();
+		scrolledPanel.setPreferredSize(new Dimension((int)dim.getWidth()-20, (int)dim.getHeight()));
+	}
+	
+	protected static final ResourceBundle getTabTranslations() {
+		return tabTranslations;
+	}
+	
+	protected final JPanel getScrollPanel() {
+		return scrolledPanel;
 	}
 }
