@@ -28,10 +28,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.channels.FileChannel;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.ws.http.HTTPException;
@@ -163,6 +167,29 @@ public final class JTomTomUtils {
 		} catch (Exception e) {
 			throw new JTomtomException("Enable to create device map !", e);
 		}
+	}
+
+	/**
+	 * Transform connection cookies in HttpCookie and add them in a list
+	 * @param conn	Connection which contain cookie after request be done
+	 * @return		The list of HttpCookie
+	 */
+	public static final List<HttpCookie> readCookieFromConnection(URLConnection conn) {
+		List<HttpCookie> cookies = new LinkedList<HttpCookie>();
+		String headerName=null;
+		for (int i=1; (headerName = conn.getHeaderFieldKey(i))!=null; i++) {
+		 	if (headerName.equals("Set-Cookie")) {                  
+		 		String cookie = conn.getHeaderField(i);
+		 		cookie = cookie.substring(0, cookie.indexOf(";"));
+		        String cookieName = cookie.substring(0, cookie.indexOf("="));
+		        String cookieValue = cookie.substring(cookie.indexOf("=") + 1, cookie.length());
+		        if (!cookieValue.equals("deleted")) {
+		        	cookies.add(new HttpCookie(cookieName, cookieValue));
+		        	LOGGER.debug(cookieName+" = "+cookieValue);
+		        }
+		 	}
+		}
+		return cookies;
 	}
 
 }

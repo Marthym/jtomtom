@@ -21,7 +21,7 @@
 package org.jtomtom;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  *
  */
 public interface Constant {

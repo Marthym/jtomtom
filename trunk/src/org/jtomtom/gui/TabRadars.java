@@ -300,7 +300,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 				return result;
 			}
 			remoteRadarsInfos = radars.getRemoteDbInfos(applicationProxy);
-			if (remoteRadarsInfos == null) {
+			if (remoteRadarsInfos == null || remoteRadarsInfos.isEmpty()) {
 				result.exception = new JTomtomException("org.jtomtom.errors.radars.tomtomax.getinfo");
 				LOGGER.debug("Erreur lors de la récupération des informations Tomtomax ...");
 				result.status = false;

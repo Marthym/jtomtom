@@ -23,74 +23,67 @@ package org.jtomtom.connector.radars;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URL;
+import java.util.Date;
 
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
 
 /**
- * Dummy RadarConnector for unfound connector
  * @author Frédéric Combes
  *
+ * Dummy RadarConnector for unfound connector
  */
 public class DummyRadarsConnector extends RadarsConnector {
-
-	/* (non-Javadoc)
-	 * @see org.jtomtom.connector.RadarsConnector#getLocalDbInfos(java.lang.String)
-	 */
+	private static final String UPDATE_URL = "http://localhost/";
+	private static final Date UPDATE_DATE = new Date();
+	
 	@Override
 	public POIsDbInfos getLocalDbInfos(String m_path) {
-		return new POIsDbInfos();
+		POIsDbInfos dbInfos = new POIsDbInfos();
+		dbInfos.setDatabaseVersion("1");
+		dbInfos.setLastUpdateDate(UPDATE_DATE);
+		dbInfos.setNumberOfPOIs(1);
+		return dbInfos;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jtomtom.connector.RadarsConnector#getRemoteDbInfos(java.net.Proxy)
-	 */
 	@Override
 	public POIsDbInfos getRemoteDbInfos(Proxy proxy) {
-		return new POIsDbInfos();
+		POIsDbInfos dbInfos = new POIsDbInfos();
+		dbInfos.setDatabaseVersion("1");
+		dbInfos.setLastUpdateDate(UPDATE_DATE);
+		dbInfos.setNumberOfPOIs(1);
+		return dbInfos;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jtomtom.connector.RadarsConnector#connexion(java.net.Proxy, java.lang.String, java.lang.String)
-	 */
 	@Override
 	public boolean connexion(Proxy p_proxy, String p_user, String p_password) {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jtomtom.connector.RadarsConnector#getConnectionForUpdate()
-	 */
 	@Override
 	public HttpURLConnection getConnectionForUpdate() {
 		URL myURL = null;
 		HttpURLConnection conn = null;
 		try {
-			myURL = new URL("http://localhost/");
+			myURL = new URL(UPDATE_URL);
 			conn = (HttpURLConnection) myURL.openConnection();
 		} catch (Exception e) {}
 		
 		return conn;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jtomtom.connector.RadarsConnector#getConnectionForInstall()
-	 */
 	@Override
 	public HttpURLConnection getConnectionForInstall() {
 		URL myURL = null;
 		HttpURLConnection conn = null;
 		try {
-			myURL = new URL("http://localhost/");
+			myURL = new URL(UPDATE_URL);
 			conn = (HttpURLConnection) myURL.openConnection();
 		} catch (Exception e) {}
 		
 		return conn;
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		return "No Connector";

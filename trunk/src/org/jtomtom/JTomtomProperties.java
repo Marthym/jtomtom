@@ -33,30 +33,30 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 /**
- * Management class of jTomtom properties. Allows the separation between user properties and application properties.
- * @author marthym
+ * @author Frédéric Combes
  *
+ * Management class of jTomtom properties. Allows the separation between user properties and application properties.
  */
 public class JTomtomProperties {
 	private static final Logger LOGGER = Logger.getLogger(JTomtomProperties.class);
 	
-	private Properties m_applicationProps;
-	private Properties m_userProps;
+	private Properties applicationProperties;
+	private Properties userProperties;
 	
 	public JTomtomProperties() {
-		m_applicationProps = new Properties();
-		m_userProps = new Properties();
+		applicationProperties = new Properties();
+		userProperties = new Properties();
 	}
 	
 	/**
-	 * Load in the same time application et user properties in two differents Properties object
+	 * Load in the same time application and user properties in two differents Properties object
 	 * @param p_appPropsFile	Path of the application properties file in the classpath
 	 * @param p_userPropsFile	Absolute path of the user properties file in the dd
 	 * @throws IOException
 	 */
 	public void load(String p_appPropsFile, String p_userPropsFile) throws IOException {
 		LOGGER.debug("Loading application properties from '"+p_appPropsFile+"'");
-		m_applicationProps.load(JTomtom.class.getResourceAsStream(p_appPropsFile));
+		applicationProperties.load(JTomtom.class.getResourceAsStream(p_appPropsFile));
 		
 		LOGGER.debug("Loading user properties from '"+p_userPropsFile+"'");
 		File userPropertiesFile = new File(p_userPropsFile);
@@ -64,7 +64,7 @@ public class JTomtomProperties {
 			FileInputStream fis = null;
 			try {
 				fis = new FileInputStream(userPropertiesFile);
-				m_userProps.load(new FileInputStream(userPropertiesFile));
+				userProperties.load(new FileInputStream(userPropertiesFile));
 								
 			} finally {
 				try { fis.close(); } catch (Exception e) {}
@@ -76,8 +76,8 @@ public class JTomtomProperties {
 	 * True if there are no property
 	 * @return
 	 */
-	public boolean isEmpty() {
-		return m_applicationProps.isEmpty() && m_userProps.isEmpty();
+	public final boolean isEmpty() {
+		return applicationProperties.isEmpty() && userProperties.isEmpty();
 	}
 	
 	/**
@@ -87,7 +87,7 @@ public class JTomtomProperties {
 	 * @return		Valeu of the property
 	 */
 	public final String getApplicationProperty(String p_key) {
-		return m_applicationProps.getProperty(p_key);
+		return applicationProperties.getProperty(p_key);
 	}
 	
 	/**
@@ -97,7 +97,7 @@ public class JTomtomProperties {
 	 * @return		A map which contain key/value from the specified catégorie
 	 */
 	public final Map<String, String> getApplicationProperties(String p_key) {
-		Enumeration<?> keys = m_applicationProps.propertyNames();
+		Enumeration<?> keys = applicationProperties.propertyNames();
 		Map<String, String> allProperties = new HashMap<String, String>();
 		while (keys.hasMoreElements()) {
 			String key = (String)keys.nextElement();
@@ -116,7 +116,7 @@ public class JTomtomProperties {
 	 * @return				Value of the property or default value
 	 */
 	public final String getApplicationProperty(String p_key, String p_default) {
-		return m_applicationProps.getProperty(p_key, p_default);
+		return applicationProperties.getProperty(p_key, p_default);
 	}
 	
 	/**
@@ -126,7 +126,7 @@ public class JTomtomProperties {
 	 * @return		Valeu of the property
 	 */
 	public final String getUserProperty(String p_key) {
-		return m_userProps.getProperty(p_key, m_applicationProps.getProperty(p_key));
+		return userProperties.getProperty(p_key, applicationProperties.getProperty(p_key));
 	}
 	
 	/**
@@ -136,7 +136,7 @@ public class JTomtomProperties {
 	 * @return		A map which contain key/value from the specified catégorie
 	 */
 	public final Map<String, String> getUserProperties(String p_key) {
-		Enumeration<?> keys = m_applicationProps.propertyNames(); // Valid because m_userProps is a subset of m_props
+		Enumeration<?> keys = applicationProperties.propertyNames();
 		Map<String, String> allProperties = new HashMap<String, String>();
 		while (keys.hasMoreElements()) {
 			String key = (String)keys.nextElement();
@@ -144,8 +144,8 @@ public class JTomtomProperties {
 				allProperties.put(key, getUserProperty(key));
 			}
 		}
+		
 		return allProperties;
-
 	}
 	
 	/**
@@ -156,7 +156,7 @@ public class JTomtomProperties {
 	 * @return				Value of the property or default value
 	 */
 	public final String getUserProperty(String p_key, String p_default) {
-		return m_userProps.getProperty(p_key, m_applicationProps.getProperty(p_key, p_default));
+		return userProperties.getProperty(p_key, applicationProperties.getProperty(p_key, p_default));
 	}
 	
 	/**
@@ -165,7 +165,7 @@ public class JTomtomProperties {
 	 * @param p_value	New value of the property
 	 */
 	public void setUserProperty(String p_key, String p_value) {
-		m_userProps.setProperty(p_key, p_value);
+		userProperties.setProperty(p_key, p_value);
 	}
 	
 	/**
@@ -176,7 +176,7 @@ public class JTomtomProperties {
 	 */
 	public void storeUserProperties(File p_file) throws FileNotFoundException, IOException {
 		LOGGER.info("Save user properties in '"+p_file.getAbsoluteFile()+"'");
-		m_userProps.store(new FileOutputStream(p_file), "jTomtom user properties file");
+		userProperties.store(new FileOutputStream(p_file), "jTomtom user properties file");
 
 	}
 }
