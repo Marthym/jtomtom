@@ -48,7 +48,6 @@ import org.jtomtom.tools.JarUtils;
  * Global Application properties management
  * 
  */
-//TODO : Move properties loading in JTomtomProperties class
 public class Application {
 	private static final Logger LOGGER = Logger.getLogger(Application.class);
 	
@@ -64,7 +63,7 @@ public class Application {
 	private JTomtomProperties globalProperties;
 	
 	private Application() {
-		loadProperties();
+		reloadProperties(); 
 		initVersionInformation();
 	};
 	
@@ -77,16 +76,111 @@ public class Application {
 		return instance;
 	}
 
+	/**
+	 * Reload properties files and dependant application parameters (translations and logs)
+	 */
+	public void reloadProperties() {
+		initProperties();
+		initTranslations();
+		initLogger(); 
+	}
+	
+	private void initProperties() {
+		try {
+			LOGGER.info("Loading properties ...");
+			
+			// - Load properties from the two properties files, internal and external
+			globalProperties = new JTomtomProperties();
+			globalProperties.load(Constant.JTOMTOM_PROPERTIES, 
+					System.getProperty("user.home")+File.separator+Constant.JTOMTOM_USER_PROPERTIES);
+			
+			// - Reset the proxy setting
+			proxyServer = null;
+			
+		} catch (IOException e) {
+			LOGGER.error(e.getLocalizedMessage());
+			if (LOGGER.isDebugEnabled()) e.printStackTrace();
+			SwingUtilities.invokeLater(new InitialErrorRun(e));
+		}
+	}
+
+	private void initTranslations() {
+		LOGGER.debug("Initiate translations ...");
+
+		if (globalProperties.getUserProperty("org.jtomtom.locale") != null) {
+			try {
+				String[] jttLocale = globalProperties.getUserProperty("org.jtomtom.locale").split("_");
+				Locale.setDefault(new Locale(jttLocale[0], jttLocale[1]));
+			} catch (Exception e) {
+				// If error we don't do anything
+				LOGGER.warn(e.getLocalizedMessage());
+			}
+		}
+		mainTranslator = ResourceBundle.getBundle("org.jtomtom.gui.resources.lang.jTomtom-main", Locale.getDefault());
+	}
+
+	private void initLogger() {
+		LOGGER.debug("Initiate logger ...");
+		
+		Logger.getLogger(JTomtom.class.getPackage().getName()).setLevel(Level.toLevel( globalProperties.getUserProperty("org.jtomtom.logLevel", "INFO") ));
+		
+		// - Delete existing appender before create new
+		Enumeration<?> enu = Logger.getLogger(JTomtom.class.getPackage().getName()).getAllAppenders();
+		while (enu.hasMoreElements()) {
+			Appender logApp = (Appender)enu.nextElement();
+			if (FileAppender.class.isAssignableFrom(logApp.getClass())) {
+				Logger.getLogger(JTomtom.class.getPackage().getName()).removeAppender(logApp);
+			}
+		}
+		
+		// - Add the new FileAppender with good name
+		if (globalProperties.getUserProperty("org.jtomtom.logFile") != null && !globalProperties.getUserProperty("org.jtomtom.logFile").isEmpty()) {
+			try {
+				Logger.getLogger(JTomtom.class.getPackage().getName()).addAppender(
+						new FileAppender(new PatternLayout("%d{ABSOLUTE} %5p %c{1}:%L %m%n"),  
+								globalProperties.getUserProperty("org.jtomtom.logFile")));
+			} catch (IOException e) {
+				LOGGER.error(e.getLocalizedMessage());
+				if (LOGGER.isDebugEnabled()) e.printStackTrace();
+			}
+		}
+	}
+
+	private void initVersionInformation() {
+		try {
+			LOGGER.debug("Initiate version informations ...");
+			
+			Manifest man = JarUtils.getCurrentJarFile().getManifest();
+			if (man.getMainAttributes().getValue("Implementation-Version") != null)
+				versionNumber = man.getMainAttributes().getValue("Implementation-Version");
+			if (man.getMainAttributes().getValue("Built-Date") != null)
+				versionDate = man.getMainAttributes().getValue("Built-Date");
+			LOGGER.info("jTomtom v"+versionNumber+" on "+versionDate);
+			
+		} catch (Exception e) {
+			LOGGER.debug("Error reading jTomtom version informations !");
+		}
+	}
+	
+	/**
+	 * Return the GPS object of the application. 
+	 * Initiate GPS if no GPS found
+	 * @return TomtomDevice
+	 */
 	public TomtomDevice getTheDevice() {
 		if (theGPS == null) {
-			initTomtomDevice();
+			theGPS = new TomtomDevice();
 		}
 		return theGPS;
 	}
 
+	/**
+	 * Return the proxy configuration of the application
+	 * @return Proxy
+	 */
 	public Proxy getProxyServer() {
 		if (globalProperties == null) {
-			loadProperties();
+			initProperties();
 		}
 		
 		if (proxyServer == null) {
@@ -117,97 +211,16 @@ public class Application {
 	}
 
 	/**
-	 * Charge les propriétées utilisateur depuis le fichier dans le home
+	 * Give the HTTP_USER_AGENT for connections
+	 * @return	User agent as "jTomtom / {version} ({java version})
 	 */
-	private void loadProperties() {
-		LOGGER.info("Loading properties ...");
-		
-		// - Chargements des propriétes interne
-		globalProperties = new JTomtomProperties();
-		try {
-			globalProperties.load(Constant.JTOMTOM_PROPERTIES, 
-					System.getProperty("user.home")+File.separator+Constant.JTOMTOM_USER_PROPERTIES);
-			
-		} catch (IOException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			SwingUtilities.invokeLater(new InitialErrorRun(e));
-		}
-		
-		// - Mise à jour de la langue par défaut
-		if (globalProperties.getUserProperty("org.jtomtom.locale") != null) {
-			try {
-				String[] jttLocale = globalProperties.getUserProperty("org.jtomtom.locale").split("_");
-				Locale.setDefault(new Locale(jttLocale[0], jttLocale[1]));
-			} catch (Exception e) {
-				// On fait pas dans le détail si ça marche pas on touche à rien
-				LOGGER.warn(e.getLocalizedMessage());
-			}
-		}
-		mainTranslator = ResourceBundle.getBundle("org.jtomtom.gui.resources.lang.jTomtom-main", Locale.getDefault());
-		
-		// - Mise à jour du niveau de log
-		Logger.getLogger(JTomtom.class.getPackage().getName()).setLevel(Level.toLevel( globalProperties.getUserProperty("org.jtomtom.logLevel", "INFO") ));
-		
-		// Suppression des FileAppender potentiellement déjà ajouté
-		Enumeration<?> enu = Logger.getLogger(JTomtom.class.getPackage().getName()).getAllAppenders();
-		while (enu.hasMoreElements()) {
-			Appender logApp = (Appender)enu.nextElement();
-			if (FileAppender.class.isAssignableFrom(logApp.getClass())) {
-				Logger.getLogger(JTomtom.class.getPackage().getName()).removeAppender(logApp);
-			}
-		}
-		
-		// Ajout du FileAppender avec le bon nom si besoin
-		if (globalProperties.getUserProperty("org.jtomtom.logFile") != null && !globalProperties.getUserProperty("org.jtomtom.logFile").isEmpty()) {
-			try {
-				Logger.getLogger(JTomtom.class.getPackage().getName()).addAppender(
-						new FileAppender(new PatternLayout("%d{ABSOLUTE} %5p %c{1}:%L %m%n"),  
-								globalProperties.getUserProperty("org.jtomtom.logFile")));
-			} catch (IOException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			}
-		} 
-		
-		// - Initialisation de la vérification des mises à jour
-		if (globalProperties.getUserProperty("org.jtomtom.checkupdate") == null) {
-			globalProperties.setUserProperty("org.jtomtom.checkupdate", "true");
-		}
-		
-		// - Ré-initialisation du proxy
-		proxyServer = null;
-	}
-
-	private void initVersionInformation() {
-		try {
-			Manifest man = JarUtils.getCurrentJarFile().getManifest();
-			if (man.getMainAttributes().getValue("Implementation-Version") != null)
-				versionNumber = man.getMainAttributes().getValue("Implementation-Version");
-			if (man.getMainAttributes().getValue("Built-Date") != null)
-				versionDate = man.getMainAttributes().getValue("Built-Date");
-			LOGGER.info("jTomtom v"+versionNumber+" du "+versionDate);
-			
-		} catch (Exception e) {
-			LOGGER.debug("Error reading jTomtom version informations !");
-		}
-	}
-	
-	private void initTomtomDevice() {
-		theGPS = new TomtomDevice();
-	}
-	
-	public void reloadProperties() {
-		loadProperties();
-	}
-	
 	public static final String getUserAgent() {
 		return "jTomtom / "+getInstance().getVersionNumber()+" ("+System.getProperty("java.version", "")+")";
 	}
 
 	/**
 	 * Return the default radar connector create for the default Locale
-	 * @return
+	 * @return RadarsConnector
 	 */
 	public static final RadarsConnector getDefaultRadarConnector() {
 		String connectorClassName = getInstance().globalProperties.getApplicationProperty(

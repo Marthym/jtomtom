@@ -61,15 +61,17 @@ public class TabAbout extends JTTabPanel implements ActionListener {
 	 * Display initialisation
 	 */
 	public TabAbout() {
-		super(m_rbControls.getString("org.jtomtom.tab.about.title"));
-		build();
+		super(getTabTranslations().getString("org.jtomtom.tab.about.title"));
+		setPanelLeftImage(getClass().getResource("resources/apropos.png"));
 	}
 	
 	/**
 	 * Building UI
 	 */
-	private void build() {
-		super.build(getClass().getResource("resources/apropos.png"));
+	public JPanel build() {
+		super.build();
+		LOGGER.debug("Building TabAbout ...");
+
 		add(Box.createRigidArea(new Dimension(0,5)));
 		
 		add(buildInformationsPanel());
@@ -77,20 +79,22 @@ public class TabAbout extends JTTabPanel implements ActionListener {
 		add(buildTranslatorsPanel());
 				
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		viewLicense = new JButton(m_rbControls.getString("org.jtomtom.tab.about.license")+" GPLv3");
+		viewLicense = new JButton(getTabTranslations().getString("org.jtomtom.tab.about.license")+" GPLv3");
 		viewLicense.addActionListener(this);
 		buttonPanel.add(viewLicense);
 		add(buttonPanel);
+		
+		return this;
 	}
 	
 	private JComponent buildInformationsPanel() {
 		JPanel informationsPanel = new JPanel(new SpringLayout());
 		
-		informationsPanel.add(new JLabel("<html><strong>"+m_rbControls.getString("org.jtomtom.tab.about.version")+"</strong></html>"));
+		informationsPanel.add(new JLabel("<html><strong>"+getTabTranslations().getString("org.jtomtom.tab.about.version")+"</strong></html>"));
 		informationsPanel.add(new JLabel(Application.getInstance().getVersionNumber()));
-		informationsPanel.add(new JLabel("<html><strong>"+m_rbControls.getString("org.jtomtom.tab.about.date")+"</strong></html>"));
+		informationsPanel.add(new JLabel("<html><strong>"+getTabTranslations().getString("org.jtomtom.tab.about.date")+"</strong></html>"));
 		informationsPanel.add(new JLabel(Application.getInstance().getVersionDate()));
-		informationsPanel.add(new JLabel("<html><strong>"+m_rbControls.getString("org.jtomtom.tab.about.developer")+"</strong></html>"));
+		informationsPanel.add(new JLabel("<html><strong>"+getTabTranslations().getString("org.jtomtom.tab.about.developer")+"</strong></html>"));
 		
 		sendMeaMail = new JButton("<html>Frédéric Combes @ <a href=\"mailto:"+DEVELOPER_URL+"\">"+DEVELOPER_URL+"</a></html>");
 		sendMeaMail.setHorizontalAlignment(JButton.LEFT);
@@ -98,7 +102,7 @@ public class TabAbout extends JTTabPanel implements ActionListener {
 		sendMeaMail.addActionListener(this);
 		informationsPanel.add(sendMeaMail);
 		
-		informationsPanel.add(new JLabel("<html><strong>"+m_rbControls.getString("org.jtomtom.tab.about.website")+"</strong></html>"));
+		informationsPanel.add(new JLabel("<html><strong>"+getTabTranslations().getString("org.jtomtom.tab.about.website")+"</strong></html>"));
 		openWebsite = new JButton("<html><a href=\""+WEBSITE_URL+"\">"+WEBSITE_URL+"</a></html>");
 		openWebsite.setHorizontalAlignment(JButton.LEFT);
 		openWebsite.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -130,7 +134,7 @@ public class TabAbout extends JTTabPanel implements ActionListener {
 		JScrollPane scroll = new JScrollPane(translatorsPanel);
 		scroll.setBorder(
 				BorderFactory.createTitledBorder(
-						m_rbControls.getString("org.jtomtom.tab.about.translation")));
+						getTabTranslations().getString("org.jtomtom.tab.about.translation")));
 		return scroll;
 	}
 

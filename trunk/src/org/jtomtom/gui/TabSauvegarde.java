@@ -32,6 +32,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
@@ -39,7 +40,7 @@ import org.jtomtom.gui.action.SauvegardeAction;
 import org.jtomtom.gui.utilities.JTTabPanel;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  *
  */
 public class TabSauvegarde extends JTTabPanel implements MouseListener {
@@ -51,23 +52,24 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 	private JCheckBox 	m_makeTestISO;
 
 	public TabSauvegarde() {
-		super(m_rbControls.getString("org.jtomtom.tab.backup.title"));
-		
-		build();
+		super(getTabTranslations().getString("org.jtomtom.tab.backup.title"));
+		setPanelLeftImage(getClass().getResource("resources/sauvegarde.png"));
 	}
 	
 	/**
 	 * Construction de l'interface graphique
 	 */
-	private void build() {
-		super.build(getClass().getResource("resources/sauvegarde.png"));
+	public JPanel build() {
+		super.build();
+		LOGGER.trace("Building TabSauvegarde ...");
+		
 		add(Box.createRigidArea(new Dimension(0,5)));
 		
 		// Création du texte de présentation
 		JLabel infos = new JLabel(loadSauvegardeInfos().toString());
 		add(infos);
 		add(Box.createRigidArea(new Dimension(0,20)));
-		infos = new JLabel(m_rbControls.getString("org.jtomtom.tab.backup.label.infos.text"));
+		infos = new JLabel(getTabTranslations().getString("org.jtomtom.tab.backup.label.infos.text"));
 		add(infos);
 		
 		// Création du champ de saisie pour le fichier d'entrée/sortie
@@ -75,21 +77,22 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 		m_isoFileChooser.setMaximumSize(new Dimension(Short.MAX_VALUE,25));
 		m_isoFileChooser.setMinimumSize(new Dimension(20,25));
 		m_isoFileChooser.setAlignmentX(LEFT_ALIGNMENT);
-		m_isoFileChooser.setToolTipText(m_rbControls.getString("org.jtomtom.tab.backup.textfield.filechooser.hint"));
+		m_isoFileChooser.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.backup.textfield.filechooser.hint"));
 		m_isoFileChooser.addMouseListener(this);
 		m_isoFileChooser.setText(System.getProperty("user.home")+File.separator+DEFAULT_FILE_NAME);
 		add(m_isoFileChooser);
 		
-		m_makeTestISO = new JCheckBox(m_rbControls.getString("org.jtomtom.tab.backup.checkbox.isotest.label"));
-		m_makeTestISO.setToolTipText(m_rbControls.getString("org.jtomtom.tab.backup.checkbox.isotest.hint"));
+		m_makeTestISO = new JCheckBox(getTabTranslations().getString("org.jtomtom.tab.backup.checkbox.isotest.label"));
+		m_makeTestISO.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.backup.checkbox.isotest.hint"));
 		m_makeTestISO.setVisible(LOGGER.isDebugEnabled());
 		add(m_makeTestISO);
 		add(Box.createRigidArea(new Dimension(0,10)));
 		
 		// Création du panneau de bouton
-		JButton bouton = new JButton(new SauvegardeAction(m_rbControls.getString("org.jtomtom.tab.backup.button.createiso.label")));
+		JButton bouton = new JButton(new SauvegardeAction(getTabTranslations().getString("org.jtomtom.tab.backup.button.createiso.label")));
 		addActionButton(bouton);
-				
+		
+		return this;
 	}
 
 	/**
@@ -99,8 +102,8 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 	private final static StringBuffer loadSauvegardeInfos() {
 		StringBuffer buffer = new StringBuffer();
 		
-		buffer.append("<html><p>").append(m_rbControls.getString("org.jtomtom.tab.backup.text.1")).append("</p>");
-		buffer.append("<p>").append(m_rbControls.getString("org.jtomtom.tab.backup.text.2")).append("</p>");
+		buffer.append("<html><p>").append(getTabTranslations().getString("org.jtomtom.tab.backup.text.1")).append("</p>");
+		buffer.append("<p>").append(getTabTranslations().getString("org.jtomtom.tab.backup.text.2")).append("</p>");
 		
 		return buffer;
 	}
