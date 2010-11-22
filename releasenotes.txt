@@ -4,6 +4,10 @@
 - Improve: Give more details when no GPS was found
 - Improve: Application class refactor for better code lisibility
 - Improve: Tab build at last time for save memory and reduce startup time
+- Improve: Lots of other refactor for clean code
+- Improve: Connectors stability
+- Fix: Plugin PDIS.es crash when radars has never been installed
+- Fix: NoConnector crash when find local informations
 
 ** jTomtom build 51 **
 - Add: Carminat Tomtom support

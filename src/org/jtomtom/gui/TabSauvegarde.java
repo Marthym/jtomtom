@@ -121,10 +121,13 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 	 * @return	Vrai ou faux
 	 */
 	public final boolean getMakeTestISO() {
+		if (m_makeTestISO == null) return false;
 		return m_makeTestISO.isSelected();
 	}
 	
 	public void refreshISOType() {
+		if (m_makeTestISO == null) return;
+		
 		if (LOGGER.isDebugEnabled()) {
 			m_makeTestISO.setVisible(true);
 		} else {

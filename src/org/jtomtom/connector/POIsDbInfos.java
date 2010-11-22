@@ -27,9 +27,9 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 /**
- * Container of POIs DB Informations
  * @author Frédéric Combes
  *
+ * Container of POIs DB Informations
  */
 public class POIsDbInfos {
 	public final static Logger LOGGER = Logger.getLogger(POIsDbInfos.class);
@@ -53,7 +53,7 @@ public class POIsDbInfos {
 	}
 	
 	public String getLastUpdateDateForPrint() {
-		LOGGER.debug("default date format : "+new SimpleDateFormat().toPattern());
+		LOGGER.debug("Default date format : "+new SimpleDateFormat().toPattern());
 		return getLastUpdateDateForPrint(new SimpleDateFormat().toPattern());
 	}
 

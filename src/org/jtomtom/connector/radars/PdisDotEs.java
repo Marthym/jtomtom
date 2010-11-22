@@ -34,18 +34,19 @@ import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
+import org.jtomtom.Application;
 import org.jtomtom.Constant;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
+import org.jtomtom.tools.JTomTomUtils;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  *
  */
 public class PdisDotEs extends RadarsConnector {
@@ -64,16 +65,14 @@ public class PdisDotEs extends RadarsConnector {
 	
 	private static final Locale PDISES_COUNTRY = new Locale("es", "ES");
 	
-	private List<HttpCookie> m_connexionCookies;
+	private List<HttpCookie> connexionCookies;
 	
-	private Proxy m_proxy = Proxy.NO_PROXY;
+	private Proxy proxy = Proxy.NO_PROXY;
 	
-	/* (non-Javadoc)
-	 * @see org.jtomtom.RadarsConnector#getLocalDbInfos(java.lang.String)
-	 */
 	@Override
 	public POIsDbInfos getLocalDbInfos(String m_path) {
 		
+		POIsDbInfos infos = new POIsDbInfos();
 		// We search the directory of the current map
 		File mapDirectory = new File(m_path);
 		
@@ -84,11 +83,12 @@ public class PdisDotEs extends RadarsConnector {
 		// We looking for the Pdis.es what's new file
 		File pdisesWhatsNewFile = new File(mapDirectory, PDISES_WHATS_NEW_FILE);
 		if (!pdisesWhatsNewFile.exists()) {
-			LOGGER.info("Les Radars TomtomMax n'ont jamais été installé !");
-			return new POIsDbInfos();
+			LOGGER.info("POIs from "+toString()+" has never been installed !");
+			infos.setDatabaseVersion(POIsDbInfos.NA);
+			infos.setNumberOfPOIs(0);
+			return infos;
 		}
 		
-		POIsDbInfos infos = new POIsDbInfos();
 		infos.setLastUpdateDate(new Date(pdisesWhatsNewFile.lastModified()));
 		
 		// Add dummy value
@@ -98,18 +98,17 @@ public class PdisDotEs extends RadarsConnector {
 		return infos;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jtomtom.RadarsConnector#getRemoteDbInfos(java.net.Proxy)
-	 */
 	/**
 	 * This class parses the download page on pdis.es to find the date of the last update. 
 	 * This is the only solution since no file will list information on packages.
 	 */
 	@Override
 	public POIsDbInfos getRemoteDbInfos(Proxy proxy) {
-		if (m_connexionCookies == null) {
+		POIsDbInfos infos = new POIsDbInfos();
+		
+		if (connexionCookies == null) {
 			LOGGER.error("You are not connected !!");
-			return null;
+			return infos;
 		}
 		
 		// Initiate connexion
@@ -120,15 +119,21 @@ public class PdisDotEs extends RadarsConnector {
 		try {
 			connResponse = conn.getResponseCode();
 		} catch (IOException e) {
-			return null;
+			return infos;
 		}
 		
 		if (connResponse != HttpURLConnection.HTTP_OK) {
-			return null;
+			return infos;
 		}
 		
-		// Looking for package date une the response content.
-		POIsDbInfos infos = new POIsDbInfos();
+		infos.setLastUpdateDate(PDISES_DATE_FORMAT, parseLastUpdateDate(conn));
+		infos.setDatabaseVersion(Long.toString(infos.getLastUpdateDate().getTime()));
+		infos.setNumberOfPOIs(0);
+		
+		return infos;
+	}
+	
+	private String parseLastUpdateDate(HttpURLConnection conn) {
 		InputStream is = null;
 		BufferedReader rd = null;
 		try {
@@ -142,27 +147,22 @@ public class PdisDotEs extends RadarsConnector {
 					continue;
 				}
 				if (nextLine) {
-					infos.setLastUpdateDate(PDISES_DATE_FORMAT, line.replaceAll("\\<.*?>","").replaceAll("\\&.*?;","").trim());
-					break;
+					return line.replaceAll("\\<.*?>","").replaceAll("\\&.*?;","").trim();
 				}
 			}
 			
 		} catch (IOException e) {
 			LOGGER.warn(e.getLocalizedMessage());
 			if (LOGGER.isDebugEnabled()) LOGGER.debug(e);
-			return null;
+			
+		} finally {
+			try {is.close();} catch (Exception e){};
+			try {rd.close();} catch (Exception e){};
 		}
 		
-		// Add dummy value
-		infos.setDatabaseVersion(Long.toString(infos.getLastUpdateDate().getTime()));
-		infos.setNumberOfPOIs(0);
-		
-		return infos;
+		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jtomtom.RadarsConnector#connexion(java.net.Proxy, java.lang.String, java.lang.String)
-	 */
 	@Override
 	public boolean connexion(Proxy p_proxy, String p_user, String p_password) {
 		if (p_user == null || p_password == null ||
@@ -170,7 +170,7 @@ public class PdisDotEs extends RadarsConnector {
 			return false;
 		}
 		
-		m_proxy = p_proxy;
+		proxy = p_proxy;
 		String urlParameters = "";
 		try {
 			urlParameters =
@@ -186,7 +186,7 @@ public class PdisDotEs extends RadarsConnector {
 		DataOutputStream wr = null;
 		try {
 			URL pdisesUrl = new URL(PDISES_LOGIN_URL);
-			conn = (HttpURLConnection) pdisesUrl.openConnection(m_proxy);
+			conn = (HttpURLConnection) pdisesUrl.openConnection(proxy);
 			
 			conn.setRequestProperty ("User-agent", Constant.TOMTOM_USER_AGENT);
 	        conn.setUseCaches(false);
@@ -203,20 +203,8 @@ public class PdisDotEs extends RadarsConnector {
 	        conn.connect();
 	        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK ||
 	        		conn.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP) {
-	        	m_connexionCookies = new LinkedList<HttpCookie>();
-	        	String headerName=null;
-	        	for (int i=1; (headerName = conn.getHeaderFieldKey(i))!=null; i++) {
-	        	 	if (headerName.equals("Set-Cookie")) {                  
-	        	 		String cookie = conn.getHeaderField(i);
-	        	 		cookie = cookie.substring(0, cookie.indexOf(";"));
-	        	        String cookieName = cookie.substring(0, cookie.indexOf("="));
-	        	        String cookieValue = cookie.substring(cookie.indexOf("=") + 1, cookie.length());
-	        	        if (!cookieValue.equals("deleted")) {
-	        	        	m_connexionCookies.add(new HttpCookie(cookieName, cookieValue));
-	        	        	LOGGER.debug(cookieName+" = "+cookieValue);
-	        	        }
-	        	 	}
-	        	}
+	        	
+	        	connexionCookies = JTomTomUtils.readCookieFromConnection(conn);
 	        }
 	        	        
 		} catch (IOException e) {
@@ -227,41 +215,29 @@ public class PdisDotEs extends RadarsConnector {
 			try {wr.close();} catch (Exception e){}
 		}
 		
-		if (m_connexionCookies != null && 
-				m_connexionCookies.size() > 1) {
+		if (connexionCookies != null && 
+				connexionCookies.size() > 1) {
 			return true;
 		}
 		
 		return false;
 	}
 	
-	/**
-	 * Init a HttpURLConnection with cookie and all needed parameter for download update and install file
-	 * @param p_url		URL of the file to download
-	 * @param p_post	POST parameter needed for get the good file
-	 * @return			The connection
-	 */
 	private HttpURLConnection initDownloadConnection(String p_url, String p_post) {
-		if (m_connexionCookies == null) {
+		if (connexionCookies == null) {
 			LOGGER.error("You must connect before !!");
 			return null;
 		}
 		
 		HttpURLConnection conn = null;
 		URL updateURL = null;
+		DataOutputStream wr = null;
 		try {
 			updateURL = new URL(p_url);
-			conn = (HttpURLConnection) updateURL.openConnection(m_proxy);
+			conn = (HttpURLConnection) updateURL.openConnection(proxy);
 
-	        // Rewrite the cookie string
-	        StringBuffer theCookie = new StringBuffer();
-	        for (HttpCookie cookie : m_connexionCookies) {
-	        	if (theCookie.length() > 0) theCookie.append(";");
-	        	theCookie.append(cookie.getName()).append("=").append(cookie.getValue());
-	        }
-	        
-	        conn.setRequestProperty ("Cookie", theCookie.toString());
-			conn.setRequestProperty ("User-agent", Constant.TOMTOM_USER_AGENT);
+	        conn.setRequestProperty ("Cookie", createCookieString());
+			conn.setRequestProperty ("User-agent", Application.getUserAgent());
 			conn.setDoInput(true);
 	        conn.setUseCaches(false);
 	        conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
@@ -269,7 +245,7 @@ public class PdisDotEs extends RadarsConnector {
 	        conn.setDoInput(true);
 	        conn.setInstanceFollowRedirects(false);
 	        
-	        DataOutputStream wr = new DataOutputStream (conn.getOutputStream());
+	        wr = new DataOutputStream (conn.getOutputStream());
 	        wr.writeBytes(p_post);
 	        wr.flush ();
 	        wr.close ();
@@ -283,30 +259,34 @@ public class PdisDotEs extends RadarsConnector {
 			LOGGER.error(e.getLocalizedMessage());
 			if (LOGGER.isDebugEnabled()) e.printStackTrace();
 			return null;
+			
+		} finally {
+			try {wr.close();} catch (Exception e) {}
 		}
 				
 		return conn;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.jtomtom.RadarsConnector#getConnectionForUpdate()
-	 */
+	private final String createCookieString() {
+        StringBuffer cookiesString = new StringBuffer();
+        for (HttpCookie cookie : connexionCookies) {
+        	if (cookiesString.length() > 0) cookiesString.append(";");
+        	cookiesString.append(cookie.getName()).append("=").append(cookie.getValue());
+        }
+        
+        return cookiesString.toString();
+	}
+	
 	@Override
 	public HttpURLConnection getConnectionForUpdate() {
 		return initDownloadConnection(PDISES_UPDATE_URL, PDISES_UPDATE_POST);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.jtomtom.RadarsConnector#getConnectionForInstall()
-	 */
 	@Override
 	public HttpURLConnection getConnectionForInstall() {
 		return initDownloadConnection(PDISES_INSTALL_URL, PDISES_INSTALL_POST);
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	public String toString() {
 		return this.getClass().getSimpleName()+" ["+PDISES_COUNTRY.getCountry()+"]";
 	}

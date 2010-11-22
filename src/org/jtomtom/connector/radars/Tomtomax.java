@@ -44,27 +44,23 @@ import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
 
+/**
+ * @author Frédéric Combes
+ *
+ * Manage radars POIs from Tomtomax (http://www.tomtomax.fr/)
+ */
 public final class Tomtomax extends RadarsConnector {
 	private static final Logger LOGGER = Logger.getLogger(Tomtomax.class);
 	
-	/**
-	 * URL du fichier de base contennat les informations sur la base courante
-	 */
 	private static final String TOMTOMAX_DB_URL = "http://www.tomtomax.fr/upload/tomtomax_radars.db";
 	private static final String TOMTOMAX_LOGIN_URL = "http://www.tomtomax.fr/forum/ucp.php?mode=login";
 	
 	private static final String TOMTOMAX_COOKIE_CONNECT = "phpbb3_e1wj8_u";
 	
-	/**
-	 * Fichier de base présent dans les packages et installé sur le TT
-	 */
 	public static final String TOMTOMAX_DB_FILE = "maxipoi_radars.db";
 	
 	private static final Locale TOMTOMAX_COUNTRY = Locale.FRANCE;
 	
-	/**
-	 * Tags contenu dans le fichier pour identifier les différentes informations
-	 */
 	private static final String TAG_BASIC = "[UZ1] ";
 	private static final String TAG_PREMIUM = "[UZ3] ";
 	private URL m_basicUpdateURL;
@@ -75,10 +71,8 @@ public final class Tomtomax extends RadarsConnector {
 	private boolean m_connected = false;
 	private Proxy m_proxy = Proxy.NO_PROXY;
 	
-	/* (non-Javadoc)
-	 * @see org.jtomtom.RadarsConnector#getRemoteDbInfos(java.net.Proxy)
-	 */
 	public final POIsDbInfos getRemoteDbInfos(Proxy proxy) {
+		m_remoteInfos = new POIsDbInfos();
 		HttpURLConnection conn = null;
 		try {
 			URL tomtomaxUrl = new URL(TOMTOMAX_DB_URL);
@@ -92,7 +86,6 @@ public final class Tomtomax extends RadarsConnector {
 			if (LOGGER.isDebugEnabled()) LOGGER.debug("conn.getResponseCode() = "+conn.getResponseCode());
 			
 	        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-	        	m_remoteInfos = new POIsDbInfos();
 	        	InputStream is = null;
 	        	BufferedReader rd = null;
 	        	try {

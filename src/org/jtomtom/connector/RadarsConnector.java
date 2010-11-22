@@ -31,10 +31,11 @@ import org.jtomtom.connector.radars.DummyRadarsConnector;
 import org.jtomtom.tools.JTomTomUtils;
 
 /**
- * Abstract Class with factory for connect different radars database site 
  * @author Frédéric Combes
  *
+ * Abstract Class with factory for connect different radars database site 
  */
+//TODO: Add function for get URL of the website
 public abstract class RadarsConnector {
 	private static final Logger LOGGER = Logger.getLogger(RadarsConnector.class);
 	
@@ -144,24 +145,20 @@ public abstract class RadarsConnector {
 		
 		Iterator<String> it = connectorList.keySet().iterator();
 		while (it.hasNext()) {
-			String key = it.next();
-	
-			Class<?> connector = null;
 			try {
+				String key = it.next();
+		
+				Class<?> connector = null;
 				connector = Class.forName(connectorList.get(key));
-			} catch (ClassNotFoundException e) {
-				JTomTomUtils.LOGGER.debug(e.getLocalizedMessage());
-				continue;
-			}
-			
-			try {
+				
 				if (RadarsConnector.class.isAssignableFrom(connector)) {
 					result[i++] = (RadarsConnector) connector.newInstance();
 				}
+				
 			} catch (Exception e) {
 				JTomTomUtils.LOGGER.debug(e.getLocalizedMessage());
 				continue;
-			}
+			} 
 		}
 		
 		return result;
