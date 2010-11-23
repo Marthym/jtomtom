@@ -35,7 +35,6 @@ import org.jtomtom.tools.JTomTomUtils;
  *
  * Abstract Class with factory for connect different radars database site 
  */
-//TODO: Add function for get URL of the website
 public abstract class RadarsConnector {
 	private static final Logger LOGGER = Logger.getLogger(RadarsConnector.class);
 	
@@ -54,6 +53,47 @@ public abstract class RadarsConnector {
 	public static final RadarsConnector EMPTY_RADAR_CONNECTOR = new DummyRadarsConnector();
 
 	protected RadarsConnector() {}
+	
+	/**
+	 * Get the radars informations from the GPS connected
+	 * @param	String Path of the map
+	 * @return	HashMap with informations
+	 */
+	public abstract POIsDbInfos getLocalDbInfos(String m_path);
+	
+	/**
+	 * Get the radars information from the remote site database
+	 * @param	Proxy to use for connexion
+	 * @return	HashMap with informations
+	 */
+	public abstract POIsDbInfos getRemoteDbInfos(Proxy proxy);
+
+	/**
+	 * Connect to the remote web site if necessary
+	 * @param p_proxy		Proxy to use for connexion
+	 * @param p_user		User login
+	 * @param p_password	password login
+	 * @return				True if the connexion is established
+	 */
+	public abstract boolean connexion(Proxy p_proxy, String p_user, String p_password);
+	
+	/**
+	 * Return the connection needed for download update radars pack
+	 * @return
+	 */
+	public abstract HttpURLConnection getConnectionForUpdate();
+	
+	/**
+	 * Return the connection needed for download installation radars pack
+	 * @return
+	 */	
+	public abstract HttpURLConnection getConnectionForInstall();
+
+	/**
+	 * Give the URL of the website which provide POIs package 
+	 * @return	URL as a string
+	 */
+	public abstract String getConnectorWebsite();
 	
 	/**
 	 * Create RadarConnector from the Class name of the connector
@@ -94,42 +134,6 @@ public abstract class RadarsConnector {
 
 		return radars;
 	}
-
-	/**
-	 * Get the radars informations from the GPS connected
-	 * @param	String Path of the map
-	 * @return	HashMap with informations
-	 */
-	public abstract POIsDbInfos getLocalDbInfos(String m_path);
-	
-	/**
-	 * Get the radars information from the remote site database
-	 * @param	Proxy to use for connexion
-	 * @return	HashMap with informations
-	 */
-	public abstract POIsDbInfos getRemoteDbInfos(Proxy proxy);
-
-	/**
-	 * Connect to the remote web site if necessary
-	 * @param p_proxy		Proxy to use for connexion
-	 * @param p_user		User login
-	 * @param p_password	password login
-	 * @return				True if the connexion is established
-	 */
-	public abstract boolean connexion(Proxy p_proxy, String p_user, String p_password);
-	
-	
-	/**
-	 * Return the connection needed for download update radars pack
-	 * @return
-	 */
-	public abstract HttpURLConnection getConnectionForUpdate();
-	
-	/**
-	 * Return the connection needed for download installation radars pack
-	 * @return
-	 */	
-	public abstract HttpURLConnection getConnectionForInstall();
 
 	/**
 	 * Get an array of all radarconnector declared in properties file

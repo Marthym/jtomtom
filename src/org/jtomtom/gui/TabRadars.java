@@ -239,8 +239,8 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		infos.append("</table>");
 		infos.append("<br/><font size=\"2\"><p><i>")
 			.append(getTabTranslations().getString("org.jtomtom.tab.radars.radarprovidedby"))
-			.append(" <a href=\"").append(getTabTranslations().getString("org.jtomtom.tab.radars.tomtomax.url")).append("\">")
-			.append(getTabTranslations().getString("org.jtomtom.tab.radars.tomtomax.label"))
+			.append(" <a href=\"").append(RadarsConnector.EMPTY_RADAR_CONNECTOR.getConnectorWebsite()).append("\">")
+			.append(RadarsConnector.EMPTY_RADAR_CONNECTOR)
 			.append("</a></i></p></font>");
 		infos.append("</html>");
 		infosHtml.setText(infos.toString());
@@ -344,8 +344,8 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 		
 		infos.append("</td></tr></table>");
 		infos.append("<br/><font size=\"2\"><p><i>").append(getTabTranslations().getString("org.jtomtom.tab.radars.radarprovidedby"))
-			.append(" <a href=\"").append(getTabTranslations().getString("org.jtomtom.tab.radars.tomtomax.url"))
-			.append("\">").append(getTabTranslations().getString("org.jtomtom.tab.radars.tomtomax.label"))
+			.append(" <a href=\"").append(radars.getConnectorWebsite())
+			.append("\">").append(radars.toString())
 			.append("</a></i></p></font>");
 		infos.append("</html>");
 		

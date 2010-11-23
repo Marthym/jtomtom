@@ -49,12 +49,13 @@ public class PdisDotEs extends RadarsConnector {
 	private static final Logger LOGGER = Logger.getLogger(PdisDotEs.class);
 
 	public  static final String PDISES_DATE_FORMAT = "dd/MM/yyyy";
-	private static final String PDISES_LOGIN_URL = "http://www.pdis.es/paginas/login.php";
-	private static final String PDISES_UPDATE_URL = "http://www.pdis.es/paginas/terminos_packs.php?fich=2";
+	private static final String PDISES_WEBSITE = "http://www.pdis.es/";
+	private static final String PDISES_LOGIN_URL = PDISES_WEBSITE+"paginas/login.php";
+	private static final String PDISES_UPDATE_URL = PDISES_WEBSITE+"paginas/terminos_packs.php?fich=2";
 	private static final String PDISES_UPDATE_POST = "fichero=actualizacion_radares_tomtom.zip";
-	private static final String PDISES_INSTALL_URL = "http://www.pdis.es/paginas/terminos_packs.php?fich=9";
+	private static final String PDISES_INSTALL_URL = PDISES_WEBSITE+"paginas/terminos_packs.php?fich=9";
 	private static final String PDISES_INSTALL_POST = "fichero=pack_radares_tomtom_v6.zip";
-	private static final String PDISES_DOWN_PACKS = "http://www.pdis.es/paginas/down_packs.php";
+	private static final String PDISES_DOWN_PACKS = PDISES_WEBSITE+"paginas/down_packs.php";
 	private static final String PDISES_WHATS_NEW_FILE = "ES_R_AA_Que_hay_de_nuevo.txt";
 	
 	private static final String PDISES_START_DATE = "<span class=\"textobase5\">&Uacute;ltima actualizaci&oacute;n: </span><span class=\"textobase6\">";
@@ -73,7 +74,7 @@ public class PdisDotEs extends RadarsConnector {
 		File mapDirectory = new File(m_path);
 		
 		if (!mapDirectory.exists() || !mapDirectory.isDirectory() || !mapDirectory.canRead()) {
-			throw new JTomtomException("org.jtomtom.errors.gps.map.notfound", new String[]{m_path});
+			throw new JTomtomException("org.jtomtom.errors.gps.map.notfound", m_path);
 		}
 		
 		// We looking for the Pdis.es what's new file
@@ -250,8 +251,14 @@ public class PdisDotEs extends RadarsConnector {
 		}
 	}
 	
+	@Override
 	public String toString() {
 		return this.getClass().getSimpleName()+" ["+PDISES_COUNTRY.getCountry()+"]";
+	}
+
+	@Override
+	public String getConnectorWebsite() {
+		return PDISES_WEBSITE;
 	}
 
 }

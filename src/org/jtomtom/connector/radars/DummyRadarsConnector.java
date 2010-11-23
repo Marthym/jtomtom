@@ -89,4 +89,8 @@ public class DummyRadarsConnector extends RadarsConnector {
 		return "No Connector";
 	}
 
+	@Override
+	public String getConnectorWebsite() {
+		return UPDATE_URL;
+	}
 }

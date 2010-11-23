@@ -46,13 +46,13 @@ public class TestJTomtomException {
 		Exception e = new JTomtomException("Message d'erreur tout con ...");
 		LOGGER.info(e.getLocalizedMessage());
 		
-		e = new JTomtomException("Message avec des %1 un peu %2", new String[]{"trous", "partout"});
+		e = new JTomtomException("Message avec des %1 un peu %2", "trous", "partout");
 		LOGGER.info(e.getLocalizedMessage());
 		
 		e = new JTomtomException("org.jtomtom.errors.gps.nomountpoint");
 		LOGGER.info(e.getLocalizedMessage());
 		
-		e = new JTomtomException("org.jtomtom.errors.connexion.fail", new String[]{"trous", "partout"});
+		e = new JTomtomException("org.jtomtom.errors.connexion.fail", "trous", "partout");
 		LOGGER.info(e.getLocalizedMessage());	
 	}
 }
