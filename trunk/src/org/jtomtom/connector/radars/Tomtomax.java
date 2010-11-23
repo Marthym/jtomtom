@@ -51,8 +51,9 @@ import org.jtomtom.tools.HttpUtils;
 public final class Tomtomax extends RadarsConnector {
 	private static final Logger LOGGER = Logger.getLogger(Tomtomax.class);
 	
-	private static final String TOMTOMAX_DB_URL = "http://www.tomtomax.fr/upload/tomtomax_radars.db";
-	private static final String TOMTOMAX_LOGIN_URL = "http://www.tomtomax.fr/forum/ucp.php?mode=login";
+	private static final String TOMTOMAX_WEBSITE = "http://www.tomtomax.fr/";
+	private static final String TOMTOMAX_DB_URL = TOMTOMAX_WEBSITE+"upload/tomtomax_radars.db";
+	private static final String TOMTOMAX_LOGIN_URL = TOMTOMAX_WEBSITE+"forum/ucp.php?mode=login";
 	
 	private static final String TOMTOMAX_COOKIE_CONNECT = "phpbb3_e1wj8_u";
 	
@@ -105,7 +106,7 @@ public final class Tomtomax extends RadarsConnector {
 		// Get the directory of the current map
 		File mapDirectory = new File(m_path);
 		if (!mapDirectory.exists() || !mapDirectory.isDirectory() || !mapDirectory.canRead()) {
-			throw new JTomtomException("org.jtomtom.errors.gps.map.notfound", new String[]{m_path});
+			throw new JTomtomException("org.jtomtom.errors.gps.map.notfound", m_path);
 		}
 		
 		// Looking for the Tomtomax database file
@@ -286,6 +287,11 @@ public final class Tomtomax extends RadarsConnector {
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName()+" ["+TOMTOMAX_COUNTRY.getCountry()+"]";
+	}
+	
+	@Override
+	public String getConnectorWebsite() {
+		return TOMTOMAX_WEBSITE;
 	}
 
 }

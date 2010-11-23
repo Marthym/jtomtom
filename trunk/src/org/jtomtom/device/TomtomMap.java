@@ -153,7 +153,7 @@ public class TomtomMap {
 		}
 		
 		if (!mapDirectory.canWrite()) {
-			throw new JTomtomException("org.jtomtom.errors.gps.map.directoryreadonly", new String[]{mapDirectory.getAbsolutePath()});
+			throw new JTomtomException("org.jtomtom.errors.gps.map.directoryreadonly", mapDirectory.getAbsolutePath());
 		}
 		
 		// We move file inside the GPS
@@ -162,7 +162,7 @@ public class TomtomMap {
 			if (JTomTomUtils.copier(current, dest, true)) {
 				LOGGER.debug(current.getName()+" copy done.");
 			} else {
-				throw new JTomtomException("org.jtomtom.errors.gps.radars.installfail", new String[]{current.getName()});
+				throw new JTomtomException("org.jtomtom.errors.gps.radars.installfail", current.getName());
 			}
 		}
 		

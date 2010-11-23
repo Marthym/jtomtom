@@ -105,11 +105,11 @@ public class JTomtom {
 		LOGGER.debug("Find Java Runtime : "+version);
 		if (Integer.parseInt(javaVersion[0]) < 1) {
 			SwingUtilities.invokeLater(new InitialErrorRun(
-					new JTomtomException("org.jtomtom.errors.javaversion", new String[]{version})));
+					new JTomtomException("org.jtomtom.errors.javaversion", version)));
 			return false;
 		} else if (Integer.parseInt(javaVersion[0]) == 1 && Integer.parseInt(javaVersion[1]) < 6) {
 			SwingUtilities.invokeLater(new InitialErrorRun(
-					new JTomtomException("org.jtomtom.errors.javaversion", new String[]{version})));
+					new JTomtomException("org.jtomtom.errors.javaversion", version)));
 			return false;
 		}
 		

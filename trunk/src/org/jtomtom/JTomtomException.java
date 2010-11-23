@@ -53,16 +53,14 @@ public class JTomtomException extends RuntimeException {
 		logException();
 	}
 	
-	//TODO: Make variable argument number
-	public JTomtomException(String message, String[] args) {
+	public JTomtomException(String message, String... args) {
 		super(message);
 		messageArguments = args;
 		
 		logException();
 	}
 	
-	//TODO: Make variable argument number
-	public JTomtomException(String message, String[] args, Throwable exception) {
+	public JTomtomException(String message, Throwable exception, String... args) {
 		super(message, exception);
 		messageArguments = args;
 		

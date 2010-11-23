@@ -186,7 +186,7 @@ public class MajQuickFixAction extends AbstractAction {
 				int connResponseCode = conn.getResponseCode();
 				if (connResponseCode != HttpURLConnection.HTTP_OK) {
 					throw new JTomtomException("org.jtomtom.errors.connexion.fail", 
-	            			new String[]{Integer.toString(connResponseCode),conn.getResponseMessage()});
+	            			Integer.toString(connResponseCode), conn.getResponseMessage());
 				}
 
             	int fileSize = conn.getContentLength();

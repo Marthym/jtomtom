@@ -120,7 +120,7 @@ public class JTTabPanel extends JPanel {
 		scrolledPanel.setPreferredSize(new Dimension((int)dim.getWidth()-20, (int)dim.getHeight()));
 	}
 	
-	protected static final ResourceBundle getTabTranslations() {
+	public static final ResourceBundle getTabTranslations() {
 		return tabTranslations;
 	}
 	
