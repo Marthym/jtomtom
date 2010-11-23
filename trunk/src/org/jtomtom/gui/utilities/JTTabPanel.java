@@ -51,6 +51,8 @@ public class JTTabPanel extends JPanel {
 	
 	private JPanel centralPanel;
 	private JPanel scrolledPanel;
+	
+	private boolean isBuild = false;
 
 	public JTTabPanel(String p_title) {
 		super();
@@ -81,6 +83,7 @@ public class JTTabPanel extends JPanel {
 		
 		add(centralPanel, BorderLayout.CENTER);
 		
+		isBuild = true;
 		return this;
 	}
 	
@@ -126,5 +129,9 @@ public class JTTabPanel extends JPanel {
 	
 	protected final JPanel getScrollPanel() {
 		return scrolledPanel;
+	}
+	
+	protected final boolean isBuild() {
+		return isBuild;
 	}
 }

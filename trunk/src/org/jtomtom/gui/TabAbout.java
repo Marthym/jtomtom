@@ -69,6 +69,8 @@ public class TabAbout extends JTTabPanel implements ActionListener {
 	 * Building UI
 	 */
 	public JPanel build() {
+		if (isBuild()) return this;
+		
 		super.build();
 		LOGGER.debug("Building TabAbout ...");
 
