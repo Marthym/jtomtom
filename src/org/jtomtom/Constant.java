@@ -32,5 +32,4 @@ public interface Constant {
 	public static final String URL_EPHEMERIDE = "http://home.tomtom.com/download/Ephemeris.cab?type=ephemeris&devicecode=1&eeProvider=";
 	
 	public static final String TOMTOM_USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 5.1; fr-FR; rv:1.9.1b4) Gecko/20090605 TomTomHOME/2.7.3.1894";
-	public static final int TIMEOUT = 60000;	// 60s
 }

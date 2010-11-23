@@ -51,6 +51,7 @@ import org.jtomtom.device.Chipset;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.PatienterDialog;
 import org.jtomtom.gui.TabQuickFix;
+import org.jtomtom.tools.HttpUtils;
 import org.jtomtom.tools.NetworkTester;
 
 /**
@@ -176,7 +177,7 @@ public class MajQuickFixAction extends AbstractAction {
 				conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
 				conn.setDoInput(true);
 	            conn.setUseCaches(false);
-	            conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
+	            conn.setReadTimeout(HttpUtils.TIMEOUT); // TimeOut en cas de perte de connexion
 	            conn.connect();
 	            
 	            int currentSize = 0;

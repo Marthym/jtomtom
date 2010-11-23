@@ -21,7 +21,6 @@
 package org.jtomtom.connector.radars;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,19 +30,16 @@ import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Proxy;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.Application;
-import org.jtomtom.Constant;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
-import org.jtomtom.tools.JTomTomUtils;
+import org.jtomtom.tools.HttpUtils;
 
 /**
  * @author Frédéric Combes
@@ -165,108 +161,53 @@ public class PdisDotEs extends RadarsConnector {
 
 	@Override
 	public boolean connexion(Proxy p_proxy, String p_user, String p_password) {
+		proxy = p_proxy;
+		
 		if (p_user == null || p_password == null ||
 				p_user.isEmpty() || p_password.isEmpty()) {
 			return false;
 		}
 		
-		proxy = p_proxy;
-		String urlParameters = "";
 		try {
-			urlParameters =
-			    "recordar=on&usuario=" + URLEncoder.encode(p_user, "UTF-8") +
-			    "&pass=" + URLEncoder.encode(p_password, "UTF-8") +
-			    "&submit=Login";
-		} catch (UnsupportedEncodingException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-		}
-		
-		HttpURLConnection conn = null;
-		DataOutputStream wr = null;
-		try {
-			URL pdisesUrl = new URL(PDISES_LOGIN_URL);
-			conn = (HttpURLConnection) pdisesUrl.openConnection(proxy);
-			
-			conn.setRequestProperty ("User-agent", Constant.TOMTOM_USER_AGENT);
-	        conn.setUseCaches(false);
-	        conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
-	        conn.setRequestMethod("POST");
-	        conn.setDoOutput(true);
-	        conn.setDoInput(true);
-	        
-	        wr = new DataOutputStream (conn.getOutputStream());
-	        wr.writeBytes(urlParameters);
-	        wr.flush ();
-	        wr.close ();
+			String urlParameters = createPdisdotesLoginPostData(p_user, p_password);
+			HttpURLConnection conn = HttpUtils.createConnectionWithPostData(PDISES_LOGIN_URL, urlParameters, proxy);			
 	        conn.setInstanceFollowRedirects(false);
+	        
 	        conn.connect();
-	        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK ||
-	        		conn.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP) {
+	        int httpResponseCode = conn.getResponseCode();
+	        if (httpResponseCode == HttpURLConnection.HTTP_OK ||
+	        		httpResponseCode == HttpURLConnection.HTTP_MOVED_TEMP) {
 	        	
-	        	connexionCookies = JTomTomUtils.readCookieFromConnection(conn);
+	        	connexionCookies = HttpUtils.readCookieFromConnection(conn);
 	        }
-	        	        
-		} catch (IOException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
+	        conn.disconnect();
+	        
+			if (connexionCookies != null && 
+					connexionCookies.size() > 1) {
+				return true;
+			}
 			
-		} finally {
-			try {wr.close();} catch (Exception e){}
+			return false;
+			
+		} catch (IOException e) {
+			throw new JTomtomException(e);
 		}
-		
-		if (connexionCookies != null && 
-				connexionCookies.size() > 1) {
-			return true;
-		}
-		
-		return false;
 	}
 	
-	private HttpURLConnection initDownloadConnection(String p_url, String p_post) {
-		if (connexionCookies == null) {
-			LOGGER.error("You must connect before !!");
-			return null;
-		}
-		
-		HttpURLConnection conn = null;
-		URL updateURL = null;
-		DataOutputStream wr = null;
+	private final static String createPdisdotesLoginPostData(String user, String password) {
 		try {
-			updateURL = new URL(p_url);
-			conn = (HttpURLConnection) updateURL.openConnection(proxy);
-
-	        conn.setRequestProperty ("Cookie", createCookieString());
-			conn.setRequestProperty ("User-agent", Application.getUserAgent());
-			conn.setDoInput(true);
-	        conn.setUseCaches(false);
-	        conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
-	        conn.setDoOutput(true);
-	        conn.setDoInput(true);
-	        conn.setInstanceFollowRedirects(false);
-	        
-	        wr = new DataOutputStream (conn.getOutputStream());
-	        wr.writeBytes(p_post);
-	        wr.flush ();
-	        wr.close ();
-	        
-		} catch (MalformedURLException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			return null;
+			StringBuffer urlParameters = new StringBuffer();
+			urlParameters.append("recordar=on&usuario=").append(URLEncoder.encode(user, "UTF-8"));
+			urlParameters.append("&pass=").append(URLEncoder.encode(password, "UTF-8"));
+			urlParameters.append("&submit=Login");
 			
-		} catch (IOException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			return null;
+			return urlParameters.toString();
 			
-		} finally {
-			try {wr.close();} catch (Exception e) {}
+		} catch (UnsupportedEncodingException e) {
+			throw new JTomtomException(e);
 		}
-				
-		return conn;
 	}
-	
+
 	private final String createCookieString() {
         StringBuffer cookiesString = new StringBuffer();
         for (HttpCookie cookie : connexionCookies) {
@@ -285,6 +226,28 @@ public class PdisDotEs extends RadarsConnector {
 	@Override
 	public HttpURLConnection getConnectionForInstall() {
 		return initDownloadConnection(PDISES_INSTALL_URL, PDISES_INSTALL_POST);
+	}
+	
+	private HttpURLConnection initDownloadConnection(String p_url, String p_post) {
+		if (connexionCookies == null) {
+			throw new JTomtomException("You must connect before !!");
+		}
+		
+		try {
+			HttpURLConnection conn = HttpUtils.createDefaultConnection(p_url, proxy);
+	        conn.setRequestProperty ("Cookie", createCookieString());
+	        conn.setInstanceFollowRedirects(false);
+	        HttpUtils.addPostData(conn, p_post);
+	        
+			return conn;
+			
+		} catch (MalformedURLException e) {
+			throw new JTomtomException(e);
+			
+		} catch (IOException e) {
+			throw new JTomtomException(e);
+			
+		}
 	}
 	
 	public String toString() {

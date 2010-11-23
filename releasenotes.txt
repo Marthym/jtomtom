@@ -2,10 +2,10 @@
 - Add: New command line argument for enter in debug mode
 - Improve: Use translated and formated date for new version information
 - Improve: Give more details when no GPS was found
-- Improve: Application class refactor for better code lisibility
+- Improve: Application class refactor for better code readability
 - Improve: Tab build at last time for save memory and reduce startup time
+- Improve: Large Connectors refactor for stability and readability
 - Improve: Lots of other refactor for clean code
-- Improve: Connectors stability
 - Fix: Plugin PDIS.es crash when radars has never been installed
 - Fix: NoConnector crash when find local informations
 
@@ -24,7 +24,7 @@
 - Add: Buttons on the About tab for easy contact with developer
 - Improve: Move new version warning on the bottom of the main window and remove the popup
 - Improve: Check the proxy settings validity before save paraméters
-- Improve: Some code rewrote for better lisibility
+- Improve: Some code rewrote for better readability
 - Improve: Exceptions localization mechanism
 - Improve: Move up POIs account section in parameters tab
 - Fix: Some translations were no longer needed

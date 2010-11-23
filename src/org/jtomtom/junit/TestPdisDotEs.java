@@ -90,7 +90,11 @@ public class TestPdisDotEs {
 	@Test
 	public void testGetConnectionForUpdate() {
 		RadarsConnector radars = new PdisDotEs();
-		HttpURLConnection conn = radars.getConnectionForUpdate();
+		HttpURLConnection conn = null;
+		try {
+			conn = radars.getConnectionForUpdate();
+			fail("getConnectionForUpdate without connexion !");
+		} catch (JTomtomException e) {}
 		assertNull(conn);
 		
 		radars.connexion(Application.getInstance().getProxyServer(), "jtomFrederic", "jtomtom159");
@@ -114,7 +118,11 @@ public class TestPdisDotEs {
 	@Test
 	public void testGetConnectionForInstall() {
 		RadarsConnector radars = new PdisDotEs();
-		HttpURLConnection conn = radars.getConnectionForUpdate();
+		HttpURLConnection conn = null;
+		try {
+			conn = radars.getConnectionForInstall();
+			fail("getConnectionForInstall without connexion !");
+		} catch (JTomtomException e) {}
 		assertNull(conn);
 		
 		radars.connexion(Application.getInstance().getProxyServer(), "jtomFrederic", "jtomtom159");
