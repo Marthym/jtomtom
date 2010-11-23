@@ -58,6 +58,7 @@ public class TabQuickFix extends JTTabPanel {
 	}
 	
 	public JPanel build() {
+		if (isBuild()) return this;
 		super.build();
 		LOGGER.trace("Building TabQuickFix ...");
 		

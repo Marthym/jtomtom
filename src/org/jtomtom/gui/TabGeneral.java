@@ -55,6 +55,7 @@ public class TabGeneral extends JTTabPanel implements ActionListener {
 	}
 	
 	public JPanel build() {
+		if (isBuild()) return this;
 		super.build();
 		LOGGER.trace("Building TabGeneral ...");
 		

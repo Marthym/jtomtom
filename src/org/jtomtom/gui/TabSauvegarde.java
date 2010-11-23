@@ -60,6 +60,7 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 	 * Construction de l'interface graphique
 	 */
 	public JPanel build() {
+		if (isBuild()) return this;
 		super.build();
 		LOGGER.trace("Building TabSauvegarde ...");
 		

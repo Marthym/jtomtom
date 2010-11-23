@@ -82,6 +82,7 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 	 * Construction de l'interface graphique
 	 */
 	public JPanel build() {
+		if (isBuild()) return this;
 		super.build();
 		LOGGER.trace("Building TabParametres ...");
 		

@@ -143,6 +143,7 @@ public class TabRadars extends JTTabPanel implements ActionListener {
 	 * Fabrication de l'interface
 	 */
 	public JPanel build() {
+		if (isBuild()) return this;
 		super.build();
 		LOGGER.trace("Building TabRadars ...");
 
