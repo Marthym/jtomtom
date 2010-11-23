@@ -36,10 +36,10 @@ import org.junit.runners.Suite.SuiteClasses;
 	TestJTTUtils.class,
 	TestTomtomDevice.class,
 	TestTomtomMap.class,
+	AllConnectorsTests.class,
 	TestActions.class,
 	TestCheckNavcoreUpdateActions.class,
-	TestJTomtomException.class,
-	AllConnectorsTests.class
+	TestJTomtomException.class
 })
 public class AllTests{
 	@BeforeClass

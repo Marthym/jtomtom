@@ -91,7 +91,11 @@ public class TestTomtomax {
 	@Test
 	public void testGetConnectionForUpdate() {
 		RadarsConnector radars = new Tomtomax();
-		HttpURLConnection conn = radars.getConnectionForUpdate();
+		HttpURLConnection conn = null;
+		try {
+			conn = radars.getConnectionForUpdate();
+			fail("getConnectionForUpdate without connexion !");
+		} catch (JTomtomException e) {}
 		assertNull(conn);
 		
 		radars.connexion(Application.getInstance().getProxyServer(), "marthym", "myhtram");
@@ -115,7 +119,11 @@ public class TestTomtomax {
 	@Test
 	public void testGetConnectionForInstall() {
 		RadarsConnector radars = new Tomtomax();
-		HttpURLConnection conn = radars.getConnectionForUpdate();
+		HttpURLConnection conn = null;
+		try {
+			conn = radars.getConnectionForInstall();
+			fail("getConnectionForInstall without connexion !");
+		} catch (JTomtomException e) {}
 		assertNull(conn);
 		
 		radars.connexion(Application.getInstance().getProxyServer(), "marthym", "myhtram");

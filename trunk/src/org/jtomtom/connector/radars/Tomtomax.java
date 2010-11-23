@@ -21,7 +21,6 @@
 package org.jtomtom.connector.radars;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -29,20 +28,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpCookie;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.Constant;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
+import org.jtomtom.tools.HttpUtils;
 
 /**
  * @author Frédéric Combes
@@ -63,270 +62,230 @@ public final class Tomtomax extends RadarsConnector {
 	
 	private static final String TAG_BASIC = "[UZ1] ";
 	private static final String TAG_PREMIUM = "[UZ3] ";
-	private URL m_basicUpdateURL;
-	private URL m_premiumUpdateURL;
+	private URL urlBasicUpdate;
+	private URL urlPremiumUpdate;
 	
-	private POIsDbInfos m_localInfos;
-	private POIsDbInfos m_remoteInfos;
-	private boolean m_connected = false;
-	private Proxy m_proxy = Proxy.NO_PROXY;
+	private POIsDbInfos mapLocalInformations;
+	private POIsDbInfos poisRemoteInformations;
+	
+	private boolean connected = false;
+	private Proxy proxy = Proxy.NO_PROXY;
 	
 	public final POIsDbInfos getRemoteDbInfos(Proxy proxy) {
-		m_remoteInfos = new POIsDbInfos();
+		if (poisRemoteInformations != null)
+			return poisRemoteInformations;
+		
 		HttpURLConnection conn = null;
 		try {
-			URL tomtomaxUrl = new URL(TOMTOMAX_DB_URL);
-			conn = (HttpURLConnection) tomtomaxUrl.openConnection(proxy);
+			poisRemoteInformations = new POIsDbInfos();
 			
-			conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
-	        conn.setUseCaches(false);
-	        conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
+			conn = HttpUtils.createDefaultConnection(TOMTOMAX_DB_URL, proxy);
 	        conn.connect();
-	
-			if (LOGGER.isDebugEnabled()) LOGGER.debug("conn.getResponseCode() = "+conn.getResponseCode());
-			
-	        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-	        	InputStream is = null;
-	        	BufferedReader rd = null;
-	        	try {
-					is = conn.getInputStream();
-					rd = new BufferedReader(new InputStreamReader(is));
-					String line;
-					while((line = rd.readLine()) != null) {
-						if (line.startsWith(TAG_DATE)) {
-							m_remoteInfos.setLastUpdateDate("dd/MM/yyyy", line.substring(TAG_DATE.length()).trim());
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+m_remoteInfos.getLastUpdateDateForPrint());
-							
-						} else if (line.startsWith(TAG_VERSION)) {
-							m_remoteInfos.setDatabaseVersion(line.substring(TAG_VERSION.length()).trim());
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_VERSION+m_remoteInfos.getDatabaseVersionForPrint());
-							
-						} else if (line.startsWith(TAG_RADARS)) {
-							m_remoteInfos.setNumberOfPOIs(Integer.parseInt(line.substring(TAG_RADARS.length()).trim()));
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_RADARS+m_remoteInfos.getNumberOfPOIsForPrint());
-
-						} else if (line.startsWith(TAG_BASIC)) {
-							m_basicUpdateURL = new URL(line.substring(TAG_BASIC.length()).trim());
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_BASIC+m_basicUpdateURL);
-							
-						} else if (line.startsWith(TAG_PREMIUM)) {
-							m_premiumUpdateURL = new URL(line.substring(TAG_PREMIUM.length()).trim());
-							if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_PREMIUM+m_premiumUpdateURL);
-
-						}
-					}
-					
-	        	} finally {
-	        		try {is.close();} catch (Exception e){}
-	        		try {rd.close();} catch (Exception e){}
-	        	}
-	        } // end if (conn.getResponseCode() == HttpURLConnection.HTTP_OK)
+	        int httpResponseCode = conn.getResponseCode();
 	        
-		} catch (MalformedURLException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
+			if (LOGGER.isDebugEnabled()) 
+				LOGGER.debug("conn.getResponseCode() = "+httpResponseCode);
 			
+	        if (httpResponseCode == HttpURLConnection.HTTP_OK) {
+	        	parseTomtomaxRemoteDbFile(conn);
+	        }
+	        
+	        conn.disconnect();
+	        
+	        return poisRemoteInformations;
 		} catch (IOException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
+			throw new JTomtomException(e);
 		} 
-		
-		return m_remoteInfos;
+	        		
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.jtomtom.RadarsConnector#getLocalDbInfos(java.lang.String)
-	 */
 	public final POIsDbInfos getLocalDbInfos(String m_path) {
-		m_localInfos = new POIsDbInfos();
+		mapLocalInformations = new POIsDbInfos();
 		
-		// We search the directory of the current map
+		// Get the directory of the current map
 		File mapDirectory = new File(m_path);
 		if (!mapDirectory.exists() || !mapDirectory.isDirectory() || !mapDirectory.canRead()) {
 			throw new JTomtomException("org.jtomtom.errors.gps.map.notfound", new String[]{m_path});
 		}
 		
-		// We looking for the Tomtomax update file
+		// Looking for the Tomtomax database file
 		File ttMaxDbFile = new File(mapDirectory,TOMTOMAX_DB_FILE);
 		if (!ttMaxDbFile.exists()) {
-			LOGGER.info("Les Radars TomtomMax n'ont jamais été installé !");
-			return m_localInfos;
+			LOGGER.info("Tomtomax radars never been installed !");
+			return mapLocalInformations;
 		}
 		
 		// We read and parse the file
 		if (ttMaxDbFile.exists() && ttMaxDbFile.canRead()) {
-			BufferedReader buff = null;
-			try {
-				buff = new BufferedReader(new FileReader(ttMaxDbFile));
-				String line;
-				while ((line = buff.readLine()) != null) {
-					if (line.startsWith("date=")) {
-						m_localInfos.setLastUpdateDate("dd/MM/yyyy", line.substring(5));
-						if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+" = "+m_localInfos.getLastUpdateDateForPrint());
-						
-					} else if (line.startsWith("vers=")) {
-						m_localInfos.setDatabaseVersion(line.substring(5));
-						if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_VERSION+" = "+m_localInfos.getDatabaseVersionForPrint());
-						
-					} else if (line.startsWith("radar=")) {
-						m_localInfos.setNumberOfPOIs(Integer.parseInt(line.substring(6)));
-						if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_RADARS+" = "+m_localInfos.getNumberOfPOIsForPrint());
-						
-					} else if (line.startsWith("#####")) {
+			parseTomtomaxLocalDbFile(ttMaxDbFile);	
+		}
+		
+		return mapLocalInformations;
+	}
+	
+	private void parseTomtomaxRemoteDbFile(URLConnection conn) {
+    	InputStream is = null;
+    	BufferedReader rd = null;
+    	try {
+			is = conn.getInputStream();
+			rd = new BufferedReader(new InputStreamReader(is));
+			String line;
+			while((line = rd.readLine()) != null) {
+				if (line.startsWith(TAG_DATE)) {
+					poisRemoteInformations.setLastUpdateDate("dd/MM/yyyy", line.substring(TAG_DATE.length()).trim());
+					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+poisRemoteInformations.getLastUpdateDateForPrint());
+					
+				} else if (line.startsWith(TAG_VERSION)) {
+					poisRemoteInformations.setDatabaseVersion(line.substring(TAG_VERSION.length()).trim());
+					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_VERSION+poisRemoteInformations.getDatabaseVersionForPrint());
+					
+				} else if (line.startsWith(TAG_RADARS)) {
+					poisRemoteInformations.setNumberOfPOIs(Integer.parseInt(line.substring(TAG_RADARS.length()).trim()));
+					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_RADARS+poisRemoteInformations.getNumberOfPOIsForPrint());
+
+				} else if (line.startsWith(TAG_BASIC)) {
+					urlBasicUpdate = new URL(line.substring(TAG_BASIC.length()).trim());
+					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_BASIC+urlBasicUpdate);
+					
+				} else if (line.startsWith(TAG_PREMIUM)) {
+					urlPremiumUpdate = new URL(line.substring(TAG_PREMIUM.length()).trim());
+					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_PREMIUM+urlPremiumUpdate);
+
+				}
+			}
+			
+    	} catch (IOException e) {
+    		throw new JTomtomException(e);
+			
+		} finally {
+    		try {is.close();} catch (Exception e){}
+    		try {rd.close();} catch (Exception e){}
+    	}
+	}
+	
+	private void parseTomtomaxLocalDbFile(File ttLocalDbFile) {
+		BufferedReader buff = null;
+		try {
+			buff = new BufferedReader(new FileReader(ttLocalDbFile));
+			String line;
+			while ((line = buff.readLine()) != null) {
+				if (line.startsWith("date=")) {
+					mapLocalInformations.setLastUpdateDate("dd/MM/yyyy", line.substring(5));
+					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+" = "+mapLocalInformations.getLastUpdateDateForPrint());
+					
+				} else if (line.startsWith("vers=")) {
+					mapLocalInformations.setDatabaseVersion(line.substring(5));
+					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_VERSION+" = "+mapLocalInformations.getDatabaseVersionForPrint());
+					
+				} else if (line.startsWith("radar=")) {
+					mapLocalInformations.setNumberOfPOIs(Integer.parseInt(line.substring(6)));
+					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_RADARS+" = "+mapLocalInformations.getNumberOfPOIsForPrint());
+					
+				} else if (line.startsWith("#####")) {
+					break;
+				}
+			}
+			
+		} catch (FileNotFoundException e) {
+			throw new JTomtomException(e);
+			
+		} catch (IOException e) {
+			throw new JTomtomException(e);
+			
+		} finally {
+			try {buff.close();}catch(Exception e){}
+		}
+	}
+	
+	public boolean connexion(Proxy p_proxy, String p_user, String p_password) {
+		proxy = p_proxy;
+		
+		if (p_user == null || p_password == null ||
+				p_user.isEmpty() || p_password.isEmpty()) {
+			return connected;
+		}
+		
+		List<HttpCookie> cookies = null;
+		HttpURLConnection conn = null;
+		try {
+			String urlParameters = createTomtomaxLoginPostData(p_user, p_password);
+			conn = HttpUtils.createConnectionWithPostData(TOMTOMAX_LOGIN_URL, urlParameters, proxy);
+	        
+	        conn.connect();
+	        int httpResponseCode = conn.getResponseCode();
+			if (LOGGER.isDebugEnabled()) 
+				LOGGER.debug("conn.getResponseCode() = "+httpResponseCode);
+			
+	        if (httpResponseCode == HttpURLConnection.HTTP_OK) {
+	        	cookies = HttpUtils.readCookieFromConnection(conn);
+	        }
+	        
+			// Verify connexion cookie
+			if (cookies != null && !cookies.isEmpty()) {
+				for (HttpCookie cookie : cookies) {
+					if (TOMTOMAX_COOKIE_CONNECT.equals(cookie.getName()) && !"1".equals(cookie.getValue())) {
+						connected = true;
 						break;
 					}
 				}
-				
-			} catch (FileNotFoundException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-				
-			} catch (IOException e) {
-				LOGGER.error(e.getLocalizedMessage());
-				if (LOGGER.isDebugEnabled()) e.printStackTrace();
-				
-			} finally {
-				try {buff.close();}catch(Exception e){}
 			}
-			
-		} // end if (ttMaxDbFile.exists() && ttMaxDbFile.canRead())
 		
-		return m_localInfos;
+			return connected;
+			
+		} catch (IOException e) {
+			throw new JTomtomException(e);
+			
+		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.jtomtom.RadarsConnector#connexion(java.net.Proxy, java.lang.String, java.lang.String)
-	 */
-	public final boolean connexion(Proxy p_proxy, String p_user, String p_password) {
-		if (p_user == null || p_password == null ||
-				p_user.isEmpty() || p_password.isEmpty()) {
-			return false;
-		}
-		
-		m_proxy = p_proxy;
-		Map<String, String> cookies = null;
-		String urlParameters = "";
+	private final static String createTomtomaxLoginPostData(String user, String password) {
 		try {
-			urlParameters =
-			    "mode=login&username=" + URLEncoder.encode(p_user, "UTF-8") +
-			    "&password=" + URLEncoder.encode(p_password, "UTF-8") +
-			    "&login=Connexion"+
-			    "&redirect=index.php";
+			StringBuffer urlParameters = new StringBuffer();
+			urlParameters.append("mode=login&username=").append(URLEncoder.encode(user, "UTF-8"));
+			urlParameters.append("&password=").append(URLEncoder.encode(password, "UTF-8"));
+			urlParameters.append("&login=Connexion");
+			
+			return urlParameters.toString();
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			throw new JTomtomException(e);
 		}
-
-		HttpURLConnection conn = null;
-		DataOutputStream wr = null;
-		try {
-			URL tomtomaxUrl = new URL(TOMTOMAX_LOGIN_URL);
-			conn = (HttpURLConnection) tomtomaxUrl.openConnection(m_proxy);
-			
-			conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
-	        conn.setUseCaches(false);
-	        conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
-	        conn.setRequestMethod("POST");
-	        conn.setDoOutput(true);
-	        conn.setDoInput(true);
-	        
-	        wr = new DataOutputStream (conn.getOutputStream ());
-	        wr.writeBytes(urlParameters);
-	        wr.flush ();
-	        wr.close ();
-	        
-	        conn.connect();
-	
-			if (LOGGER.isDebugEnabled()) LOGGER.debug("conn.getResponseCode() = "+conn.getResponseCode());
-			
-	        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-	        	cookies = new HashMap<String, String>();
-	        	String headerName=null;
-	        	for (int i=1; (headerName = conn.getHeaderFieldKey(i))!=null; i++) {
-	        	 	if (headerName.equals("Set-Cookie")) {                  
-	        	 		String cookie = conn.getHeaderField(i);
-	        	 		cookie = cookie.substring(0, cookie.indexOf(";"));
-	        	        String cookieName = cookie.substring(0, cookie.indexOf("="));
-	        	        String cookieValue = cookie.substring(cookie.indexOf("=") + 1, cookie.length());
-	        	 		cookies.put(cookieName, cookieValue);
-	        	        
-	        	        LOGGER.debug(cookieName+" = "+cookieValue);
-	        	 	}
-	        	}
-	        }
-	        
-		} catch (IOException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			
-		} finally {
-			try {wr.close();} catch (Exception e){}
-		}
-		
-		if (cookies != null && 
-				!cookies.isEmpty() && 
-				cookies.containsKey(TOMTOMAX_COOKIE_CONNECT) && 
-				!cookies.get(TOMTOMAX_COOKIE_CONNECT).equals("1")) {
-			m_connected = true;
-			
-			getRemoteDbInfos(m_proxy);
-			return true;
-		}
-		
-		return false;
 	}
 
-	/**
-	 * Init a HttpURLConnection with cookie and all needed parameter for download update and install file
-	 * @param p_url		URL of the file to download
-	 * @param p_post	POST parameter needed for get the good file
-	 * @return			The connection
-	 */
-	private HttpURLConnection initDownloadConnection(URL p_url) {
-		if (!m_connected) {
-			LOGGER.error("You must connect before !!");
-			return null;
-		}
-		
-		HttpURLConnection conn = null;
-		URL updateURL = p_url;
+	@Override
+	public HttpURLConnection getConnectionForUpdate() {
 		try {
-			conn = (HttpURLConnection) updateURL.openConnection(m_proxy);
-	        			
-			conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
-			conn.setDoInput(true);
-            conn.setUseCaches(false);
-            conn.setReadTimeout(Constant.TIMEOUT); // TimeOut en cas de perte de connexion
-	        
-		} catch (IOException e) {
-			LOGGER.error(e.getLocalizedMessage());
-			if (LOGGER.isDebugEnabled()) e.printStackTrace();
-			return null;
-		}
-				
-		return conn;
-	}
+			if (!connected) 
+				throw new JTomtomException("You must connect before !");
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+			if (urlBasicUpdate == null) 
+				getRemoteDbInfos(proxy);
+		
+			return HttpUtils.createDefaultConnection(urlBasicUpdate.toString(), proxy);
+			
+		} catch (IOException e) {
+			throw new JTomtomException(e);
+		}				
+	}
+
+	@Override
+	public HttpURLConnection getConnectionForInstall() {
+		try {
+			if (!connected) 
+				throw new JTomtomException("You must connect before !");
+	
+			if (urlPremiumUpdate == null) 
+				getRemoteDbInfos(proxy);
+		
+			return HttpUtils.createDefaultConnection(urlPremiumUpdate.toString(), proxy);
+			
+		} catch (IOException e) {
+			throw new JTomtomException(e);
+		}				
+	}
+		
 	@Override
 	public String toString() {
 		return this.getClass().getSimpleName()+" ["+TOMTOMAX_COUNTRY.getCountry()+"]";
 	}
 
-	/* (non-Javadoc)
-	 * @see org.jtomtom.connector.RadarsConnector#getConnectionForUpdate()
-	 */
-	@Override
-	public HttpURLConnection getConnectionForUpdate() {
-		return initDownloadConnection(m_basicUpdateURL);			
-	}
-
-	/* (non-Javadoc)
-	 * @see org.jtomtom.connector.RadarsConnector#getConnectionForInstall()
-	 */
-	@Override
-	public HttpURLConnection getConnectionForInstall() {
-		return initDownloadConnection(m_premiumUpdateURL);
-	}
 }
