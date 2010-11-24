@@ -112,7 +112,9 @@ public final class Tomtomax extends RadarsConnector {
 		// Looking for the Tomtomax database file
 		File ttMaxDbFile = new File(mapDirectory,TOMTOMAX_DB_FILE);
 		if (!ttMaxDbFile.exists()) {
-			LOGGER.info("Tomtomax radars never been installed !");
+			LOGGER.info("POIs from "+toString()+" has never been installed !");
+			mapLocalInformations.setDatabaseVersion(POIsDbInfos.NA);
+			mapLocalInformations.setNumberOfPOIs(0);
 			return mapLocalInformations;
 		}
 		

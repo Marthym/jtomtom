@@ -9,6 +9,7 @@
 - Improve: Modify some JTomtomException method signature for replace String[] by String... 
 - Improve: Lots of other refactor for clean code
 - Fix: Plugin PDIS.es crash when radars has never been installed
+- Fix: Plugin Tomtomax crash when radars has never been installed
 - Fix: NoConnector crash when find local informations
 
 ** jTomtom build 51 **
