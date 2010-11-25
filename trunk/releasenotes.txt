@@ -11,6 +11,7 @@
 - Fix: Plugin PDIS.es crash when radars has never been installed
 - Fix: Plugin Tomtomax crash when radars has never been installed
 - Fix: NoConnector crash when find local informations
+- Fix: Wait dialog message for generic message
 
 ** jTomtom build 51 **
 - Add: Carminat Tomtom support
