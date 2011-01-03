@@ -1,3 +1,6 @@
+** jTomtom build 56 **
+- Fix: Modify Test case for Caminat
+
 ** jTomtom build 55 **
 - Add: New command line argument for enter in debug mode
 - Add: Real website URL for each connector in Radars tab and remove correspondant translation

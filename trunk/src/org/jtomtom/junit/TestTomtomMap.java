@@ -23,8 +23,6 @@ package org.jtomtom.junit;
 import static junit.framework.Assert.*;
 import static org.junit.Assert.assertFalse;
 
-import java.io.File;
-
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -32,7 +30,7 @@ import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.connector.radars.Tomtomax;
-import org.jtomtom.device.TomtomDeviceFinder;
+import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.device.TomtomMap;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -47,9 +45,10 @@ public class TestTomtomMap {
 	}
 	
 	@Test
-	public void testReadCurrentMap() {
+	public void testCreateMapFromPath() {
 		try {
-			TomtomMap map = TomtomMap.createMapFromPath(TomtomDeviceFinder.findMountPoint()+File.separator+"France");
+			TomtomDevice myGPS = new TomtomDevice();
+			TomtomMap map = myGPS.getActiveMap(); // call CreateMapFromPath
 			
 			assertNotNull(map);
 			
@@ -62,8 +61,8 @@ public class TestTomtomMap {
 	public void testReadRadarInfos() {
 		try {
 			RadarsConnector radars = RadarsConnector.createFromClass(Tomtomax.class);
-			TomtomMap map = TomtomMap.createMapFromPath(
-					TomtomDeviceFinder.findMountPoint()+File.separator+"France");
+			TomtomDevice myGPS = new TomtomDevice();
+			TomtomMap map = myGPS.getActiveMap();
 			map.setRadarsInfos(radars);
 			POIsDbInfos radarsInfos = map.getRadarsInfos(radars);
 			

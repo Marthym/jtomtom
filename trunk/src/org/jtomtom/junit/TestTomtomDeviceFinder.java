@@ -28,6 +28,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jtomtom.device.TomtomDeviceFinder;
+import org.jtomtom.device.providers.CarminatFilesProvider;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -45,7 +46,10 @@ public class TestTomtomDeviceFinder {
 		File ttMoundPoint = TomtomDeviceFinder.findMountPoint();
 		assertNotNull(ttMoundPoint);
 		assertTrue(ttMoundPoint.exists());
-		assertTrue(new File(ttMoundPoint, "ttgo.bif").exists());
+		
+		assertTrue(
+				new File(ttMoundPoint, "ttgo.bif").exists() ||
+				new File(ttMoundPoint, CarminatFilesProvider.DIR_CARMINAT_LOOPBACK+File.separator+CarminatFilesProvider.FILE_CARMINAT_LOOPBACK).exists());
 	}
 	
 }

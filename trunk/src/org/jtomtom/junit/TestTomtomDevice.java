@@ -68,8 +68,7 @@ public class TestTomtomDevice {
 			fail(e.getLocalizedMessage());
 		}
 		assertNotNull(myGPS.getDeviceUniqueID());
-		assertEquals("AK9AG BJKUJ", myGPS.getDeviceUniqueID());
-		System.out.println(myGPS.getAppVersion());
+		assertFalse(myGPS.getDeviceUniqueID().isEmpty());
 	}
 	
 	@Test
@@ -77,7 +76,7 @@ public class TestTomtomDevice {
 		try {
 			TomtomDevice myGPS = new TomtomDevice();
 			Chipset chipset = myGPS.getChipset();
-			assertEquals(Chipset.globalLocate, chipset);
+			assertNotNull(chipset);
 			
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
