@@ -33,6 +33,7 @@ import org.jtomtom.connector.POIsDbInfos;
 import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.connector.radars.PdisDotEs;
 import org.jtomtom.device.TomtomDevice;
+import org.jtomtom.device.TomtomMap;
 
 import static org.junit.Assert.*;
 
@@ -77,14 +78,17 @@ public class TestPdisDotEs {
 		RadarsConnector radars = new PdisDotEs();
 		
 		POIsDbInfos infos = null;
-		try {
-			infos = radars.getLocalDbInfos((new TomtomDevice()).getAvailableMaps().get("Iberia_850.2781").getPath());
-		} catch (JTomtomException e) {
-			fail(e.getLocalizedMessage());
+		TomtomMap iberia = (new TomtomDevice()).getAvailableMaps().get("Iberia_850.2781");
+		if (iberia != null) {
+			try {
+				infos = radars.getLocalDbInfos(iberia.getPath());
+			} catch (JTomtomException e) {
+				fail(e.getLocalizedMessage());
+			}
+			
+			assertNotNull(infos);
+			assertFalse(infos.isEmpty());
 		}
-		
-		assertNotNull(infos);
-		assertFalse(infos.isEmpty());
 	}
 	
 	@Test

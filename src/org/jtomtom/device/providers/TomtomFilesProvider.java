@@ -44,6 +44,7 @@ public class TomtomFilesProvider {
 	public static final String FILE_TOMTOM_INFORMATIONS = "ttgo.bif";
 	
 	File rootDirectory;
+	File sdCardDirectory;
 	
 	public TomtomFilesProvider(File rootDirectory) throws FileNotFoundException {
 		LOGGER.debug("Init TomtomFilesProvider for root : "+rootDirectory);

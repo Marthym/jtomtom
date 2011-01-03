@@ -29,6 +29,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jtomtom.device.TomtomDeviceFinder;
+import org.jtomtom.device.providers.FilesProviderFactory;
 import org.jtomtom.device.providers.TomtomFilesProvider;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -45,11 +46,12 @@ public class TestTomtomFilesProvider {
 	@Test
 	public void testGetCurrentMapDat() {
 		try {
-			TomtomFilesProvider ttFilesProvider = new TomtomFilesProvider(TomtomDeviceFinder.findMountPoint());
+			TomtomFilesProvider ttFilesProvider = FilesProviderFactory.getFilesProvider(TomtomDeviceFinder.findMountPoint());
 			File mapDat = ttFilesProvider.getCurrentMapDat();
 			assertNotNull(mapDat);
 			assertTrue(mapDat.exists());
-			assertTrue("currentmap.dat".equalsIgnoreCase(mapDat.getName()));
+			assertTrue("currentmap.dat".equalsIgnoreCase(mapDat.getName())
+					|| mapDat.getName().toLowerCase().startsWith("currentmap"));
 		} catch (Exception e) {
 			fail(e.getLocalizedMessage());
 		}
