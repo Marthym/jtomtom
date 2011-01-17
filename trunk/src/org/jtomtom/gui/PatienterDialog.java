@@ -45,21 +45,21 @@ public class PatienterDialog extends JDialog implements ActionListener {
 	
 	private final ResourceBundle theTranslator = Application.getInstance().getMainTranslator();
 
-	private JButton m_annuler;
-	private SwingWorker<?, ?> m_worker;
-	private JProgressBar m_progressBar;
+	private JButton annuler;
+	private SwingWorker<?, ?> worker;
+	private JProgressBar progressBar;
 	
 	public PatienterDialog(SwingWorker<?, ?> p_worker) {
 		super();
 		
 		build();
 		
-		m_worker = p_worker;
-		m_worker.execute();
+		worker = p_worker;
+		worker.execute();
 	}
 	
 	private void build() {
-		// - Définition des propriétés
+		// - Define properties
 		setTitle(theTranslator.getString("org.jtomtom.main.dialog.wait.title"));
 		setSize(300, 110);
 		setModal(true);
@@ -67,7 +67,7 @@ public class PatienterDialog extends JDialog implements ActionListener {
 		setResizable(false);
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		
-		// - Définition du contenu
+		// - Define content
 		setContentPane(buildContentPane());
 	}
 	
@@ -78,21 +78,21 @@ public class PatienterDialog extends JDialog implements ActionListener {
 		JLabel label = new JLabel(theTranslator.getString("org.jtomtom.main.dialog.wait.message"));
 		panel.add(label, BorderLayout.PAGE_START);
 		
-		m_progressBar = new JProgressBar();
-		m_progressBar.setIndeterminate(true);
-		m_progressBar.setPreferredSize(
+		progressBar = new JProgressBar();
+		progressBar.setIndeterminate(true);
+		progressBar.setPreferredSize(
 				new Dimension(this.getSize().width-10,20));
 		
 		JPanel progressPanel = new JPanel();
 		progressPanel.setLayout(new FlowLayout());
-		progressPanel.add(m_progressBar);
+		progressPanel.add(progressBar);
 		panel.add(progressPanel, BorderLayout.CENTER);
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		m_annuler = new JButton(theTranslator.getString("org.jtomtom.main.dialog.wait.button.cancel.label"));
-		m_annuler.addActionListener(this);
-		buttonPanel.add(m_annuler);
+		annuler = new JButton(theTranslator.getString("org.jtomtom.main.dialog.wait.button.cancel.label"));
+		annuler.addActionListener(this);
+		buttonPanel.add(annuler);
 		panel.add(buttonPanel, BorderLayout.PAGE_END);
 		
 		return panel;
@@ -100,26 +100,26 @@ public class PatienterDialog extends JDialog implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent p_event) {
-		if (p_event.getSource() == m_annuler) {
-			m_worker.cancel(true);
+		if (p_event.getSource() == annuler) {
+			worker.cancel(true);
 			this.dispose();
 		}
 	}
 	
 	/**
-	 * Met à jour la barre de progression de la fenètre
-	 * @param current	Valeur courrent
-	 * @param total		Valeur max
+	 * Update progress bar in the window
+	 * @param current	Current value
+	 * @param total		Max value
 	 */
 	public void refreshProgressBar(int current, int total) {
 		if (total <= 0) {
-			m_progressBar.setIndeterminate(true);
+			progressBar.setIndeterminate(true);
 			return;
 		} else {
-			m_progressBar.setMinimum(0);
-			m_progressBar.setMaximum(total);
-			m_progressBar.setValue(current);
-			m_progressBar.setIndeterminate(false);
+			progressBar.setMinimum(0);
+			progressBar.setMaximum(total);
+			progressBar.setValue(current);
+			progressBar.setIndeterminate(false);
 		}
 	}
 }

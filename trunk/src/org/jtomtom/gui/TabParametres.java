@@ -58,20 +58,20 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 	
 	private final JTomtomProperties globalProperties = Application.getInstance().getGlobalProperties();
 	
-	private JTextField 	m_proxyHost;
-	private JTextField 	m_proxyPort;
-	private JComboBox  	m_proxyType;
+	private JTextField 	paramProxyHost;
+	private JTextField 	paramProxyPort;
+	private JComboBox  	paramProxyType;
 	
 	private JTextField 	m_ttmaxUser;
 	private JTextField 	m_ttmaxPassword;
 
 	
-	private JComboBox  	m_logLevel;
-	private JTextField 	m_logFile;
+	private JComboBox  	paramLogLevel;
+	private JTextField 	paramLogFile;
 	
-	private JCheckBox	m_checkUpdate;
+	private JCheckBox	paramCheckUpdate;
 	
-	private JButton		m_enregistrer;
+	private JButton		btSave;
 	
 	public TabParametres() {
 		super(getTabTranslations().getString("org.jtomtom.tab.parameters.title"));
@@ -91,11 +91,11 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		JPanel proxyPanel = new JPanel(new SpringLayout());
 		proxyPanel.setBorder(BorderFactory.createTitledBorder(getTabTranslations().getString("org.jtomtom.tab.parameters.border.network.label")));
 		proxyPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.conn.label")));
-		proxyPanel.add(m_proxyType);
+		proxyPanel.add(paramProxyType);
 		proxyPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.proxy.label")));
-		proxyPanel.add(m_proxyHost);
+		proxyPanel.add(paramProxyHost);
 		proxyPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.port.label")));
-		proxyPanel.add(m_proxyPort);
+		proxyPanel.add(paramProxyPort);
 		SpringUtilities.makeCompactGrid(proxyPanel,
                 3, 2, 		 //rows, cols
                 6, 6,        //initX, initY
@@ -122,9 +122,9 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		JPanel logsPanel = new JPanel(new SpringLayout());
 		logsPanel.setBorder(BorderFactory.createTitledBorder(getTabTranslations().getString("org.jtomtom.tab.parameters.border.log.label")));
 		logsPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.label")));
-		logsPanel.add(m_logLevel);
+		logsPanel.add(paramLogLevel);
 		logsPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.logfile.label")));
-		logsPanel.add(m_logFile);
+		logsPanel.add(paramLogFile);
 		SpringUtilities.makeCompactGrid(logsPanel,
                 2, 2, 		 //rows, cols
                 6, 6,        //initX, initY
@@ -135,13 +135,13 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 		buildDummyFields();
 		JPanel dummyPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		dummyPanel.setBorder(BorderFactory.createTitledBorder(getTabTranslations().getString("org.jtomtom.tab.parameters.border.dummy.label")));
-		dummyPanel.add(m_checkUpdate);
+		dummyPanel.add(paramCheckUpdate);
 		add(dummyPanel);
 		
 		// Création du panneau de bouton
-		m_enregistrer = new JButton(getTabTranslations().getString("org.jtomtom.tab.parameters.button.save.label"));
-		m_enregistrer.addActionListener(this);
-		addActionButton(m_enregistrer);
+		btSave = new JButton(getTabTranslations().getString("org.jtomtom.tab.parameters.button.save.label"));
+		btSave.addActionListener(this);
+		addActionButton(btSave);
 		
 		addScrollVerticalBar();
 		
@@ -154,31 +154,31 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 	private void buildProxyFields() {
 		// - Type de proxy
 		String[] proxyTypeStrings = {"DIRECT", "HTTP", "SOCKS"};
-		m_proxyType = new JComboBox(proxyTypeStrings);
-		m_proxyType.setSelectedIndex(Arrays.binarySearch(proxyTypeStrings, globalProperties.getUserProperty("net.proxy.type")));
-		m_proxyType.setPrototypeDisplayValue("DIRECTI");	// Initialise la taille de la combo
-		m_proxyType.addActionListener(this);
+		paramProxyType = new JComboBox(proxyTypeStrings);
+		paramProxyType.setSelectedIndex(Arrays.binarySearch(proxyTypeStrings, globalProperties.getUserProperty("net.proxy.type")));
+		paramProxyType.setPrototypeDisplayValue("DIRECTI");	// Initialise la taille de la combo
+		paramProxyType.addActionListener(this);
 		
 		// - Serveur Proxy
-		m_proxyHost = new JTextField();
-		m_proxyHost.setColumns(15);
-		m_proxyHost.setPreferredSize(new Dimension(0,25));
-		m_proxyHost.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.proxy.hint"));
-		m_proxyHost.setText(globalProperties.getUserProperty("net.proxy.name"));
+		paramProxyHost = new JTextField();
+		paramProxyHost.setColumns(15);
+		paramProxyHost.setPreferredSize(new Dimension(0,25));
+		paramProxyHost.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.proxy.hint"));
+		paramProxyHost.setText(globalProperties.getUserProperty("net.proxy.name"));
 
 		// - Port du proxy
-		m_proxyPort = new JTextField();
-		m_proxyPort.setColumns(4);
-		m_proxyPort.setPreferredSize(new Dimension(0,25));
-		m_proxyPort.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.port.hint"));
-		m_proxyPort.setText(globalProperties.getUserProperty("net.proxy.port"));
+		paramProxyPort = new JTextField();
+		paramProxyPort.setColumns(4);
+		paramProxyPort.setPreferredSize(new Dimension(0,25));
+		paramProxyPort.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.port.hint"));
+		paramProxyPort.setText(globalProperties.getUserProperty("net.proxy.port"));
 		
-		if (m_proxyType.getSelectedItem().equals("DIRECT")) {
-			m_proxyHost.setEnabled(false);
-			m_proxyPort.setEnabled(false);
+		if (paramProxyType.getSelectedItem().equals("DIRECT")) {
+			paramProxyHost.setEnabled(false);
+			paramProxyPort.setEnabled(false);
 		} else {
-			m_proxyHost.setEnabled(true);
-			m_proxyPort.setEnabled(true);
+			paramProxyHost.setEnabled(true);
+			paramProxyPort.setEnabled(true);
 		}
 
 	}
@@ -208,50 +208,50 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 	private void buildLogsFields() {
 		// Le tableau est trié par ordre alphabétique pour que le binarySearch fonctionne
 		String[] logLevelStrings = {"DEBUG", "ERROR", "INFO", "WARN"};
-		m_logLevel = new JComboBox(logLevelStrings);
-		m_logLevel.setSelectedIndex(
+		paramLogLevel = new JComboBox(logLevelStrings);
+		paramLogLevel.setSelectedIndex(
 				Arrays.binarySearch(
 						logLevelStrings, 
 						Level.toLevel(globalProperties.getUserProperty("org.jtomtom.logLevel")).toString()));
-		m_logLevel.setPrototypeDisplayValue("DEBUGI");
+		paramLogLevel.setPrototypeDisplayValue("DEBUGI");
 		
 		// - Fichier de log
-		m_logFile = new JTextField();
-		m_logFile.setColumns(17);
-		m_logFile.setPreferredSize(new Dimension(0,25));
-		m_logFile.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.border.log.hint"));
-		m_logFile.setText(globalProperties.getUserProperty("org.jtomtom.logFile"));
+		paramLogFile = new JTextField();
+		paramLogFile.setColumns(17);
+		paramLogFile.setPreferredSize(new Dimension(0,25));
+		paramLogFile.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.border.log.hint"));
+		paramLogFile.setText(globalProperties.getUserProperty("org.jtomtom.logFile"));
 	}
 
 	/**
 	 * Crée et initialise les champs de paramètre divers
 	 */
 	private void buildDummyFields() {
-		m_checkUpdate = new JCheckBox(getTabTranslations().getString("org.jtomtom.tab.parameters.checkbox.update.label"));
-		m_checkUpdate.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.checkbox.update.hint"));
+		paramCheckUpdate = new JCheckBox(getTabTranslations().getString("org.jtomtom.tab.parameters.checkbox.update.label"));
+		paramCheckUpdate.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.checkbox.update.hint"));
 		
 		// Initialisation
 		boolean checkUpdate = "true".equals(globalProperties.getUserProperty("org.jtomtom.checkupdate", "true"));
-		m_checkUpdate.setSelected(checkUpdate);
+		paramCheckUpdate.setSelected(checkUpdate);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		if (event.getSource() == m_enregistrer) {
+		if (event.getSource() == btSave) {
 			try {
-				if (!"DIRECT".equals((String)m_proxyType.getSelectedItem())) {
-					if (m_proxyHost.getText().trim().isEmpty() || m_proxyPort.getText().trim().isEmpty()) {
+				if (!"DIRECT".equals((String)paramProxyType.getSelectedItem())) {
+					if (paramProxyHost.getText().trim().isEmpty() || paramProxyPort.getText().trim().isEmpty()) {
 						throw new JTomtomException("org.jtomtom.errors.settings.proxy");
 					}
 				}
-				globalProperties.setUserProperty("net.proxy.type", ((String)m_proxyType.getSelectedItem()));
-				globalProperties.setUserProperty("net.proxy.name", m_proxyHost.getText());
-				globalProperties.setUserProperty("net.proxy.port", m_proxyPort.getText());
-				globalProperties.setUserProperty("org.jtomtom.logLevel", ((String)m_logLevel.getSelectedItem()));
-				globalProperties.setUserProperty("org.jtomtom.logFile", m_logFile.getText());
+				globalProperties.setUserProperty("net.proxy.type", ((String)paramProxyType.getSelectedItem()));
+				globalProperties.setUserProperty("net.proxy.name", paramProxyHost.getText());
+				globalProperties.setUserProperty("net.proxy.port", paramProxyPort.getText());
+				globalProperties.setUserProperty("org.jtomtom.logLevel", ((String)paramLogLevel.getSelectedItem()));
+				globalProperties.setUserProperty("org.jtomtom.logFile", paramLogFile.getText());
 				globalProperties.setUserProperty("org.tomtomax.user", m_ttmaxUser.getText());
 				globalProperties.setUserProperty("org.tomtomax.password", m_ttmaxPassword.getText());
-				globalProperties.setUserProperty("org.jtomtom.checkupdate", Boolean.toString(m_checkUpdate.isSelected()));
+				globalProperties.setUserProperty("org.jtomtom.checkupdate", Boolean.toString(paramCheckUpdate.isSelected()));
 			
 				globalProperties.storeUserProperties(
 						new File(System.getProperty("user.home"), Constant.JTOMTOM_USER_PROPERTIES));
@@ -275,14 +275,14 @@ public class TabParametres extends JTTabPanel implements ActionListener {
 					getTabTranslations().getString("org.jtomtom.tab.parameters.dialog.save.message"), 
 					getTabTranslations().getString("org.jtomtom.tab.parameters.dialog.save.title"), JOptionPane.INFORMATION_MESSAGE);
 			
-		} else if (event.getSource() == m_proxyType) {
+		} else if (event.getSource() == paramProxyType) {
 			
-			if (m_proxyType.getSelectedItem().equals("DIRECT")) {
-				m_proxyHost.setEnabled(false);
-				m_proxyPort.setEnabled(false);
+			if (paramProxyType.getSelectedItem().equals("DIRECT")) {
+				paramProxyHost.setEnabled(false);
+				paramProxyPort.setEnabled(false);
 			} else {
-				m_proxyHost.setEnabled(true);
-				m_proxyPort.setEnabled(true);
+				paramProxyHost.setEnabled(true);
+				paramProxyPort.setEnabled(true);
 			}
 		}
 		

@@ -47,7 +47,7 @@ public class TabGeneral extends JTTabPanel implements ActionListener {
 	
 	private TomtomDevice theDevice = Application.getInstance().getTheDevice();
 	
-	private JButton m_btCopier;
+	private JButton btCopy;
 	
 	public TabGeneral() {
 		super(getTabTranslations().getString("org.jtomtom.tab.general.title"));
@@ -61,7 +61,7 @@ public class TabGeneral extends JTTabPanel implements ActionListener {
 		
 		add(Box.createRigidArea(new Dimension(0,5)));
 		
-		// Ecriture des informations pour l'onglet General
+		// Write informations for the main tab
 		StringBuffer infos = new StringBuffer();
 		infos.append("<html><table>");
 		infos.append("<tr><td><strong>").append(getTabTranslations().getString("org.jtomtom.tab.general.name")).append(" : </strong></td><td><i>")
@@ -86,10 +86,10 @@ public class TabGeneral extends JTTabPanel implements ActionListener {
 		
 		add(Box.createRigidArea(new Dimension(0, 15)));
 		
-		m_btCopier = new JButton(getTabTranslations().getString("org.jtomtom.tab.general.copy.label"));
-		m_btCopier.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.general.copy.hint"));
-		m_btCopier.addActionListener(this);
-		add(m_btCopier);
+		btCopy = new JButton(getTabTranslations().getString("org.jtomtom.tab.general.copy.label"));
+		btCopy.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.general.copy.hint"));
+		btCopy.addActionListener(this);
+		add(btCopy);
 		
 		return this;
 	}
@@ -97,8 +97,8 @@ public class TabGeneral extends JTTabPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		
-		// Action de copier le contenu des infos dans le presse papier
-		if (event.getSource() == m_btCopier) {
+		// Action of copy to clipboard
+		if (event.getSource() == btCopy) {
 			StringBuffer infos = new StringBuffer();
 			infos.append(getTabTranslations().getString("org.jtomtom.tab.general.name")).append(" : ").append(theDevice.getName()).append("\n");
 			infos.append(getTabTranslations().getString("org.jtomtom.tab.general.unid")).append(" : ").append(theDevice.getDeviceUniqueID()).append("\n");
