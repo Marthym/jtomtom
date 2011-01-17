@@ -63,14 +63,14 @@ public class ChooseChipsetDialog extends JDialog implements ActionListener {
 	}
 	
 	private void build() {
-		// - Définition des propriétés
+		// - Define properties
 		setTitle(theTranslator.getString("org.jtomtom.main.dialog.choosechipset.title"));
 		setSize(400, 120);
 		setModal(true);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		
-		// - Définition du contenu
+		// - Define content
 		setContentPane(buildContentPane());
 	}
 	
