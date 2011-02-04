@@ -50,6 +50,7 @@ import org.jtomtom.tools.JTomTomUtils;
 public class TomtomDevice {
 	
 	private static final Logger LOGGER = Logger.getLogger(TomtomDevice.class);
+	private static final int MAX_EPHEM_FILE_NUMBER = 1;
 	
 	public TomtomFilesProvider theFiles;
 	
@@ -190,7 +191,10 @@ public class TomtomDevice {
 			if (chipset == null) {
 				Set<File> ephemFiles = theFiles.getEphemeridData();
 				
-				if (ephemFiles.size() >= 2) {
+				if (ephemFiles.isEmpty()) {
+					throw new FileNotFoundException("No file found in ephem directory !");
+					
+				} else if (ephemFiles.size() > MAX_EPHEM_FILE_NUMBER) {
 					chipset = Chipset.UNKNOWN;
 					
 				} else {
