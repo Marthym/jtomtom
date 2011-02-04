@@ -1,5 +1,7 @@
-** jTomtom build 56 **
+** jTomtom build 57 **
 - Fix: Modify Test case for Caminat
+- FIX: SF Tracker 3169928 - QuickFix not working (NoSuchElementException)
+- Improve: Refactor some code section for clean
 
 ** jTomtom build 55 **
 - Add: New command line argument for enter in debug mode
