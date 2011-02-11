@@ -1,6 +1,9 @@
+** jTomtom build 58 **
+- Fix: SF Tracker 3173911 - Update iso9960 library to the last version
+
 ** jTomtom build 57 **
 - Fix: Modify Test case for Caminat
-- FIX: SF Tracker 3169928 - QuickFix not working (NoSuchElementException)
+- Fix: SF Tracker 3169928 - QuickFix not working (NoSuchElementException)
 - Improve: Refactor some code section for clean
 
 ** jTomtom build 55 **
