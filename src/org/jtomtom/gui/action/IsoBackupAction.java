@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
@@ -53,28 +54,25 @@ import de.tu_darmstadt.informatik.rbg.mhartle.sabre.StreamHandler;
  * @author Frédéric Combes
  *
  */
-public class SauvegardeAction extends AbstractAction {
+public class IsoBackupAction extends AbstractAction {
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger(SauvegardeAction.class);
+	private static final Logger LOGGER = Logger.getLogger(IsoBackupAction.class);
 	
 	private PatienterDialog m_waitingDialog = null;
-	private String m_fichierDestination;
+	private String m_targetIsoFile;
 	private boolean m_makeTestISO = false;
 
-	public SauvegardeAction (String p_label) {
+	public IsoBackupAction (String p_label) {
 		super(p_label);
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		if (JButton.class.isAssignableFrom(event.getSource().getClass())) {
 			JButton bp = (JButton)event.getSource();
 			if (TabSauvegarde.class.isAssignableFrom(bp.getParent().getClass())) {
 				TabSauvegarde tabSauvegarde = (TabSauvegarde)bp.getParent();
-				m_fichierDestination = tabSauvegarde.getFichierDestination();
+				m_targetIsoFile = tabSauvegarde.getFichierDestination();
 				m_makeTestISO = tabSauvegarde.getMakeTestISO();
 			} 
 		}
@@ -104,17 +102,17 @@ public class SauvegardeAction extends AbstractAction {
         	
 			@Override
             public void done() {
-            	// Déjà, on ferme la fenêtre d'attente
+            	// First, Close wait window
             	if (m_waitingDialog != null) {
             		m_waitingDialog.dispose();
             	}
             	
-            	// Ensuite, on regarde s'il y a eu une erreur
+            	// Second, check for possible errors
             	ActionResult result = null;
             	try {
             		result = get();
 	            	if (!result.status) {
-	            		// En cas d'erreur on affiche un message
+	            		// If error show message
 		            	JOptionPane.showMessageDialog(null, result.exception.getLocalizedMessage(), 
 		            			Application.getInstance().getMainTranslator().getString("org.jtomtom.main.dialog.default.error.title"), 
 		            			JOptionPane.ERROR_MESSAGE);
@@ -132,19 +130,18 @@ public class SauvegardeAction extends AbstractAction {
 	}
 	
 	/**
-	 * Permet d'initialiser le chemin de l'ISO destination de la sauvegarde
-	 * C'est surtout pour les tests, elle est pas utilisé dans le programme
-	 * @param p_fichier	Chemin complet du fichier destination
+	 * Init the path of the result ISO file. Just use in test case.
+	 * @param p_fichier	Absolute path of the created file
 	 */
 	public void setFichierDestination(String p_fichier) {
-		m_fichierDestination = p_fichier;
+		m_targetIsoFile = p_fichier;
 	}
 	
     /**
-     * Crée un fichier ISO du GPS
-     * @param p_mountPoint	Point de montage du GPS, source de l'ISO
-     * @param p_forTest		Vrai si l'ISO est un fichier pour test (option caché coché), il sera alors réduit
-     * @return				true si OK
+     * Create ISO backup from the GPS file system
+     * @param p_mountPoint	Mount point of the GPS
+     * @param p_forTest		True if we want create ISO file for test. The file will be smaller
+     * @return				true if OK
      */
     public boolean createGpsBackup(TomtomDevice p_GPS, boolean p_forTest) {
     	File gpsDir = new File(p_GPS.getMountPoint());
@@ -157,16 +154,16 @@ public class SauvegardeAction extends AbstractAction {
     			isoRoot.addContentsRecursively(gpsDir);
     			
     		} else {
-    			LOGGER.debug("Restriction du contenu de l'ISO pour fichier de test");
-    			// - Si on fait un ISO pour test, on ne mets que le nécessaire dedans ...
+    			LOGGER.debug("Restricting the contents of the ISO test file");
+    			// - For test ISO file we just put necessary file.
     			java.util.Map<String, TomtomMap> mapsList = p_GPS.getAvailableMaps();
 
     			for (String currFileName: gpsDir.list()) {
     				File current = new File(gpsDir, currFileName);
     				
     				if (mapsList.containsKey(current.getName())) {
-    					LOGGER.debug("Suppression des fichiers DAT de la carte "+current.getName());
-    					// On nettoie les répertoires de cartes pour enlever le gros fichiers
+    					LOGGER.debug("Remove DAT files from map "+current.getName());
+    					// We clean map directories and remove big files
     					ISO9660Directory isoCurrDir = isoRoot.addDirectory(current);
     					String[] mapFileList = current.list(new FilenameFilter() {
 							@Override
@@ -180,8 +177,7 @@ public class SauvegardeAction extends AbstractAction {
     					}
     					
     				} else if ("voices".equalsIgnoreCase(current.getName()) ) {
-    					LOGGER.debug("Suppression des fichiers CHK du répertoire voices");
-    					// On enlève les fichiers chk du répertoire des voies
+    					LOGGER.debug("Remove CHK files from voice directory");
     					ISO9660Directory isoCurrDir = isoRoot.addDirectory(current);
     					String[] notchkFileList = current.list(new FilenameFilter() {
 							@Override
@@ -195,9 +191,7 @@ public class SauvegardeAction extends AbstractAction {
     					}
     					
     				} else if ("helpme".equalsIgnoreCase(current.getName()) ) {
-    					LOGGER.debug("Vidage du répertoire helpme");
-    					// On vire carrément le contenu du répertoire d'aide
-    					// on le laisse quand même à vide
+    					LOGGER.debug("Empty help directory");
     					isoRoot.addDirectory(current);
     					
     				} else {
@@ -211,10 +205,12 @@ public class SauvegardeAction extends AbstractAction {
 			throw new JTomtomException(e);
 		}
 		
-		if (m_fichierDestination == null || m_fichierDestination.isEmpty()) {
+		if (m_targetIsoFile == null || m_targetIsoFile.isEmpty()) {
 			throw new JTomtomException("org.jtomtom.errors.backup.destmustexist");
 		}
     	
+		// Check files list for bad encoding
+		checkForBadEncoding(isoRoot);
 		
 		// ISO9660 support
 		ISO9660Config iso9660Config = new ISO9660Config();
@@ -239,12 +235,12 @@ public class SauvegardeAction extends AbstractAction {
 		}
 
 		// Create ISO
-		File outputIsoFile = new File(m_fichierDestination);
+		File outputIsoFile = new File(m_targetIsoFile);
 		StreamHandler streamHandler = null;
 		try {
 			streamHandler = new ISOImageFileHandler(outputIsoFile);
 			CreateISO iso = new CreateISO(streamHandler, isoRoot);
-			LOGGER.debug("Début de la création du fichier ...");
+			LOGGER.debug("Start creating ISO backup file ...");
 			iso.process(iso9660Config, null, jolietConfig, null);
 			
 		} catch (FileNotFoundException e) {
@@ -255,17 +251,31 @@ public class SauvegardeAction extends AbstractAction {
 			
 		} 
 		
-		LOGGER.debug("Fin de la création de l'ISO.");
+		LOGGER.debug("End creating ISO file.");
 		return true;
 	}
     
-    /**
-     * Crée un fichier ISO du GPS
-     * @param p_mountPoint	Point de montage du GPS, source de l'ISO
-     * @return				true si OK
-     * 			Retourne une exception si la source n'existe pas
-     * 			Si la création de l'ISO ne se passe pas bien
-     */
+    private void checkForBadEncoding(ISO9660Directory directory) {
+		Iterator<?> it =  directory.getFiles().iterator();
+		while (it.hasNext()) {
+			Object anObject = it.next();
+			if (File.class.isAssignableFrom(anObject.getClass())) {
+				File aFile = (File)anObject;
+				if (!aFile.exists()) {
+					it.remove();
+					LOGGER.warn("Exclude file "+aFile.getAbsolutePath()+" from backup, it does not exist !");
+				}
+			}
+		}
+		
+		if (directory.hasSubDirs()) {
+			it =  directory.getDirectories().iterator();
+			while (it.hasNext()) {
+				checkForBadEncoding((ISO9660Directory)it.next());
+			}
+		}
+    }
+    
     public boolean createGpsBackup(TomtomDevice p_GPS) {
     	return createGpsBackup(p_GPS, m_makeTestISO);
     }

@@ -36,7 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
-import org.jtomtom.gui.action.SauvegardeAction;
+import org.jtomtom.gui.action.IsoBackupAction;
 import org.jtomtom.gui.utilities.JTTabPanel;
 
 /**
@@ -90,7 +90,7 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 		add(Box.createRigidArea(new Dimension(0,10)));
 		
 		// Création du panneau de bouton
-		JButton bouton = new JButton(new SauvegardeAction(getTabTranslations().getString("org.jtomtom.tab.backup.button.createiso.label")));
+		JButton bouton = new JButton(new IsoBackupAction(getTabTranslations().getString("org.jtomtom.tab.backup.button.createiso.label")));
 		addActionButton(bouton);
 		
 		return this;

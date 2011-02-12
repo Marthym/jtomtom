@@ -1,5 +1,8 @@
-** jTomtom build 58 **
-- Fix: SF Tracker 3173911 - Update iso9960 library to the last version
+** jTomtom build 59 **
+- Fix: Crash when map directory does not exist
+- Fix: SF Tracker 3173911 - Update iso9660 library to the last version
+- Improve: Check for bad encoding files before create backup
+- Improve: Refactor & Translate messages and comments of backup action class
 
 ** jTomtom build 57 **
 - Fix: Modify Test case for Caminat

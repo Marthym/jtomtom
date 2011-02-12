@@ -38,7 +38,7 @@ import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.action.CheckUpdateAction;
 import org.jtomtom.gui.action.MajQuickFixAction;
 import org.jtomtom.gui.action.MajRadarsAction;
-import org.jtomtom.gui.action.SauvegardeAction;
+import org.jtomtom.gui.action.IsoBackupAction;
 
 import static org.junit.Assert.*;
 
@@ -125,7 +125,7 @@ public class TestActions {
 		}
 		assertNotNull(theGPS);
 		
-		SauvegardeAction action = new SauvegardeAction("test TTM");
+		IsoBackupAction action = new IsoBackupAction("test TTM");
 		action.setFichierDestination("/tmp/testgpsbackup.iso");
 		try {
 			action.createGpsBackup(theGPS);
@@ -145,7 +145,7 @@ public class TestActions {
 		}
 		assertNotNull(theGPS);
 		
-		SauvegardeAction action = new SauvegardeAction("test TTM");
+		IsoBackupAction action = new IsoBackupAction("test TTM");
 		action.setFichierDestination("/tmp/testgpsbackup.iso");
 		try {
 			action.createGpsBackup(theGPS, true);

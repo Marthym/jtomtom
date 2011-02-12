@@ -98,7 +98,7 @@ public class TomtomMap {
 		// - We looking for pna file
 		File mapDirectory = new File(p_path);
 		String[] pnaFileList = mapDirectory.list(PNA_FILE_FILTER);
-		if (pnaFileList.length <= 0) 
+		if (pnaFileList == null || pnaFileList.length <= 0) 
 			throw new JTomtomException("The path '"+p_path+"' is not a Tomtom map directory !", new FileNotFoundException("*.pna"));
 		
 		File pnaFile = new File(mapDirectory, pnaFileList[0]);
