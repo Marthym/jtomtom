@@ -37,7 +37,7 @@ public class JPasswordTableRenderer extends DefaultTableCellRenderer {
 			boolean isSelected, boolean hasFocus, int row, int column) {
 		
 		String displayValue = "";
-		if (String.class.isAssignableFrom(value.getClass())) {
+		if (value != null && String.class.isAssignableFrom(value.getClass())) {
 			if (!((String)value).isEmpty()) {
 				displayValue = "**********";
 			}
