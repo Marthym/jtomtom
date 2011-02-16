@@ -118,7 +118,7 @@ public class TabSettings extends JTTabPanel implements ActionListener {
 		tomtomaxPanel.add(poisConnexionTable.getTableHeader());
 		tomtomaxPanel.add(poisConnexionTable);
 		tomtomaxPanel.add(Box.createRigidArea(new Dimension(1, 6)));
-		btAddLine = new JButton("Add Line");
+		btAddLine = new JButton(getTabTranslations().getString("org.jtomtom.tab.parameters.button.addline"));
 		btAddLine.addActionListener(this);
 		tomtomaxPanel.add(btAddLine);
 		SpringUtilities.makeCompactGrid(tomtomaxPanel,
@@ -198,7 +198,8 @@ public class TabSettings extends JTTabPanel implements ActionListener {
 	 */
 	private void buildConnexionFields() {
 		
-		String[] columnNames = {"POIs Connectors",
+		String[] columnNames = {
+				getTabTranslations().getString("org.jtomtom.tab.parameters.table.column.pois"),
 				getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.user.label"),
 				getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.password.label")};
 
@@ -212,7 +213,13 @@ public class TabSettings extends JTTabPanel implements ActionListener {
 			String key = it.next();
 			String connectorLocale = key.substring(key.lastIndexOf('.')+1);
 			RadarsConnector connector = RadarsConnector.getConnectorByLocale(connectorLocale);
-			data[i] = new Object[]{connector.toString(), userList.get(key), passwordList.get("org.connector.password."+connectorLocale)};
+			connector = (connector == null)?RadarsConnector.EMPTY_RADAR_CONNECTOR:connector;
+			String userdata = userList.get(key);
+			userdata = (userdata == null)?"":userdata;
+			String passwordData = passwordList.get("org.connector.password."+connectorLocale);
+			passwordData = (passwordData == null)?"":passwordData;
+			data[i] = new Object[]{connector, userdata, passwordData};
+			i++;
 		}
 		
 		DefaultTableModel model = new DefaultTableModel(data, columnNames);
@@ -278,9 +285,14 @@ public class TabSettings extends JTTabPanel implements ActionListener {
 				globalProperties.setUserProperty("org.jtomtom.logFile", paramLogFile.getText());
 				globalProperties.setUserProperty("org.jtomtom.checkupdate", Boolean.toString(paramCheckUpdate.isSelected()));
 			
+				LOGGER.debug("Add "+poisConnexionTable.getRowCount()+" connexion settings from JTable");
+				globalProperties.removeUserProperties("org.connector.user");
+				globalProperties.removeUserProperties("org.connector.password");
 				for (int i = 0; i < poisConnexionTable.getRowCount(); i++) {
-					RadarsConnector connectorData = (RadarsConnector) poisConnexionTable.getValueAt(i, 0);
 					String userData = (String)poisConnexionTable.getValueAt(i, 1);
+					if (userData.isEmpty()) continue;
+					
+					RadarsConnector connectorData = (RadarsConnector) poisConnexionTable.getValueAt(i, 0);
 					String passwordData = (String)poisConnexionTable.getValueAt(i, 2);
 					
 					globalProperties.setUserProperty("org.connector.user."+connectorData.getLocale(), userData);
@@ -320,7 +332,7 @@ public class TabSettings extends JTTabPanel implements ActionListener {
 			}
 			
 		} else if (event.getSource() == btAddLine) {
-			((DefaultTableModel)poisConnexionTable.getModel()).insertRow(poisConnexionTable.getRowCount(), new Object[]{"","",""});
+			((DefaultTableModel)poisConnexionTable.getModel()).insertRow(poisConnexionTable.getRowCount(), new Object[]{RadarsConnector.EMPTY_RADAR_CONNECTOR,"",""});
 			poisConnexionTable.getParent().doLayout();
 			resizeScrolling(poisConnexionTable.getRowHeight());
 		}

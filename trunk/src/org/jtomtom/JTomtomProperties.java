@@ -169,6 +169,21 @@ public class JTomtomProperties {
 	}
 	
 	/**
+	 * Remove all user properties that begin by the given key
+	 * @param p_key	Start of the keys to delete
+	 */
+	public void removeUserProperties(String p_key) {
+		Enumeration<?> keys = userProperties.propertyNames();
+		while (keys.hasMoreElements()) {
+			String key = (String)keys.nextElement();
+			if (key.startsWith(p_key)) {
+				userProperties.remove(key);
+			}
+		}
+		
+	}
+	
+	/**
 	 * Store user properties in a properties file. Application properties are not save.
 	 * @param p_file					Properties file
 	 * @throws FileNotFoundException
@@ -179,4 +194,5 @@ public class JTomtomProperties {
 		userProperties.store(new FileOutputStream(p_file), "jTomtom user properties file");
 
 	}
+	
 }
