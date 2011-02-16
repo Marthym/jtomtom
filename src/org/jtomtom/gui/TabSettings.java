@@ -27,8 +27,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -36,8 +40,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -45,6 +52,8 @@ import org.jtomtom.Application;
 import org.jtomtom.Constant;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.JTomtomProperties;
+import org.jtomtom.connector.RadarsConnector;
+import org.jtomtom.gui.utilities.JPasswordTableRenderer;
 import org.jtomtom.gui.utilities.JTTabPanel;
 import org.jtomtom.gui.utilities.SpringUtilities;
 
@@ -62,8 +71,8 @@ public class TabSettings extends JTTabPanel implements ActionListener {
 	private JTextField 	paramProxyPort;
 	private JComboBox  	paramProxyType;
 	
-	private JTextField 	m_ttmaxUser;
-	private JTextField 	m_ttmaxPassword;
+	private JTable 		poisConnexionTable;
+	private JButton		btAddLine;
 
 	
 	private JComboBox  	paramLogLevel;
@@ -106,15 +115,16 @@ public class TabSettings extends JTTabPanel implements ActionListener {
 		buildConnexionFields();
 		JPanel tomtomaxPanel = new JPanel(new SpringLayout());
 		tomtomaxPanel.setBorder(BorderFactory.createTitledBorder(getTabTranslations().getString("org.jtomtom.tab.parameters.border.poisradars.label")));
-		tomtomaxPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.user.label")));
-		tomtomaxPanel.add(m_ttmaxUser);
-		tomtomaxPanel.add(new JLabel(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.password.label")));
-		tomtomaxPanel.add(m_ttmaxPassword);
+		tomtomaxPanel.add(poisConnexionTable.getTableHeader());
+		tomtomaxPanel.add(poisConnexionTable);
+		tomtomaxPanel.add(Box.createRigidArea(new Dimension(1, 6)));
+		btAddLine = new JButton("Add Line");
+		btAddLine.addActionListener(this);
+		tomtomaxPanel.add(btAddLine);
 		SpringUtilities.makeCompactGrid(tomtomaxPanel,
-                2, 2, 		 //rows, cols
+                4, 1, 		 //rows, cols
                 6, 6,        //initX, initY
-                6, 6);       //xPad, yPad
-
+                0, 0);       //xPad, yPad		
 		add(tomtomaxPanel);
 		
 		// Log and trace settings
@@ -186,21 +196,38 @@ public class TabSettings extends JTTabPanel implements ActionListener {
 	/**
 	 * Init POIs site connexion settings
 	 */
-	//TODO : Need to be refactor for accept more than one couple user / password
 	private void buildConnexionFields() {
-		// - User tomtomax
-		m_ttmaxUser = new JTextField();
-		m_ttmaxUser.setColumns(20);
-		m_ttmaxUser.setPreferredSize(new Dimension(0,25));
-		m_ttmaxUser.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.user.hint"));
-		m_ttmaxUser.setText(globalProperties.getUserProperty("org.tomtomax.user"));
+		
+		String[] columnNames = {"POIs Connectors",
+				getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.user.label"),
+				getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.password.label")};
 
-		// - Password Tomtomax
-		m_ttmaxPassword = new JPasswordField();
-		m_ttmaxPassword.setColumns(20);
-		m_ttmaxPassword.setPreferredSize(new Dimension(0,25));
-		m_ttmaxPassword.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.parameters.textfield.password.hint"));
-		m_ttmaxPassword.setText(globalProperties.getUserProperty("org.tomtomax.password"));
+		Map<String, String> userList = Application.getInstance().getGlobalProperties().getUserProperties("org.connector.user");
+		Map<String, String> passwordList = Application.getInstance().getGlobalProperties().getUserProperties("org.connector.password");
+		Object[][] data = new Object[userList.size()][3];
+		
+		Iterator<String> it = userList.keySet().iterator();
+		int i = 0;
+		while (it.hasNext()) {
+			String key = it.next();
+			String connectorLocale = key.substring(key.lastIndexOf('.')+1);
+			RadarsConnector connector = RadarsConnector.getConnectorByLocale(connectorLocale);
+			data[i] = new Object[]{connector.toString(), userList.get(key), passwordList.get("org.connector.password."+connectorLocale)};
+		}
+		
+		DefaultTableModel model = new DefaultTableModel(data, columnNames);
+		poisConnexionTable = new JTable(model);
+
+		// Build specific column renderer and editor
+		TableColumn connectorColumn = poisConnexionTable.getColumnModel().getColumn(0);
+		RadarsConnector[] allConnectors = RadarsConnector.getAllRadarsConnectors();
+		JComboBox radarSiteList = new JComboBox(allConnectors);
+		connectorColumn.setCellEditor(new DefaultCellEditor(radarSiteList));
+
+		TableColumn passwordColumn = poisConnexionTable.getColumnModel().getColumn(2);
+		passwordColumn.setCellEditor(new DefaultCellEditor(new JPasswordField()));
+		passwordColumn.setCellRenderer(new JPasswordTableRenderer());
+		
 	}
 
 	/**
@@ -249,10 +276,17 @@ public class TabSettings extends JTTabPanel implements ActionListener {
 				globalProperties.setUserProperty("net.proxy.port", paramProxyPort.getText());
 				globalProperties.setUserProperty("org.jtomtom.logLevel", ((String)paramLogLevel.getSelectedItem()));
 				globalProperties.setUserProperty("org.jtomtom.logFile", paramLogFile.getText());
-				globalProperties.setUserProperty("org.tomtomax.user", m_ttmaxUser.getText());
-				globalProperties.setUserProperty("org.tomtomax.password", m_ttmaxPassword.getText());
 				globalProperties.setUserProperty("org.jtomtom.checkupdate", Boolean.toString(paramCheckUpdate.isSelected()));
 			
+				for (int i = 0; i < poisConnexionTable.getRowCount(); i++) {
+					RadarsConnector connectorData = (RadarsConnector) poisConnexionTable.getValueAt(i, 0);
+					String userData = (String)poisConnexionTable.getValueAt(i, 1);
+					String passwordData = (String)poisConnexionTable.getValueAt(i, 2);
+					
+					globalProperties.setUserProperty("org.connector.user."+connectorData.getLocale(), userData);
+					globalProperties.setUserProperty("org.connector.password."+connectorData.getLocale(), passwordData);
+				}
+				
 				globalProperties.storeUserProperties(
 						new File(System.getProperty("user.home"), Constant.JTOMTOM_USER_PROPERTIES));
 				
@@ -284,6 +318,11 @@ public class TabSettings extends JTTabPanel implements ActionListener {
 				paramProxyHost.setEnabled(true);
 				paramProxyPort.setEnabled(true);
 			}
+			
+		} else if (event.getSource() == btAddLine) {
+			((DefaultTableModel)poisConnexionTable.getModel()).insertRow(poisConnexionTable.getRowCount(), new Object[]{"","",""});
+			poisConnexionTable.getParent().doLayout();
+			resizeScrolling(poisConnexionTable.getRowHeight());
 		}
 		
 	}

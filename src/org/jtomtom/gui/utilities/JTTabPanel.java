@@ -51,6 +51,7 @@ public class JTTabPanel extends JPanel {
 	
 	private JPanel centralPanel;
 	private JPanel scrolledPanel;
+	private JScrollPane additiveScrollBar;
 	
 	private boolean isBuild = false;
 
@@ -112,11 +113,11 @@ public class JTTabPanel extends JPanel {
 	 * Ajoute un ascenseur vertical à à l'onglet
 	 */
 	public void addScrollVerticalBar() {
-		JScrollPane scroll = new JScrollPane(scrolledPanel, 
+		additiveScrollBar = new JScrollPane(scrolledPanel, 
 				   JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 				   JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scroll.setBorder(BorderFactory.createEmptyBorder());
-		centralPanel.add(scroll, BorderLayout.CENTER);
+		additiveScrollBar.setBorder(BorderFactory.createEmptyBorder());
+		centralPanel.add(additiveScrollBar, BorderLayout.CENTER);
 		
 		// On retaille le panel pour inclure la scrollbar
 		Dimension dim = scrolledPanel.getPreferredSize();
@@ -133,5 +134,14 @@ public class JTTabPanel extends JPanel {
 	
 	protected final boolean isBuild() {
 		return isBuild;
+	}
+	
+	protected void resizeScrolling(int height) {
+		// Not very clean but I don't know how make an autorisize
+		if (additiveScrollBar != null) {
+			Dimension dim = scrolledPanel.getPreferredSize();
+			scrolledPanel.setPreferredSize(new Dimension((int)dim.getWidth(), (int)dim.getHeight()+height));
+			scrolledPanel.revalidate();
+		}
 	}
 }

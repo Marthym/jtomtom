@@ -1,3 +1,8 @@
+** jTomtom build 60 **
+- Add: Possibility to set different password for each Radar Site (Connector)
+- Improve: Translate forget french translation
+- Fix: Error in properties reader class
+
 ** jTomtom build 59 **
 - Fix: Crash when map directory does not exist
 - Fix: SF Tracker 3173911 - Update iso9660 library to the last version

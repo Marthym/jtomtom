@@ -136,7 +136,7 @@ public class JTomtomProperties {
 	 * @return		A map which contain key/value from the specified catégorie
 	 */
 	public final Map<String, String> getUserProperties(String p_key) {
-		Enumeration<?> keys = applicationProperties.propertyNames();
+		Enumeration<?> keys = userProperties.propertyNames();
 		Map<String, String> allProperties = new HashMap<String, String>();
 		while (keys.hasMoreElements()) {
 			String key = (String)keys.nextElement();

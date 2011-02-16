@@ -93,4 +93,9 @@ public class DummyRadarsConnector extends RadarsConnector {
 	public String getConnectorWebsite() {
 		return UPDATE_URL;
 	}
+
+	@Override
+	public String getLocale() {
+		return "na_NA";
+	}
 }

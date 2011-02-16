@@ -95,6 +95,8 @@ public abstract class RadarsConnector {
 	 */
 	public abstract String getConnectorWebsite();
 	
+	public abstract String getLocale();
+	
 	/**
 	 * Create RadarConnector from the Class name of the connector
 	 * @param connectorClassName	Class name of the connector
@@ -166,6 +168,26 @@ public abstract class RadarsConnector {
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * Return the connector which correspond with the locale
+	 * @param locale	Searching locale
+	 * @return
+	 */
+	public static final RadarsConnector getConnectorByLocale(String locale) {
+		try {
+			String connectorClass = Application.getInstance().getGlobalProperties().getApplicationProperty(RADARS_CONNECTOR_PROPERTIES+"."+locale);
+			Class<?> connector = null;
+			connector = Class.forName(connectorClass);
+			return (RadarsConnector) connector.newInstance();
+			
+		} catch (Exception e) {
+			LOGGER.info(e.getLocalizedMessage());
+			if (LOGGER.isDebugEnabled()) LOGGER.debug(e);
+			
+			return RadarsConnector.EMPTY_RADAR_CONNECTOR;
+		}
 	}
 	
 }
