@@ -296,4 +296,9 @@ public final class Tomtomax extends RadarsConnector {
 		return TOMTOMAX_WEBSITE;
 	}
 
+	@Override
+	public String getLocale() {
+		return TOMTOMAX_COUNTRY.toString();
+	}
+
 }

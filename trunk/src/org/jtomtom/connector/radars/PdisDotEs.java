@@ -261,4 +261,9 @@ public class PdisDotEs extends RadarsConnector {
 		return PDISES_WEBSITE;
 	}
 
+	@Override
+	public String getLocale() {
+		return PDISES_COUNTRY.toString();
+	}
+
 }
