@@ -1,3 +1,9 @@
+** jTomtom build 62 **
+- Fix: Bad parsing of new local db file
+
+** jTomtom build 61 **
+- Fix: Tomtomax update error after update of Tomtomax Web site
+
 ** jTomtom build 60 **
 - Add: Possibility to set different password for each Radar Site (Connector)
 - Improve: Translate forget french translation
