@@ -52,7 +52,7 @@ public final class Tomtomax extends RadarsConnector {
 	private static final Logger LOGGER = Logger.getLogger(Tomtomax.class);
 	
 	private static final String TOMTOMAX_WEBSITE = "http://www.tomtomax.fr/";
-	private static final String TOMTOMAX_DB_URL = TOMTOMAX_WEBSITE+"upload/tomtomax_radars.db";
+	private static final String TOMTOMAX_DB_URL = TOMTOMAX_WEBSITE+"upload/tomtomax_maxi_radars.db";
 	private static final String TOMTOMAX_LOGIN_URL = TOMTOMAX_WEBSITE+"forum/ucp.php?mode=login";
 	
 	private static final String TOMTOMAX_COOKIE_CONNECT = "phpbb3_e1wj8_u";
@@ -63,6 +63,11 @@ public final class Tomtomax extends RadarsConnector {
 	
 	private static final String TAG_BASIC = "[UZ1] ";
 	private static final String TAG_PREMIUM = "[UZ3] ";
+
+	private static final String TAG_RADARS_FILE = "radar=";
+	private static final String TAG_DATE_FILE = "date=";
+	private static final String TAG_VERSION_FILE = "vers=";
+
 	private URL urlBasicUpdate;
 	private URL urlPremiumUpdate;
 	
@@ -174,15 +179,15 @@ public final class Tomtomax extends RadarsConnector {
 			while ((line = buff.readLine()) != null) {
 				if (line.startsWith("date=")) {
 					mapLocalInformations.setLastUpdateDate("dd/MM/yyyy", line.substring(5));
-					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE+" = "+mapLocalInformations.getLastUpdateDateForPrint());
+					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_DATE_FILE+" = "+mapLocalInformations.getLastUpdateDateForPrint());
 					
 				} else if (line.startsWith("vers=")) {
 					mapLocalInformations.setDatabaseVersion(line.substring(5));
-					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_VERSION+" = "+mapLocalInformations.getDatabaseVersionForPrint());
+					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_VERSION_FILE+" = "+mapLocalInformations.getDatabaseVersionForPrint());
 					
 				} else if (line.startsWith("radar=")) {
 					mapLocalInformations.setNumberOfPOIs(Integer.parseInt(line.substring(6)));
-					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_RADARS+" = "+mapLocalInformations.getNumberOfPOIsForPrint());
+					if (LOGGER.isDebugEnabled()) LOGGER.debug(TAG_RADARS_FILE+" = "+mapLocalInformations.getNumberOfPOIsForPrint());
 					
 				} else if (line.startsWith("#####")) {
 					break;
