@@ -36,8 +36,8 @@ import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.connector.radars.Tomtomax;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.action.CheckUpdateAction;
-import org.jtomtom.gui.action.MajQuickFixAction;
-import org.jtomtom.gui.action.MajRadarsAction;
+import org.jtomtom.gui.action.UpdateQuickFixAction;
+import org.jtomtom.gui.action.UpdateRadarsAction;
 import org.jtomtom.gui.action.IsoBackupAction;
 
 import static org.junit.Assert.*;
@@ -64,8 +64,8 @@ public class TestActions {
 			
 			removeEphemerideMetaFile(theGPS);
 			
-			MajQuickFixAction action = new MajQuickFixAction("test QF");
-			action.miseAJourQuickFix(theGPS);
+			UpdateQuickFixAction action = new UpdateQuickFixAction("test QF");
+			action.updateQuickFix(theGPS);
 	
 			assertTrue(theGPS.theFiles.getEphemeridMeta().exists());
 			
@@ -99,13 +99,13 @@ public class TestActions {
 		File ttmaxDbFile = new File(theGPS.getActiveMap().getPath(), Tomtomax.TOMTOMAX_DB_FILE);
 		if (ttmaxDbFile.exists() && ttmaxDbFile.canWrite()) ttmaxDbFile.delete();
 		
-		MajRadarsAction action = new MajRadarsAction("test Tomtomax");
+		UpdateRadarsAction action = new UpdateRadarsAction("test Tomtomax");
 		RadarsConnector ttMaxRadars = RadarsConnector.createFromClass(Tomtomax.class);
 		try {
 			List<JCheckBox> chkList = new LinkedList<JCheckBox>();
 			chkList.add(new JCheckBox(theGPS.getActiveMap().getName(), true));
 			
-			action.miseAJourRadars(theGPS, chkList, ttMaxRadars);
+			action.updateRadars(theGPS, chkList, ttMaxRadars);
 		} catch (JTomtomException e) {
 			fail(e.getLocalizedMessage());
 		}
@@ -126,7 +126,7 @@ public class TestActions {
 		assertNotNull(theGPS);
 		
 		IsoBackupAction action = new IsoBackupAction("test TTM");
-		action.setFichierDestination("/tmp/testgpsbackup.iso");
+		action.setTargetFile("/tmp/testgpsbackup.iso");
 		try {
 			action.createGpsBackup(theGPS);
 		} catch (JTomtomException e) {
@@ -146,7 +146,7 @@ public class TestActions {
 		assertNotNull(theGPS);
 		
 		IsoBackupAction action = new IsoBackupAction("test TTM");
-		action.setFichierDestination("/tmp/testgpsbackup.iso");
+		action.setTargetFile("/tmp/testgpsbackup.iso");
 		try {
 			action.createGpsBackup(theGPS, true);
 		} catch (JTomtomException e) {

@@ -36,7 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 /**
- * Classe intermédiaire d'homogénisation des onglets
+ * Over class for homogenization of tab panel
  * @author Frédéric Combes
  *
  */
@@ -61,8 +61,8 @@ public class JTTabPanel extends JPanel {
 	}
 	
 	/**
-	 * Construit l'onglet vide
-	 * @param p_imageUrl	Image de gauche de l'onglet
+	 * Build empty tab panel
+	 * @param p_imageUrl	Image on the left side
 	 */
 	public JPanel build() {
 		setLayout(new BorderLayout());
@@ -70,14 +70,14 @@ public class JTTabPanel extends JPanel {
 		if (leftImage != null)
 			add(leftImage, BorderLayout.LINE_START);
 		
-		// Création du paneau central
+		// Create central panel
 		centralPanel = new JPanel();
 		centralPanel.setLayout(new BoxLayout(centralPanel, BoxLayout.PAGE_AXIS));
 		
-		// Entête de l'onglet
+		// Header of the tab
 		centralPanel.setBorder(new HeaderTitleBorder(tabTitle));
 
-		// Création du paneau central
+		// Create scrolled panel
 		scrolledPanel = new JPanel();
 		scrolledPanel.setLayout(new BoxLayout(scrolledPanel, BoxLayout.PAGE_AXIS));
 		centralPanel.add(scrolledPanel);
@@ -93,8 +93,8 @@ public class JTTabPanel extends JPanel {
 	}
 	
 	/**
-	 * Ajoute un composant dans le panel principal
-	 * @param p_component	Composant à rajouter
+	 * Add component in the main panel
+	 * @param p_component	Component to add
 	 */
 	public Component add(Component p_component) {
 		scrolledPanel.add(p_component);
@@ -102,15 +102,15 @@ public class JTTabPanel extends JPanel {
 	}
 		
 	/**
-	 * Ajoute le bouton d'action principal de l'onglet
-	 * @param p_button	Bouton à ajouter
+	 * Add action button to the tab
+	 * @param p_button	Button to add
 	 */
 	public void addActionButton(JButton p_button) {
 		add(p_button, BorderLayout.PAGE_END);
 	}
 	
 	/**
-	 * Ajoute un ascenseur vertical à à l'onglet
+	 * Add scrolled bar to the tab
 	 */
 	public void addScrollVerticalBar() {
 		additiveScrollBar = new JScrollPane(scrolledPanel, 
@@ -119,7 +119,7 @@ public class JTTabPanel extends JPanel {
 		additiveScrollBar.setBorder(BorderFactory.createEmptyBorder());
 		centralPanel.add(additiveScrollBar, BorderLayout.CENTER);
 		
-		// On retaille le panel pour inclure la scrollbar
+		// Resize panel for include scrollbar width
 		Dimension dim = scrolledPanel.getPreferredSize();
 		scrolledPanel.setPreferredSize(new Dimension((int)dim.getWidth()-20, (int)dim.getHeight()));
 	}
@@ -137,7 +137,7 @@ public class JTTabPanel extends JPanel {
 	}
 	
 	protected void resizeScrolling(int height) {
-		// Not very clean but I don't know how make an autorisize
+		// Not very clean but I don't know how make an auto-resize
 		if (additiveScrollBar != null) {
 			Dimension dim = scrolledPanel.getPreferredSize();
 			scrolledPanel.setPreferredSize(new Dimension((int)dim.getWidth(), (int)dim.getHeight()+height));

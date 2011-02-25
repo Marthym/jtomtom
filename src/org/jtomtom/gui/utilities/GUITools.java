@@ -26,7 +26,7 @@ import javax.swing.UIManager;
 
 public final class GUITools {
     /**
-     * Permet de savoir si on utilise Nimbus comme thème
+     * Allow to know if jTomtom can use Nimbus as theme
      * @return
      */
     public static final boolean usingNimbus() {
@@ -34,16 +34,15 @@ public final class GUITools {
     }
 
     /**
-     * Génère une couleur en appliquant les décalages sur la teinte, la saturation et 
-     * la luminosité de la couleur de base
-     * @param base Couleur de base
-     * @param dH Décalage de la Teinte (Hue)
-     * @param dS Décalage de la Saturation (Saturation)
-     * @param dB Décalage de la Luminosité (Brightness)
-     * @return Couleur résultante
+     * Genere color by apply shifts in hue, saturation and brightness of the base color
+     * @param base Base Color
+     * @param dH Shift in Hue (Teinte)
+     * @param dS Shift in Saturation (Saturation)
+     * @param dB Shift in Brightness (Luminosité)
+     * @return Result color
      */
     public static final Color deriveColorHSB(Color base, float dH, float dS, float dB) {
-    	// Convertion de la couleur RVB en HSB
+    	// Convert RGB color in HSB color
         float hsb[] = Color.RGBtoHSB(
                 base.getRed(), base.getGreen(), base.getBlue(), null);
 

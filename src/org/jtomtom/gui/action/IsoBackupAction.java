@@ -37,8 +37,8 @@ import org.jtomtom.Application;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.device.TomtomMap;
-import org.jtomtom.gui.PatienterDialog;
-import org.jtomtom.gui.TabSauvegarde;
+import org.jtomtom.gui.WaitingDialog;
+import org.jtomtom.gui.TabBackupDevice;
 
 import de.tu_darmstadt.informatik.rbg.hatlak.iso9660.ConfigException;
 import de.tu_darmstadt.informatik.rbg.hatlak.iso9660.ISO9660Directory;
@@ -58,9 +58,9 @@ public class IsoBackupAction extends AbstractAction {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(IsoBackupAction.class);
 	
-	private PatienterDialog m_waitingDialog = null;
-	private String m_targetIsoFile;
-	private boolean m_makeTestISO = false;
+	private WaitingDialog waitingDialog = null;
+	private String targetIsoFile;
+	private boolean makeTestISO = false;
 
 	public IsoBackupAction (String p_label) {
 		super(p_label);
@@ -70,10 +70,10 @@ public class IsoBackupAction extends AbstractAction {
 	public void actionPerformed(ActionEvent event) {
 		if (JButton.class.isAssignableFrom(event.getSource().getClass())) {
 			JButton bp = (JButton)event.getSource();
-			if (TabSauvegarde.class.isAssignableFrom(bp.getParent().getClass())) {
-				TabSauvegarde tabSauvegarde = (TabSauvegarde)bp.getParent();
-				m_targetIsoFile = tabSauvegarde.getFichierDestination();
-				m_makeTestISO = tabSauvegarde.getMakeTestISO();
+			if (TabBackupDevice.class.isAssignableFrom(bp.getParent().getClass())) {
+				TabBackupDevice tabSauvegarde = (TabBackupDevice)bp.getParent();
+				targetIsoFile = tabSauvegarde.getTargetFile();
+				makeTestISO = tabSauvegarde.getMakeTestISO();
 			} 
 		}
 		
@@ -103,8 +103,8 @@ public class IsoBackupAction extends AbstractAction {
 			@Override
             public void done() {
             	// First, Close wait window
-            	if (m_waitingDialog != null) {
-            		m_waitingDialog.dispose();
+            	if (waitingDialog != null) {
+            		waitingDialog.dispose();
             	}
             	
             	// Second, check for possible errors
@@ -124,8 +124,8 @@ public class IsoBackupAction extends AbstractAction {
 				}
             }
         };
-        m_waitingDialog = new PatienterDialog(worker);
-        m_waitingDialog.setVisible(true);
+        waitingDialog = new WaitingDialog(worker);
+        waitingDialog.setVisible(true);
 
 	}
 	
@@ -133,8 +133,8 @@ public class IsoBackupAction extends AbstractAction {
 	 * Init the path of the result ISO file. Just use in test case.
 	 * @param p_fichier	Absolute path of the created file
 	 */
-	public void setFichierDestination(String p_fichier) {
-		m_targetIsoFile = p_fichier;
+	public void setTargetFile(String p_fichier) {
+		targetIsoFile = p_fichier;
 	}
 	
     /**
@@ -205,7 +205,7 @@ public class IsoBackupAction extends AbstractAction {
 			throw new JTomtomException(e);
 		}
 		
-		if (m_targetIsoFile == null || m_targetIsoFile.isEmpty()) {
+		if (targetIsoFile == null || targetIsoFile.isEmpty()) {
 			throw new JTomtomException("org.jtomtom.errors.backup.destmustexist");
 		}
     	
@@ -235,7 +235,7 @@ public class IsoBackupAction extends AbstractAction {
 		}
 
 		// Create ISO
-		File outputIsoFile = new File(m_targetIsoFile);
+		File outputIsoFile = new File(targetIsoFile);
 		StreamHandler streamHandler = null;
 		try {
 			streamHandler = new ISOImageFileHandler(outputIsoFile);
@@ -277,7 +277,7 @@ public class IsoBackupAction extends AbstractAction {
     }
     
     public boolean createGpsBackup(TomtomDevice p_GPS) {
-    	return createGpsBackup(p_GPS, m_makeTestISO);
+    	return createGpsBackup(p_GPS, makeTestISO);
     }
 
 }

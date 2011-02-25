@@ -1,3 +1,7 @@
+** jTomtom build 63 **
+- Improve: Refactor TabRadars, externalize Worker and translate comments
+- Improve: Lot of refactor and translation comments
+
 ** jTomtom build 62 **
 - Fix: Bad parsing of new local db file
 

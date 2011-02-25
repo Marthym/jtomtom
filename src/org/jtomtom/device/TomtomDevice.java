@@ -289,7 +289,7 @@ public class TomtomDevice {
 		for (File current : ephemFiles) {
 			File destination = new File(ephemDir, current.getName());
 			
-			if (!JTomTomUtils.deplacer(current, destination, true))
+			if (!JTomTomUtils.move(current, destination, true))
 				throw new JTomtomException("org.jtomtom.errors.gps.ephem.copyerror");
 			
 			LOGGER.debug("Copy of "+current.getName()+" ... OK");

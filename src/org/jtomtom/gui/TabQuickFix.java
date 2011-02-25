@@ -37,7 +37,7 @@ import org.jtomtom.JTomtomException;
 import org.jtomtom.device.Chipset;
 import org.jtomtom.device.ChipsetNotFoundException;
 import org.jtomtom.device.TomtomDevice;
-import org.jtomtom.gui.action.MajQuickFixAction;
+import org.jtomtom.gui.action.UpdateQuickFixAction;
 import org.jtomtom.gui.utilities.JTTabPanel;
 
 /**
@@ -67,17 +67,17 @@ public class TabQuickFix extends JTTabPanel {
 		quickFixInfos = new JLabel("");
 		add(quickFixInfos);
 		
-		quickFixButton = new JButton(new MajQuickFixAction(getTabTranslations().getString("org.jtomtom.tab.quickfix.button.update.label")));
+		quickFixButton = new JButton(new UpdateQuickFixAction(getTabTranslations().getString("org.jtomtom.tab.quickfix.button.update.label")));
 		addActionButton(quickFixButton);
 		
 		return this;
 	}
 	
 	/**
-	 * Charge les infos nécessaire au QuickFix du GPS et met à jour l'onglet avec
+	 * Load needed QuickFix informations and update the tab
 	 */
 	public void loadQuickFixInfos() {
-		LOGGER.info("Récupération des informations QuickFix");
+		LOGGER.info("Get QuickFix informations ...");
 		DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
 		StringBuffer infos = new StringBuffer();
 		

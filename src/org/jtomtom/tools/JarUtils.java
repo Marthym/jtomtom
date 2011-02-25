@@ -86,7 +86,7 @@ public class JarUtils {
 		}
 		
 		if (jarFileName.indexOf("!/") <= 0) {
-			LOGGER.debug("URL anormale, sans doute en train de tester ?");
+			LOGGER.debug("Strange URL, maybe you currently testing ?");
 			return null;
 		}
 		

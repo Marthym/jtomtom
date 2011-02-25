@@ -43,64 +43,61 @@ import org.jtomtom.gui.utilities.JTTabPanel;
  * @author Frédéric Combes
  *
  */
-public class TabSauvegarde extends JTTabPanel implements MouseListener {
+public class TabBackupDevice extends JTTabPanel implements MouseListener {
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger(TabSauvegarde.class);
+	private static final Logger LOGGER = Logger.getLogger(TabBackupDevice.class);
+	
 	private final String DEFAULT_FILE_NAME = "gpsbackup-"+(new SimpleDateFormat("yyyyMMddHHmmss")).format(new Date())+".iso";
 	
-	private JTextField 	m_isoFileChooser;
-	private JCheckBox 	m_makeTestISO;
+	private JTextField 	isoFileChooser;
+	private JCheckBox 	makeTestISO;
 
-	public TabSauvegarde() {
+	public TabBackupDevice() {
 		super(getTabTranslations().getString("org.jtomtom.tab.backup.title"));
 		setPanelLeftImage(getClass().getResource("resources/sauvegarde.png"));
 	}
 	
 	/**
-	 * Construction de l'interface graphique
+	 * Build UI
 	 */
 	public JPanel build() {
 		if (isBuild()) return this;
 		super.build();
-		LOGGER.trace("Building TabSauvegarde ...");
+		LOGGER.trace("Building TabBackupDevice ...");
 		
 		add(Box.createRigidArea(new Dimension(0,5)));
 		
-		// Création du texte de présentation
-		JLabel infos = new JLabel(loadSauvegardeInfos().toString());
+		// Create presentation text
+		JLabel infos = new JLabel(writeBackupInfos().toString());
 		add(infos);
 		add(Box.createRigidArea(new Dimension(0,20)));
 		infos = new JLabel(getTabTranslations().getString("org.jtomtom.tab.backup.label.infos.text"));
 		add(infos);
 		
-		// Création du champ de saisie pour le fichier d'entrée/sortie
-		m_isoFileChooser = new JTextField();
-		m_isoFileChooser.setMaximumSize(new Dimension(Short.MAX_VALUE,25));
-		m_isoFileChooser.setMinimumSize(new Dimension(20,25));
-		m_isoFileChooser.setAlignmentX(LEFT_ALIGNMENT);
-		m_isoFileChooser.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.backup.textfield.filechooser.hint"));
-		m_isoFileChooser.addMouseListener(this);
-		m_isoFileChooser.setText(System.getProperty("user.home")+File.separator+DEFAULT_FILE_NAME);
-		add(m_isoFileChooser);
+		// Create edit field for choose I/O file
+		isoFileChooser = new JTextField();
+		isoFileChooser.setMaximumSize(new Dimension(Short.MAX_VALUE,25));
+		isoFileChooser.setMinimumSize(new Dimension(20,25));
+		isoFileChooser.setAlignmentX(LEFT_ALIGNMENT);
+		isoFileChooser.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.backup.textfield.filechooser.hint"));
+		isoFileChooser.addMouseListener(this);
+		isoFileChooser.setText(System.getProperty("user.home")+File.separator+DEFAULT_FILE_NAME);
+		add(isoFileChooser);
 		
-		m_makeTestISO = new JCheckBox(getTabTranslations().getString("org.jtomtom.tab.backup.checkbox.isotest.label"));
-		m_makeTestISO.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.backup.checkbox.isotest.hint"));
-		m_makeTestISO.setVisible(LOGGER.isDebugEnabled());
-		add(m_makeTestISO);
+		makeTestISO = new JCheckBox(getTabTranslations().getString("org.jtomtom.tab.backup.checkbox.isotest.label"));
+		makeTestISO.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.backup.checkbox.isotest.hint"));
+		makeTestISO.setVisible(LOGGER.isDebugEnabled());
+		add(makeTestISO);
 		add(Box.createRigidArea(new Dimension(0,10)));
 		
-		// Création du panneau de bouton
+		// Create button panel
 		JButton bouton = new JButton(new IsoBackupAction(getTabTranslations().getString("org.jtomtom.tab.backup.button.createiso.label")));
 		addActionButton(bouton);
 		
 		return this;
 	}
 
-	/**
-	 * Séparation de l'écriture du message dans l'onglet
-	 * @return
-	 */
-	private final static StringBuffer loadSauvegardeInfos() {
+	private final static StringBuffer writeBackupInfos() {
 		StringBuffer buffer = new StringBuffer();
 		
 		buffer.append("<html><p>").append(getTabTranslations().getString("org.jtomtom.tab.backup.text.1")).append("</p>");
@@ -110,46 +107,46 @@ public class TabSauvegarde extends JTTabPanel implements MouseListener {
 	}
 	
 	/**
-	 * Retourne le text présent dans le TextField de chemin de destination
-	 * @return	Chaine
+	 * Return text inside the TextField of target path
+	 * @return	String
 	 */
-	public final String getFichierDestination() {
-		return m_isoFileChooser.getText();
+	public final String getTargetFile() {
+		return isoFileChooser.getText();
 	}
 	
 	/**
-	 * Retourne la valeur de l'option de génération d'ISO de test
-	 * @return	Vrai ou faux
+	 * Return the value of the option generate test ISO file
+	 * @return	true or false
 	 */
 	public final boolean getMakeTestISO() {
-		if (m_makeTestISO == null) return false;
-		return m_makeTestISO.isSelected();
+		if (makeTestISO == null) return false;
+		return makeTestISO.isSelected();
 	}
 	
 	public void refreshISOType() {
-		if (m_makeTestISO == null) return;
+		if (makeTestISO == null) return;
 		
 		if (LOGGER.isDebugEnabled()) {
-			m_makeTestISO.setVisible(true);
+			makeTestISO.setVisible(true);
 		} else {
-			m_makeTestISO.setSelected(false);
-			m_makeTestISO.setVisible(false);
+			makeTestISO.setSelected(false);
+			makeTestISO.setVisible(false);
 		}
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (e.getSource() == m_isoFileChooser) {
+		if (e.getSource() == isoFileChooser) {
 			if (e.getClickCount() >= 2) {
-				LOGGER.debug("Double-Click sur le m_isoFileChooser");
-				// S'il y a double click, on ouvre un filechooser
+				LOGGER.debug("Double-Click on the isoFileChooser");
+				// Open file chooser on double-click
 				final JFileChooser fc = new JFileChooser();
 				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
 				int returnVal = fc.showOpenDialog(this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					if (LOGGER.isDebugEnabled()) LOGGER.debug("Fichier choisit : "+fc.getSelectedFile().getAbsolutePath());
-					m_isoFileChooser.setText(fc.getSelectedFile().getAbsolutePath());
+					if (LOGGER.isDebugEnabled()) LOGGER.debug("Chosen file : "+fc.getSelectedFile().getAbsolutePath());
+					isoFileChooser.setText(fc.getSelectedFile().getAbsolutePath());
 				}
 
 			}

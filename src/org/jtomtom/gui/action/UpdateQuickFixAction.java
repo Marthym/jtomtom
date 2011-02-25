@@ -49,7 +49,7 @@ import org.jtomtom.Constant;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.device.Chipset;
 import org.jtomtom.device.TomtomDevice;
-import org.jtomtom.gui.PatienterDialog;
+import org.jtomtom.gui.WaitingDialog;
 import org.jtomtom.gui.TabQuickFix;
 import org.jtomtom.tools.HttpUtils;
 import org.jtomtom.tools.NetworkTester;
@@ -58,27 +58,24 @@ import org.jtomtom.tools.NetworkTester;
  * @author Frédéric Combes
  *
  */
-public class MajQuickFixAction extends AbstractAction {
+public class UpdateQuickFixAction extends AbstractAction {
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger(MajQuickFixAction.class);
+	private static final Logger LOGGER = Logger.getLogger(UpdateQuickFixAction.class);
 	
-	private PatienterDialog m_waitingDialog = null;
-	private TabQuickFix m_tabQuickFix = null;
+	private WaitingDialog waitingDialog = null;
+	private TabQuickFix tabQuickFix = null;
 
-	public MajQuickFixAction (String p_label) {
+	public UpdateQuickFixAction (String p_label) {
 		super(p_label);
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		// On récupère l'onglet qui a appelé l'action pour le rafraichir plus tard
+		// Get panel which call action for refresh later
 		if (JButton.class.isAssignableFrom(arg0.getSource().getClass())) {
 			JButton btQF = (JButton)arg0.getSource();
 			if (TabQuickFix.class.isAssignableFrom(btQF.getParent().getClass())) {
-				m_tabQuickFix = (TabQuickFix)btQF.getParent();
+				tabQuickFix = (TabQuickFix)btQF.getParent();
 			}
 		}
 		
@@ -90,7 +87,7 @@ public class MajQuickFixAction extends AbstractAction {
                 	Application theApp = Application.getInstance();
                 	
                 	NetworkTester.getInstance().validNetworkAvailability(theApp.getProxyServer());
-                	miseAJourQuickFix(theApp.getTheDevice());
+                	updateQuickFix(theApp.getTheDevice());
                 	result.status = true;
 					
 				} catch (JTomtomException e) {
@@ -103,17 +100,17 @@ public class MajQuickFixAction extends AbstractAction {
 
             @Override
             public void done() {
-            	// Déjà, on ferme la fenêtre d'attente
-            	if (m_waitingDialog != null) {
-            		m_waitingDialog.dispose();
+            	// First of all we close waiting dialog
+            	if (waitingDialog != null) {
+            		waitingDialog.dispose();
             	}
             	
-            	// Ensuite, on regarde s'il y a eu une erreur
+            	// Second we check there are no error
             	ActionResult result = null;
             	try {
             		result = get();
 	            	if (!result.status) {
-	            		// En cas d'erreur on affiche un message
+	            		// If error occured we show message
 		            	JOptionPane.showMessageDialog(null, result.exception.getLocalizedMessage(), 
 		            			Application.getInstance().getMainTranslator().getString("org.jtomtom.main.dialog.default.error.title"), JOptionPane.ERROR_MESSAGE);
 	            	}
@@ -123,20 +120,20 @@ public class MajQuickFixAction extends AbstractAction {
             		LOGGER.warn(e.getLocalizedMessage());
 				}
             	
-            	if (m_tabQuickFix != null && (result == null || result.status)) {
-            		m_tabQuickFix.loadQuickFixInfos();
+            	if (tabQuickFix != null && (result == null || result.status)) {
+            		tabQuickFix.loadQuickFixInfos();
             	}
             }
         };
-        m_waitingDialog = new PatienterDialog(worker);
-        m_waitingDialog.setVisible(true);
+        waitingDialog = new WaitingDialog(worker);
+        waitingDialog.setVisible(true);
 	}
 
 	/**
-	 * Fonction effectuant la mise à jour du GPS en téléchargeant les fichiers de la mise à jour QuickFix
-	 * @param theGPS	Le GPS à mettre à jour
+	 * Update the GPS by downloading the QuickGPSFix file and unzip it in GPS
+	 * @param theGPS	The device to be updated
 	 */
-	public void miseAJourQuickFix(TomtomDevice theGPS) {		
+	public void updateQuickFix(TomtomDevice theGPS) {		
 		
 		List<URL> filesToDownload = getEphemeridFilesURL(theGPS.getChipset());
 		List<File> filesToUncab = downloadEphemeridFiles(filesToDownload);
@@ -177,7 +174,7 @@ public class MajQuickFixAction extends AbstractAction {
 				conn.setRequestProperty ( "User-agent", Constant.TOMTOM_USER_AGENT);
 				conn.setDoInput(true);
 	            conn.setUseCaches(false);
-	            conn.setReadTimeout(HttpUtils.TIMEOUT); // TimeOut en cas de perte de connexion
+	            conn.setReadTimeout(HttpUtils.TIMEOUT); // TimeOut for prevent conexion lost
 	            conn.connect();
 	            
 	            int currentSize = 0;
@@ -217,7 +214,7 @@ public class MajQuickFixAction extends AbstractAction {
 			} // end for (URL oneFileLocation : filesLocations)
 			
 		} catch (IOException e) {
-			throw new JTomtomException("Enable to download ephemerid files !", e);
+			throw new JTomtomException("Unable to download ephemerid files !", e);
 			
 		} 
 		return downloadedFiles;
@@ -261,7 +258,7 @@ public class MajQuickFixAction extends AbstractAction {
 				throw new JTomtomException(e);
 				
 			} finally {
-				LOGGER.debug("Fermeture des flux de décompression...");
+				LOGGER.debug("Close uncab stream ...");
 				try {cabis.close();} catch (Exception e){};
 				try {dest.close();} catch (Exception e){};
 				try {fos.close();} catch (Exception e){};				
@@ -273,8 +270,8 @@ public class MajQuickFixAction extends AbstractAction {
 	}
 	
 	private void updateProgressBar(int current, int max) {
-        if (m_waitingDialog != null) { // Need for test case
-        	m_waitingDialog.refreshProgressBar(current, max);
+        if (waitingDialog != null) { // Need for test case
+        	waitingDialog.refreshProgressBar(current, max);
         }
 	}
 }
