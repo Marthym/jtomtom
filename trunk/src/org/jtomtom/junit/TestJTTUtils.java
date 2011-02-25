@@ -49,7 +49,7 @@ public class TestJTTUtils {
 		assertTrue(source.exists());
 		assertTrue(destination.length() != source.length());
 		
-		JTomTomUtils.copier(source, destination, true);
+		JTomTomUtils.copy(source, destination, true);
 		assertTrue(destination.exists());
 		assertEquals(source.length(), destination.length());
 	}

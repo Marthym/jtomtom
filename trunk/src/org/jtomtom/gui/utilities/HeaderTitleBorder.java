@@ -38,76 +38,65 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 
 public class HeaderTitleBorder implements Border {
-    private String 			m_title;
-    private Font			m_titleFont;
+    private String 			borderTitle;
+    private Font			borderTitleFont;
     
     /**
-     * Teinte de la couleur du fond d'entête
+     * Hue of header background color
      */
-	public static final float 	TEINTE = (float) 0.63369966;
+	public static final float 	HUE = (float) 0.63369966;
 	
 	/**
-	 * Couleur de gauche (partie foncé du dégradé)
+	 * Color on the left (dark side)
 	 */
-    public static final Color	LEFT_COLOR = Color.getHSBColor(TEINTE-.013f, .15f, .85f);
+    public static final Color	LEFT_COLOR = Color.getHSBColor(HUE-.013f, .15f, .85f);
     
     /**
-     * Couleur de droite (partie transparente du dégradé)
+     * Color on the left (transparent side)
      */
-    public static final Color	RIGHT_COLOR = Color.getHSBColor(TEINTE-.005f, .24f, .80f);
+    public static final Color	RIGHT_COLOR = Color.getHSBColor(HUE-.005f, .24f, .80f);
     
     private static final Color   OPAQUE_COLOR = new Color(0.0f, 0.0f, 0.0f, 1.0f);
     private static final Color   TRANSPARENT_COLOR = new Color(0.0f, 0.0f, 0.0f, 0.0f);
     
     /**
-     * Police par défault de l'entête
+     * Default header font
      */
     public static final Font	DEFAULT_FONT = UIManager.getFont("Label.font").deriveFont(Font.BOLD, 20);
 	
-    /**
-     * Constructeur initialisant le titre de mon bloc
-     * @param title	Titre du bloc (en général un panel
-     */
     public HeaderTitleBorder(String pTitle) {
     	this(pTitle, DEFAULT_FONT);
     } 
     
-    /**
-     * Constructeur initialisant le titre de mon bloc
-     * @param title	Titre du bloc (en général un panel
-     */
     public HeaderTitleBorder(String pTitle, Font pFont) {
-        m_title = pTitle;
-        m_titleFont = pFont;
+        borderTitle = pTitle;
+        borderTitleFont = pFont;
     } 
     
     /**
-     * Retourne la hauteur de l'entête en fonction du titre
+     * Return the header height based on the title
      * @param c
      * @return
      */
     private final int getTitleHeight(Component c) {
-        FontMetrics metrics = c.getFontMetrics(m_titleFont);
+        FontMetrics metrics = c.getFontMetrics(borderTitleFont);
         return (int)(metrics.getHeight() * 1.4);
     }
  
-    /* (non-Javadoc)
-     * @see javax.swing.border.Border#paintBorder(java.awt.Component, java.awt.Graphics, int, int, int, int)
-     */
     public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
         int titleHeight = getTitleHeight(c);
         
-        // - Allez, on commence par créer un image transparente
+        // - We begin by create transparent image
         BufferedImage titleImage = GraphicsEnvironment.getLocalGraphicsEnvironment().
         	getDefaultScreenDevice().getDefaultConfiguration().
         	createCompatibleImage(width, height, Transparency.TRANSLUCENT);
         
-        // - On crée le dégradé
+        // - Create gradient
         GradientPaint gradient = new GradientPaint(0, 0, 
                 LEFT_COLOR, 0, titleHeight, 
                 RIGHT_COLOR, false);
         
-        // - On dessine l'entête de cadre avec le dégradé
+        // - Draw the header with the gradient
         Graphics2D theGraph2D = (Graphics2D)titleImage.getGraphics();
         theGraph2D.setPaint(gradient);
         theGraph2D.fillRect(x, y, width, titleHeight);
@@ -120,23 +109,20 @@ public class HeaderTitleBorder implements Border {
         g.drawImage(titleImage, x, y, c);
         
         
-        // Maintenant on dessine le titre
+        // - Now drawing title
         theGraph2D = (Graphics2D)g.create();
         theGraph2D.setRenderingHint(
         		RenderingHints.KEY_TEXT_ANTIALIASING, 
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         theGraph2D.setColor(c.getForeground());
-        theGraph2D.setFont(m_titleFont);
+        theGraph2D.setFont(borderTitleFont);
         FontMetrics metrics = c.getFontMetrics(theGraph2D.getFont());
-        theGraph2D.drawString(m_title, x + 8, 
+        theGraph2D.drawString(borderTitle, x + 8, 
                 y + (titleHeight - metrics.getHeight())/2 + metrics.getAscent()); 
         theGraph2D.dispose();
         
     }
 
-	/* (non-Javadoc)
-	 * @see javax.swing.border.Border#getBorderInsets(java.awt.Component)
-	 */
 	@Override
 	public Insets getBorderInsets(Component c) {
         Insets borderInsets = new Insets(0,10,0,5);        
@@ -144,9 +130,6 @@ public class HeaderTitleBorder implements Border {
         return borderInsets;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.border.Border#isBorderOpaque()
-	 */
 	@Override
 	public boolean isBorderOpaque() {
 		return false;

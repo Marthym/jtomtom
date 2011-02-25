@@ -159,7 +159,7 @@ public class TomtomMap {
 		// We move file inside the GPS
 		for (File current : files) {
 			File dest = new File(mapDirectory, current.getName());
-			if (JTomTomUtils.copier(current, dest, true)) {
+			if (JTomTomUtils.copy(current, dest, true)) {
 				LOGGER.debug(current.getName()+" copy done.");
 			} else {
 				throw new JTomtomException("org.jtomtom.errors.gps.radars.installfail", current.getName());

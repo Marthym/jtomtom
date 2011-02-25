@@ -56,9 +56,6 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 		this.displayedMessage = message;
 	}
 	
-	/* (non-Javadoc)
-	 * @see javax.swing.SwingWorker#doInBackground()
-	 */
 	@Override
 	protected ActionResult doInBackground() throws Exception {
 		
@@ -83,9 +80,6 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.SwingWorker#done()
-	 */
 	@Override
 	protected void done() {
 		try {
@@ -123,7 +117,7 @@ public class CheckUpdateAction extends SwingWorker<ActionResult, Void> {
 			URLConnection conn = jarUrl.openConnection(
 					Application.getInstance().getProxyServer());
 			
-			// On trouve le nom du fichier jar de jTomtom
+			// Found jTomtom jar file
 			File jttJarFile = JarUtils.getCurrentFile();
 			if (jttJarFile == null || !jttJarFile.exists()) {
 				LOGGER.warn("Jar file not found ! Check update canceled !");

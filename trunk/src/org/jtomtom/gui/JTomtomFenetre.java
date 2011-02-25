@@ -93,7 +93,7 @@ public class JTomtomFenetre extends JFrame implements ChangeListener {
 		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.general.label"), new TabGeneral().build());
 		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.quickfix.label"), new TabQuickFix());
 		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.radars.label"), new TabRadars());
-		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.backup.label"), new TabSauvegarde());
+		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.backup.label"), new TabBackupDevice());
 		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.settings.label"), new TabSettings());
 		tabbedPane.addTab(theTranslator.getString("org.jtomtom.main.tab.about.label"), new TabAbout());
 		tabbedPane.addChangeListener(this);

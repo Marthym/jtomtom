@@ -40,7 +40,7 @@ import org.jtomtom.Application;
  * @author Frédéric Combes
  *
  */
-public class PatienterDialog extends JDialog implements ActionListener {
+public class WaitingDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	
 	private final ResourceBundle theTranslator = Application.getInstance().getMainTranslator();
@@ -49,7 +49,7 @@ public class PatienterDialog extends JDialog implements ActionListener {
 	private SwingWorker<?, ?> worker;
 	private JProgressBar progressBar;
 	
-	public PatienterDialog(SwingWorker<?, ?> p_worker) {
+	public WaitingDialog(SwingWorker<?, ?> p_worker) {
 		super();
 		
 		build();

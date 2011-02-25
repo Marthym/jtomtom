@@ -44,15 +44,15 @@ public final class JTomTomUtils {
 	public static final Logger LOGGER = Logger.getLogger(JTomTomUtils.class);
 	
 	/**
-	 * Copie un fichier dans un autre peut importe leur emplacement sur les disques physiques
-	 * @param source		Fichier source
-	 * @param destination	Fichier destination
-	 * @param ecrase		True s'il faut écraser le fichier destination s'il existe
-	 * @return				True si la copie est effectuée
+	 * Copy a file inside an other even if they are on different physical disc
+	 * @param source		Source file
+	 * @param target		Target file
+	 * @param overwrite		True if you want overwrite existing target file
+	 * @return				True if the copy successfully finish
 	 */
-	public static final boolean copier(File source, File destination, boolean ecrase) {
-		if (!ecrase && destination.exists()) {
-			LOGGER.error("Le fichier destination existe et il n'est pas parmis de l'écraser !");
+	public static final boolean copy(File source, File target, boolean overwrite) {
+		if (!overwrite && target.exists()) {
+			LOGGER.error("Target file exist and it not permitted to overwrite it !");
 			return false;
 		}
 		
@@ -61,9 +61,9 @@ public final class JTomTomUtils {
 		 
 		try {
 		  in = new FileInputStream(source).getChannel();
-		  out = new FileOutputStream(destination).getChannel();
+		  out = new FileOutputStream(target).getChannel();
 		 
-		  // Copie depuis le in vers le out
+		  // Copy from in to out
 		  in.transferTo(0, in.size(), out);
 		  
 		} catch (FileNotFoundException e) {
@@ -84,39 +84,39 @@ public final class JTomTomUtils {
 	} 
 	
 	/**
-	 * Copie un fichier dans un autre peut importe leur emplacement sur les disques physiques
-	 * @param source		Fichier source
-	 * @param destination	Fichier destination
-	 * @return				True si la copie est effectuée
+	 * Copy a file inside an other even if they are on different physical disc
+	 * @param source		Source file
+	 * @param target		Tagret file
+	 * @return				True if the copy successfully finish
 	 */
-	public static final boolean copier(File source, File destination) {
-		return copier(source, destination, false);
+	public static final boolean copy(File source, File target) {
+		return copy(source, target, false);
 	}
 	
 	/**
-	 * Déplace un fichier dans un autre peut importe leur emplacement sur les disques physiques
-	 * @param source		Fichier source
-	 * @param destination	Fichier destination
-	 * @param ecrase		True s'il faut écraser le fichier destination s'il existe
-	 * @return				True si la copie est effectuée
+	 * Move a file inside an other even if they are on different physical disc
+	 * @param source		Source file
+	 * @param target		Tagret file
+	 * @param overwrite		True if you want overwrite existing target file
+	 * @return				True if the move successfully finish
 	 */
-	public static final boolean deplacer (File source, File destination, boolean ecrase) {
-		boolean result = copier(source, destination, ecrase);
+	public static final boolean move (File source, File target, boolean overwrite) {
+		boolean result = copy(source, target, overwrite);
 		
-		// il faut en plus effacer la source
+		// Need to remove the file
 		result &= source.delete();
 		
 		return result;
 	}
 	
 	/**
-	 * Déplace un fichier dans un autre peut importe leur emplacement sur les disques physiques
-	 * @param source		Fichier source
-	 * @param destination	Fichier destination
-	 * @return				True si la copie est effectuée
+	 * Move a file inside an other even if they are on different physical disc
+	 * @param source		Source file
+	 * @param target		Tagret file
+	 * @return				True if the move successfully finish
 	 */
-	public static final boolean deplacer (File source, File destination) {
-		return deplacer(source, destination, false);
+	public static final boolean move (File source, File target) {
+		return move(source, target, false);
 	}
 
 	public static final Map<String, String> createDeviceMap() {
@@ -161,7 +161,7 @@ public final class JTomTomUtils {
 			return deviceMap;
 			
 		} catch (Exception e) {
-			throw new JTomtomException("Enable to create device map !", e);
+			throw new JTomtomException("Unable to create device map !", e);
 		}
 	}
 

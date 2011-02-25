@@ -23,9 +23,9 @@ package org.jtomtom.gui.action;
 import java.util.List;
 
 /**
- * @author marthym
+ * @author Frédéric Combes
  * 
- * Classe permettant un retour des actions longues vers l'EDT
+ * Class use for return informations from Workers to EDT
  */
 public class ActionResult {
 	public boolean status;

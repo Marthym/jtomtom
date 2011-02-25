@@ -47,7 +47,7 @@ import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.device.TomtomMap;
-import org.jtomtom.gui.PatienterDialog;
+import org.jtomtom.gui.WaitingDialog;
 import org.jtomtom.gui.TabRadars;
 import org.jtomtom.tools.NetworkTester;
 
@@ -55,27 +55,24 @@ import org.jtomtom.tools.NetworkTester;
  * @author Frédéric Combes
  *
  */
-public class MajRadarsAction extends AbstractAction {
+public class UpdateRadarsAction extends AbstractAction {
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger(MajRadarsAction.class);
+	private static final Logger LOGGER = Logger.getLogger(UpdateRadarsAction.class);
 	
-	private PatienterDialog m_waitingDialog = null;
-	private TabRadars m_tabRadars = null;
+	private WaitingDialog waitingDialog = null;
+	private TabRadars tabRadars = null;
 	
-	public MajRadarsAction (String p_label) {
+	public UpdateRadarsAction (String p_label) {
 		super(p_label);
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		// On récupère l'onglet qui a appelé l'action pour le rafraichir plus tard
+		// Get panel which call action for refresh later
 		if (JButton.class.isAssignableFrom(arg0.getSource().getClass())) {
 			JButton btRadars = (JButton)arg0.getSource();
 			if (TabRadars.class.isAssignableFrom(btRadars.getParent().getClass())) {
-				m_tabRadars = (TabRadars)btRadars.getParent();
+				tabRadars = (TabRadars)btRadars.getParent();
 			}
 		}
 		
@@ -87,7 +84,7 @@ public class MajRadarsAction extends AbstractAction {
             	ActionResult result = new ActionResult(); 
                 try {
                 	NetworkTester.getInstance().validNetworkAvailability(theApp.getProxyServer());
-                	result.status = miseAJourRadars(theApp.getTheDevice(), m_tabRadars.getMapsCheckList(), m_tabRadars.getSelectedRadarConnector());
+                	result.status = updateRadars(theApp.getTheDevice(), tabRadars.getMapsCheckList(), tabRadars.getSelectedRadarConnector());
 					
 				} catch (JTomtomException e) {
 					result.status = false;
@@ -99,17 +96,17 @@ public class MajRadarsAction extends AbstractAction {
 
             @Override
             public void done() {
-            	// Déjà, on ferme la fenêtre d'attente
-            	if (m_waitingDialog != null) {
-            		m_waitingDialog.dispose();
+            	// First of all we close waiting dialog
+            	if (waitingDialog != null) {
+            		waitingDialog.dispose();
             	}
             	
-            	// Ensuite, on regarde s'il y a eu une erreur
+            	// Second we check there are no error
             	ActionResult result = null;
             	try {
             		result = get();
 	            	if (!result.status) {
-	            		// En cas d'erreur on affiche un message
+	            		// If error occured we show message
 		            	JOptionPane.showMessageDialog(null, result.exception.getLocalizedMessage(), 
 		            			Application.getInstance().getMainTranslator().getString("org.jtomtom.main.dialog.default.error.title"), 
 		            			JOptionPane.ERROR_MESSAGE);
@@ -120,20 +117,20 @@ public class MajRadarsAction extends AbstractAction {
             		LOGGER.warn(e.getLocalizedMessage());
 				}
             	
-            	// Finalement on rafraichit l'onglet
-            	if (m_tabRadars != null && (result == null || result.status)) {
-            		m_tabRadars.disableRefreshButton();
-            		m_tabRadars.loadRadarsInfos();
+            	// Finally we refresh the tab
+            	if (tabRadars != null && (result == null || result.status)) {
+            		tabRadars.disableRefreshButton();
+            		tabRadars.loadRadarsInfos();
             	}
             }
         };
-        m_waitingDialog = new PatienterDialog(worker);
-        m_waitingDialog.setVisible(true);
+        waitingDialog = new WaitingDialog(worker);
+        waitingDialog.setVisible(true);
 
 	}
 
-	public boolean miseAJourRadars(TomtomDevice theGPS, List<JCheckBox> p_checkList, RadarsConnector p_radars) {	
-		LOGGER.info("Téléchargement de la mise à jour Radar ...");
+	public boolean updateRadars(TomtomDevice theGPS, List<JCheckBox> p_checkList, RadarsConnector p_radars) {	
+		LOGGER.info("Download radars update files ...");
 		Application theApp = Application.getInstance();
 		
 		boolean connStatus = p_radars.connexion(
@@ -162,7 +159,7 @@ public class MajRadarsAction extends AbstractAction {
 						
 			if (LOGGER.isDebugEnabled()) LOGGER.debug("RadarsPOIURL = "+conn.getURL());
 			
-			radarsZipFile = File.createTempFile("tomtomax_radars", ".zip");
+			radarsZipFile = File.createTempFile("radars", ".zip");
 			radarsZipFile.deleteOnExit();
 			
             conn.connect();
@@ -180,8 +177,8 @@ public class MajRadarsAction extends AbstractAction {
                     fout.write(buffer1,0,k);
                     currentSize += k;
                     
-                    if (m_waitingDialog != null) { // On a besoin de ça pour les tests
-                    	m_waitingDialog.refreshProgressBar(currentSize, fileSize);
+                    if (waitingDialog != null) { // Need for junit test
+                    	waitingDialog.refreshProgressBar(currentSize, fileSize);
                     }
                 }
 
@@ -197,17 +194,17 @@ public class MajRadarsAction extends AbstractAction {
 			throw new JTomtomException(e);
 			
 		} finally {
-			LOGGER.debug("Fermeture des tout les flux de téléchargement");
+			LOGGER.debug("Close all download stream ...");
 			conn.disconnect();
 			try {fout.close();} catch (Exception e){}
 			try {is.close();} catch (Exception e){}
 		}
 		
-		if (m_waitingDialog != null) { // On a besoin de ça pour les tests
-        	m_waitingDialog.refreshProgressBar(0, 0);
+		if (waitingDialog != null) { // Need for junit test
+        	waitingDialog.refreshProgressBar(0, 0);
         }
 		
-		LOGGER.info("Décompression du fichier de radars ...");
+		LOGGER.info("Unzip radars update file ...");
 		FileInputStream fin = null;
 	    ZipInputStream zin = null;
 	    ZipEntry ze = null;
@@ -239,7 +236,7 @@ public class MajRadarsAction extends AbstractAction {
 	    	try {fin.close();} catch (Exception e) {}
 	    }
 		
-		LOGGER.info("Installation de la mise à jour Tomtomax ...");
+		LOGGER.info("Install the radars update files ...");
 		boolean retour = true;
 		for (JCheckBox chk : p_checkList) {
 			if (chk.isSelected()) {

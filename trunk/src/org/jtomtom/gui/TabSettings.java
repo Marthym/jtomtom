@@ -312,8 +312,8 @@ public class TabSettings extends JTTabPanel implements ActionListener {
 			
 			Application.getInstance().reloadProperties();
 			for (Component currTab : getParent().getComponents()) {
-				if (TabSauvegarde.class.isAssignableFrom(currTab.getClass())) {
-					((TabSauvegarde)currTab).refreshISOType();
+				if (TabBackupDevice.class.isAssignableFrom(currTab.getClass())) {
+					((TabBackupDevice)currTab).refreshISOType();
 					break;
 				}
 			}
