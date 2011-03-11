@@ -21,6 +21,9 @@
 package org.jtomtom.gui;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -44,13 +47,14 @@ import org.jtomtom.gui.utilities.JTTabPanel;
  * @author Frédéric Combes
  *
  */
-public class TabQuickFix extends JTTabPanel {
+public class TabQuickFix extends JTTabPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger(TabQuickFix.class);
 	
 	private final TomtomDevice theDevice = Application.getInstance().getTheDevice();
 	private JLabel quickFixInfos;
 	private JButton quickFixButton;
+	private JButton resetQuickFix;
 	
 	public TabQuickFix() {
 		super(getTabTranslations().getString("org.jtomtom.tab.quickfix.title"));
@@ -64,9 +68,21 @@ public class TabQuickFix extends JTTabPanel {
 		
 		add(Box.createRigidArea(new Dimension(0,5)));
 		
+		JPanel infosPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		infosPanel.setMaximumSize(new Dimension(Short.MAX_VALUE,100));
 		quickFixInfos = new JLabel("");
-		add(quickFixInfos);
+		infosPanel.add(quickFixInfos);
+		add(infosPanel);
 		
+		
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		buttonPanel.setMaximumSize(new Dimension(Short.MAX_VALUE,25));
+		resetQuickFix = new JButton(getTabTranslations().getString("org.jtomtom.tab.quickfix.button.reset.label"));
+		resetQuickFix.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.quickfix.button.reset.hint"));
+		resetQuickFix.addActionListener(this);
+		buttonPanel.add(resetQuickFix);
+		add(buttonPanel);
+			
 		quickFixButton = new JButton(new UpdateQuickFixAction(getTabTranslations().getString("org.jtomtom.tab.quickfix.button.update.label")));
 		addActionButton(quickFixButton);
 		
@@ -117,6 +133,7 @@ public class TabQuickFix extends JTTabPanel {
 		}
 		
 		quickFixInfos.setText(infos.toString());
+		checkChipset();
 	}
 	
 	private Chipset askForChipset() {
@@ -124,6 +141,30 @@ public class TabQuickFix extends JTTabPanel {
 		chooseChipsetDial.setVisible(true);
 
 		return chooseChipsetDial.getSelectedChipset();
+	}
+	
+	private void checkChipset() {
+		Thread chipThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				Chipset precoChipset = Chipset.getPreconizedChipset(theDevice.getDeviceSerialNumber());
+				if (precoChipset != Chipset.UNKNOWN && precoChipset != theDevice.getChipset()) {
+					JOptionPane.showMessageDialog(null, "Chipset faux", "Chipset", JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		});
+		chipThread.start();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent event) {
+		if (event.getSource() == resetQuickFix) {
+			theDevice.resetQuickfixData();
+			theDevice.forceChipset(null);
+			loadQuickFixInfos();
+		}
+		
 	}
 	
 }

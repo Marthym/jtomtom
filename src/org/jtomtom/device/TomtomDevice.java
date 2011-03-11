@@ -335,6 +335,13 @@ public class TomtomDevice {
 		}
 
 	}
+	
+	/**
+	 * Delete Quickfix files
+	 */
+	public void resetQuickfixData() {
+		theFiles.resetEphemeridData();
+	}
 
 	public final String getName() {
 		return name;
