@@ -20,7 +20,18 @@
  */
 package org.jtomtom.device;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Arrays;
+
+import javax.xml.ws.http.HTTPException;
+
+import org.apache.log4j.Logger;
+import org.json.me.JSONObject;
+import org.jtomtom.Application;
+import org.jtomtom.JTomtomException;
+import org.jtomtom.tools.NetworkTester;
 
 /**
  * @author Frédéric Combes
@@ -31,8 +42,48 @@ public enum Chipset {
 	globalLocate,
 	UNKNOWN;
 	
+	private static final Logger LOGGER = Logger.getLogger(Chipset.class);
+	private static final String TOMTOM_INFORMATIONS_URL = "http://jtomtom.sourceforge.net/scripts/getGpsInfos.php";
+	
 	public static Chipset[] available() {
 		Chipset[] allChipset = Chipset.values();
 		return Arrays.copyOf(allChipset, allChipset.length -1);
+	}
+	
+	/**
+	 * Get the proconized Chipset found in the jTomtom Db
+	 * @return
+	 */
+	public static Chipset getPreconizedChipset(String deviceSerialNumber) {
+		if (!NetworkTester.getInstance().isNetworkAvailable(Application.getInstance().getProxyServer())) {
+			throw new JTomtomException("org.jtomtom.errors.network.unavailable");
+		}
+		
+		try {
+			StringBuffer queryString = new StringBuffer("?");
+			queryString.append("serial=").append(URLEncoder.encode(deviceSerialNumber, "UTF-8"));
+			LOGGER.debug("queryString = "+queryString.toString());
+			
+			URL infosRequestURL = new URL(TOMTOM_INFORMATIONS_URL+queryString.toString());
+			HttpURLConnection conn = (HttpURLConnection) infosRequestURL.openConnection(Application.getInstance().getProxyServer());
+			conn.setRequestProperty("USER-AGENT", Application.getUserAgent() );
+			int response = conn.getResponseCode();
+			if (response != HttpURLConnection.HTTP_OK) {
+				throw new HTTPException(response);
+			}
+			
+			JSONObject json = new JSONObject(conn.getHeaderField("X-JSON"));
+			
+			return Chipset.valueOf(json.getString("CHIPSET"));
+			
+		} catch (IllegalArgumentException e) {
+			// Case of serial was not found in Db
+			LOGGER.debug(e.getLocalizedMessage());
+			return UNKNOWN;
+			
+		} catch (Exception e) {
+			LOGGER.error(e.getLocalizedMessage());
+			return UNKNOWN;
+		}
 	}
 }
