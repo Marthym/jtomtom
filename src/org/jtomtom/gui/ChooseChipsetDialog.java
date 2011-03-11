@@ -45,7 +45,7 @@ import org.jtomtom.device.Chipset;
 public class ChooseChipsetDialog extends JDialog implements ActionListener {
 	private static final Logger LOGGER = Logger.getLogger(ChooseChipsetDialog.class);
 	private static final long serialVersionUID = 1L;
-	private static final String QUICK_FIX_MOREINFO_URL = "http://jtomtom.sourceforge.net/?q=doc/utilisation/gpsquickfix#nochipset";
+	private static final String QUICK_FIX_MOREINFO_URL = "http://jtomtom.sourceforge.net/index.php?page=doc-util-quickfix#nochipset";
 	
 	private final ResourceBundle theTranslator = Application.getInstance().getMainTranslator();
 	
@@ -53,11 +53,14 @@ public class ChooseChipsetDialog extends JDialog implements ActionListener {
 	private JButton cancelButton;
 	private JButton moreInformationsButton;
 	private JComboBox availableChipset;
+	private String deviceSerialNumber;
 	
 	private Chipset selectedChipset = null;
 	
-	public ChooseChipsetDialog() {
+	public ChooseChipsetDialog(String deviceSerialNumber) {
 		super();
+		
+		this.deviceSerialNumber = deviceSerialNumber;
 		
 		build();
 	}
@@ -89,6 +92,7 @@ public class ChooseChipsetDialog extends JDialog implements ActionListener {
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		cancelButton = new JButton(theTranslator.getString("org.jtomtom.main.dialog.choosechipset.button.cancel.label"));
+		cancelButton.setToolTipText(theTranslator.getString("org.jtomtom.main.dialog.choosechipset.button.cancel.hint"));
 		cancelButton.addActionListener(this);
 		buttonPanel.add(cancelButton);
 		
@@ -116,7 +120,7 @@ public class ChooseChipsetDialog extends JDialog implements ActionListener {
 			catch (IOException e) { LOGGER.warn(e.getLocalizedMessage()); }
 			
 		} else if (p_event.getSource() == cancelButton) {
-			selectedChipset = Chipset.UNKNOWN;
+			selectedChipset = Chipset.getPreconizedChipset(deviceSerialNumber);
 			this.dispose();
 		}
 	}

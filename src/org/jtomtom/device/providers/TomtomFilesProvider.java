@@ -102,6 +102,23 @@ public class TomtomFilesProvider {
 		return meta;
 		
 	}
+	
+	/**
+	 * The purpose of this function is to remove all files in the ephem directory
+	 * In the case where you have unknown Chipset, you want to change and assign to a know Chipset
+	 * You must clean the ephem directory before !
+	 */
+	public void resetEphemeridData() {
+		try {
+			Set<File> ephemFiles = getEphemeridData();
+			for (File current : ephemFiles) {
+				current.delete();
+			}
+			LOGGER.info("Ephem directory cleaned successfully !");
+		} catch (FileNotFoundException e) {
+			LOGGER.debug(e.getLocalizedMessage());
+		}
+	}
 
 	public File getTomtomInformations() throws FileNotFoundException {
 		File ttgobif = new File(rootDirectory, FILE_TOMTOM_INFORMATIONS);

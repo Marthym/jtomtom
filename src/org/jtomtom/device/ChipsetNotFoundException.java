@@ -30,4 +30,8 @@ public class ChipsetNotFoundException extends RuntimeException {
 	public ChipsetNotFoundException(Throwable exception) {
 		super("Chipset not recognized !", exception);
 	}
+	
+	public ChipsetNotFoundException () {
+		super();
+	}
 }
