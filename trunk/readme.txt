@@ -3,6 +3,8 @@
 - Improve: Lot of refactor and translation comments
 - Fix: Chipset informations URL pointing on old web site.
 - Add: Automatic chipset detection in the choose chipset dialog
+- Add: Reset Quickfix data button on the Quickfix tab
+- Add: Check chipset for detect error
 
 ** jTomtom build 62 **
 - Fix: Bad parsing of new local db file
