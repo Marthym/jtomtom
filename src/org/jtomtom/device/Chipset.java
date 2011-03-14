@@ -60,6 +60,8 @@ public enum Chipset {
 		}
 		
 		try {
+			LOGGER.debug("Get proconized chipset on line for "+deviceSerialNumber);
+			
 			StringBuffer queryString = new StringBuffer("?");
 			queryString.append("serial=").append(URLEncoder.encode(deviceSerialNumber, "UTF-8"));
 			LOGGER.debug("queryString = "+queryString.toString());
@@ -72,7 +74,10 @@ public enum Chipset {
 				throw new HTTPException(response);
 			}
 			
-			JSONObject json = new JSONObject(conn.getHeaderField("X-JSON"));
+			String jsonHeaderData = conn.getHeaderField("X-JSON");
+			LOGGER.debug("Read JSON data : "+jsonHeaderData);
+			JSONObject json = new JSONObject(jsonHeaderData);
+			LOGGER.debug("Preconized chipset found : "+json.getString("CHIPSET"));
 			
 			return Chipset.valueOf(json.getString("CHIPSET"));
 			

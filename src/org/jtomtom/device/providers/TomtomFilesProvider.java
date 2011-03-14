@@ -109,15 +109,12 @@ public class TomtomFilesProvider {
 	 * You must clean the ephem directory before !
 	 */
 	public void resetEphemeridData() {
-		try {
-			Set<File> ephemFiles = getEphemeridData();
-			for (File current : ephemFiles) {
-				current.delete();
-			}
-			LOGGER.info("Ephem directory cleaned successfully !");
-		} catch (FileNotFoundException e) {
-			LOGGER.debug(e.getLocalizedMessage());
+		File ephemDir = new File(rootDirectory, "ephem");
+		File[] ephemFiles = ephemDir.listFiles();
+		for (File current : ephemFiles) {
+			current.delete();
 		}
+		LOGGER.info("Ephem directory cleaned successfully !");
 	}
 
 	public File getTomtomInformations() throws FileNotFoundException {
