@@ -20,6 +20,7 @@
  */
 package org.jtomtom.gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -52,9 +53,13 @@ public class TabQuickFix extends JTTabPanel implements ActionListener {
 	private static final Logger LOGGER = Logger.getLogger(TabQuickFix.class);
 	
 	private final TomtomDevice theDevice = Application.getInstance().getTheDevice();
+	private Chipset precoChipset = null;
+	
 	private JLabel quickFixInfos;
+	private JLabel badChipsetLabel;
 	private JButton quickFixButton;
 	private JButton resetQuickFix;
+	
 	
 	public TabQuickFix() {
 		super(getTabTranslations().getString("org.jtomtom.tab.quickfix.title"));
@@ -77,6 +82,9 @@ public class TabQuickFix extends JTTabPanel implements ActionListener {
 		
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		buttonPanel.setMaximumSize(new Dimension(Short.MAX_VALUE,25));
+		badChipsetLabel = new JLabel("");
+		badChipsetLabel.setForeground(Color.RED);
+		buttonPanel.add(badChipsetLabel);
 		resetQuickFix = new JButton(getTabTranslations().getString("org.jtomtom.tab.quickfix.button.reset.label"));
 		resetQuickFix.setToolTipText(getTabTranslations().getString("org.jtomtom.tab.quickfix.button.reset.hint"));
 		resetQuickFix.addActionListener(this);
@@ -148,9 +156,13 @@ public class TabQuickFix extends JTTabPanel implements ActionListener {
 			
 			@Override
 			public void run() {
-				Chipset precoChipset = Chipset.getPreconizedChipset(theDevice.getDeviceSerialNumber());
+				if (precoChipset == null)
+					precoChipset = Chipset.getPreconizedChipset(theDevice.getDeviceSerialNumber());
+				
 				if (precoChipset != Chipset.UNKNOWN && precoChipset != theDevice.getChipset()) {
-					JOptionPane.showMessageDialog(null, "Chipset faux", "Chipset", JOptionPane.WARNING_MESSAGE);
+					badChipsetLabel.setText(getTabTranslations().getString("org.jtomtom.tab.quickfix.button.badchipset.message"));
+				} else {
+					badChipsetLabel.setText("");
 				}
 			}
 		});

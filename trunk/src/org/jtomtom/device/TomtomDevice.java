@@ -341,6 +341,9 @@ public class TomtomDevice {
 	 */
 	public void resetQuickfixData() {
 		theFiles.resetEphemeridData();
+		LOGGER.debug("Reset quickfix informations");
+		quickFixExpiry = 0;
+		quickFixLastUpdate = 0;
 	}
 
 	public final String getName() {
