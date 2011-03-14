@@ -56,7 +56,7 @@ public class Application {
 	private TomtomDevice theGPS;
 	private Proxy proxyServer = null;
 	
-	private String versionNumber = "0.x";
+	private String versionNumber = "1.x";
 	private String versionDate = (new java.util.Date()).toString();
 		
 	private ResourceBundle mainTranslator;

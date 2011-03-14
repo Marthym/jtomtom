@@ -6,7 +6,7 @@
 	<property name="dir.lib" location="lib"/>
 	<property name="dir.src" location="src"/>
 
-	<property name="version.num" value="0.0"/>
+	<property name="version.num" value="1.0"/>
 	<buildnumber file="build.num"/>
 	<tstamp>
 		<format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
