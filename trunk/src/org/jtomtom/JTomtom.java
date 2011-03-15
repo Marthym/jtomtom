@@ -100,6 +100,8 @@ public class JTomtom {
 	}
 
 	private static boolean isJavaRuntimeVersionSixOrSuperior() {
+		LOGGER.debug("Using Java Runtime : "+System.getProperty("java.runtime.name", "Unknown"));
+		
 		String version = System.getProperty("java.version", "0.0");
 		String[] javaVersion = version.split("\\.");
 		LOGGER.debug("Find Java Runtime : "+version);
