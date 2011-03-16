@@ -1,10 +1,11 @@
 ** jTomtom build 63 **
 - Improve: Refactor TabRadars, externalize Worker and translate comments
 - Improve: Lot of refactor and translation comments
+- Improve: Test jTomtom under OpenJDK JRE
 - Fix: Chipset informations URL pointing on old web site.
 - Add: Automatic chipset detection in the choose chipset dialog
 - Add: Reset Quickfix data button on the Quickfix tab
-- Add: Check chipset for detect error in chipset configuration
+- Add: Check chipset for detect error in chipset configuration 
 
 ** jTomtom build 62 **
 - Fix: Bad parsing of new local db file
