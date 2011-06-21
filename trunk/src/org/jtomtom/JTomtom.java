@@ -36,7 +36,6 @@ import org.jtomtom.gui.action.SendUserInformationsAction;
  *
  * Main class
  */
-//TODO: Add possibility to set more the one login/password information in the settings tab
 //TODO: Add experency date in the error message for GPS not found. Save expirency date in properties file. Maybe for more than one device
 //TODO: Add panel for manager POIs. Install / Delete POIs with .ov2 or .zip file
 public class JTomtom {
@@ -47,7 +46,7 @@ public class JTomtom {
 		PropertyConfigurator.configure(JTomtom.class.getResource(Constant.LOGGER_PROPERTIES));
 				
 		// Show licence message
-		LOGGER.warn("jTomtom  Copyright (C) 2010  Frédéric Combes");
+		LOGGER.warn("jTomtom  Copyright (C) 2010, 2011  Frédéric Combes");
 		LOGGER.warn("This program comes with ABSOLUTELY NO WARRANTY.");
 		LOGGER.warn("This is free software, and you are welcome to redistribute it");
 		LOGGER.warn("under certain conditions.");
