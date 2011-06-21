@@ -1,3 +1,6 @@
+** jTomtom build 66 **
+- Improve: Mac OS X Compatibility
+
 ** jTomtom build 63 **
 - Improve: Refactor TabRadars, externalize Worker and translate comments
 - Improve: Lot of refactor and translation comments

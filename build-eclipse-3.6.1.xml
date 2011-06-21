@@ -2,11 +2,12 @@
 <project default="create_run_jar" name="Create Runnable Jar for Project jTomTom with Jar-in-Jar Loader">
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
+	<property file="build.properties" />
+
 	<property name="dir.build" location="bin"/>
 	<property name="dir.lib" location="lib"/>
 	<property name="dir.src" location="src"/>
 
-	<property name="version.num" value="1.0"/>
 	<buildnumber file="build.num"/>
 	<tstamp>
 		<format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />

@@ -44,6 +44,8 @@ public class TomtomDeviceFinder {
 	
 	private static final String LINUX_MOUNT_START = " on ";
 	private static final String LINUX_MOUNT_END = " type ";
+	private static final String MAC_MOUNT_START = " on ";
+	private static final String MAC_MOUNT_END = " (";
 	
 	/**
 	 * Return the mount point of the first Tomtom GPS find
@@ -70,7 +72,11 @@ public class TomtomDeviceFinder {
 		File[] systemMountPoints;
 		LOGGER.debug("os.name = "+System.getProperty("os.name"));
 		if ("Linux".equals(System.getProperty("os.name"))) {
-			systemMountPoints = getLinuxMountPoints();
+			systemMountPoints = getUnixBasedMountPoints(LINUX_MOUNT_START, LINUX_MOUNT_END);
+			
+		} else if (System.getProperty("os.name").startsWith("Mac")) {
+			systemMountPoints = getUnixBasedMountPoints(MAC_MOUNT_START, MAC_MOUNT_END);
+			
 		} else {
 			systemMountPoints = getWindowsDrives();
 		}
@@ -101,7 +107,8 @@ public class TomtomDeviceFinder {
 	 * Retrieve all mount point of a Linux based system from the "mount" command
 	 * @return
 	 */
-	private static final File[] getLinuxMountPoints() {
+	private static final File[] getUnixBasedMountPoints(String start, String end) {
+		LOGGER.debug("getUnixBasedMountPoints -> start : '"+start+"', end : '"+end+"'");
 		
 		List<File> systemMountPoints = new ArrayList<File>();
 		try {
@@ -119,8 +126,8 @@ public class TomtomDeviceFinder {
 				} 
 				
 				String pathMountPoint = line.substring(
-						line.indexOf(LINUX_MOUNT_START)+LINUX_MOUNT_START.length(), 
-						line.lastIndexOf(LINUX_MOUNT_END));
+						line.indexOf(start)+start.length(), 
+						line.lastIndexOf(end));
 				if (LOGGER.isDebugEnabled()) LOGGER.debug("\t"+pathMountPoint);
 				
 				systemMountPoints.add(new File(pathMountPoint));
