@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="create_run_jar" name="Create Runnable Jar for Project jTomTom with Jar-in-Jar Loader">
+<project default="create_run_jar" basedir=".." name="Create Runnable Jar for Project jTomTom with Jar-in-Jar Loader">
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
 	<property file="build.properties" />
@@ -8,7 +8,7 @@
 	<property name="dir.lib" location="lib"/>
 	<property name="dir.src" location="src"/>
 
-	<buildnumber file="build.num"/>
+	<buildnumber file="ant/build.num"/>
 	<tstamp>
 		<format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
 	</tstamp>
@@ -30,7 +30,7 @@
                 <attribute name="Rsrc-Main-Class" value="org.jtomtom.JTomtom"/>
                 <attribute name="Class-Path" value="."/>
                 <attribute name="Rsrc-Class-Path" value="./ org.hamcrest.core_1.1.0.v20090501071000.jar log4j-1.2.16.jar iso9660.jar sabre.jar json-1.0.jar"/>
-				<attribute name="Implementation-Version" value="${version.num}-b${build.number}"/>   
+				<attribute name="Implementation-Version" value="${jtomtom.version.num}-b${build.number}"/>   
 				<attribute name="Built-Date" value="${TODAY}"/>
             </manifest>
             <zipfileset src="jar-in-jar-loader.zip"/>
