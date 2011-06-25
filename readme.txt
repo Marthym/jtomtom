@@ -1,3 +1,8 @@
+** jTomtom build 70 **
+- Fix: Version number display in About tab
+- Improve: Move Ant scripts into subfolder
+- Improve: Add Ant build script for Eclipse 3.7 (Indigo) and remove for 3.5
+
 ** jTomtom build 66 **
 - Improve: Mac OS X Compatibility
 
