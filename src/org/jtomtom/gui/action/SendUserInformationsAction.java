@@ -35,6 +35,7 @@ import org.jtomtom.Application;
 import org.jtomtom.Constant;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.JTomtomProperties;
+import org.jtomtom.device.Chipset;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.tools.NetworkTester;
 
@@ -59,8 +60,16 @@ public class SendUserInformationsAction extends SwingWorker<Void, Void> {
 			throw new JTomtomException("org.jtomtom.errors.network.unavailable");
 		}
 		
-		if (isUserAgreeToSendInformations()) {
-			sendInformationsNow();
+		try {
+			
+			final TomtomDevice theDevice = Application.getInstance().getTheDevice();
+			boolean isChipsetAlreadyInDatabase = Chipset.getPreconizedChipset(theDevice.getDeviceSerialNumber().substring(0, 2)) != Chipset.UNKNOWN;
+			if (!isChipsetAlreadyInDatabase && isUserAgreeToSendInformations()) {
+				sendInformationsNow();
+			}
+		
+		} finally {
+			disableSendbackProperty();
 		}
 		
 		return null;
@@ -80,8 +89,6 @@ public class SendUserInformationsAction extends SwingWorker<Void, Void> {
 			return true;
 		}
 		
-		disableSendbackProperty();
-		
 		return false;
 	}
 
@@ -100,8 +107,6 @@ public class SendUserInformationsAction extends SwingWorker<Void, Void> {
 			if (response != HttpURLConnection.HTTP_OK) {
 				throw new HTTPException(response);
 			}
-			
-			disableSendbackProperty();
 			
 		} catch (Exception e) {
 			LOGGER.warn(e.getLocalizedMessage());

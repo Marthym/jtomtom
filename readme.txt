@@ -1,3 +1,8 @@
+** jTomtom build 80 (06-30-2011) **
+- Improve: Reduce the network access for send feedback information
+- Improve: Update JIIC library (iso9660.jar) to the lastest version (1.1.2)
+- Add: Add test case for sending feedback infos function
+
 ** jTomtom build 70 **
 - Fix: Version number display in About tab
 - Improve: Move Ant scripts into subfolder
