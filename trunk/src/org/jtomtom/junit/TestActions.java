@@ -34,8 +34,10 @@ import org.apache.log4j.Logger;
 import org.jtomtom.JTomtomException;
 import org.jtomtom.connector.RadarsConnector;
 import org.jtomtom.connector.radars.Tomtomax;
+import org.jtomtom.device.Chipset;
 import org.jtomtom.device.TomtomDevice;
 import org.jtomtom.gui.action.CheckUpdateAction;
+import org.jtomtom.gui.action.SendUserInformationsAction;
 import org.jtomtom.gui.action.UpdateQuickFixAction;
 import org.jtomtom.gui.action.UpdateRadarsAction;
 import org.jtomtom.gui.action.IsoBackupAction;
@@ -162,9 +164,19 @@ public class TestActions {
 		assertNull(message);
 	}
 
+	@Test
+	public void testSendUserInformations() {
+		SendUserInformationsAction.sendInformationsNow();
+	}
+	
+	@Test
+	public void testPreconizedChipset() {
+		Chipset myChipset = Chipset.getPreconizedChipset("E1");
+		assertEquals(Chipset.SiRFStarIII, myChipset);
+	}
+	
 	@AfterClass
 	public static void nettoyage() {
-		// Nettoyage des fichiers laissé par testMajRadarsAction
 		File currDir = new File("/", "tmp");
 		String[] filesToDelete = currDir.list(new FilenameFilter() {
 			

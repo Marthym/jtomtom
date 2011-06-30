@@ -14,4 +14,11 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>user.jtomtom.properties</name>
+			<type>1</type>
+			<locationURI>PARENT-1-WORKSPACE_LOC/.jtomtom.properties</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>
