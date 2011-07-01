@@ -1,6 +1,7 @@
-** jTomtom build 80 (06-30-2011) **
+** jTomtom build 90 (06-30-2011) **
 - Improve: Reduce the network access for send feedback information
 - Improve: Update JIIC library (iso9660.jar) to the lastest version (1.1.2)
+- Improve: Refactor Ant build script for compile with separate JRE more finest compilation options
 - Add: Add test case for sending feedback infos function
 
 ** jTomtom build 70 **

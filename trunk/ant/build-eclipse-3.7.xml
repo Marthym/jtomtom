@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="create_run_jar" basedir=".." name="Create Runnable Jar for Project jTomTom with Jar-in-Jar Loader">
-    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
-    <!--ANT 1.7 is required                                        -->
+<project default="jarify" name="jTomtom" basedir="..">
+
 	<property file="ant/build.properties" />
+	<property file="ant/default.properties" />
 
 	<property name="dir.build" location="bin"/>
 	<property name="dir.lib" location="lib"/>
@@ -13,7 +13,45 @@
 		<format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
 	</tstamp>
 	
-	<target name="get_jarinjar_loader">
+    <path id="jtomtom.classpath">
+    	<fileset dir="${dir.lib}">
+    		<include name="**/*.jar"/>
+    	</fileset>
+    </path>
+    
+    <target name="clean">
+        <delete dir="${dir.build}"/>
+    	<delete file="..${file.separator}jTomtom.jar"/>
+    	<delete file="..${file.separator}jTomtom-src.tar.gz"/>
+    	<delete file="..${file.separator}jTomtom-lang.tar.gz"/>
+    </target>
+	
+    <target name="init">
+        <mkdir dir="${dir.build}"/>
+        <copy includeemptydirs="false" todir="${dir.build}">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+	
+    <target name="cleanall" depends="clean"/>
+	
+	
+    <target name="build-project" depends="init">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac 
+        	debug="${jtomtom.build.debug}" debuglevel="${jtomtom.build.debuglevel}" 
+        	destdir="${dir.build}" 
+        	excludes="org/jtomtom/junit/**">
+	            <src path="${dir.src}"/>
+	            <classpath refid="jtomtom.classpath"/>
+        </javac>
+    </target>
+    <target name="build" depends="cleanall,build-project" description="Compile jTomtom project ..."/>
+
+	<target name="get.jarinjar.loader">
 		<unzip src="${eclipse.home}${file.separator}plugins${file.separator}org.eclipse.jdt.ui_3.7.0.v20110531-1200.jar" dest=".">
 		    <patternset>
 		        <include name="jar-in-jar-loader.zip"/>
@@ -22,7 +60,7 @@
 		</unzip>
 	</target>
 			
-    <target name="create_run_jar" depends="get_jarinjar_loader" description="Création du jar de JTomtom">
+    <target name="jarify" depends="get.jarinjar.loader, build" description="Create jTomtom runnable JAR file">
     	<delete file="..${file.separator}jTomtom.jar"/>
         <jar destfile="..${file.separator}jTomtom.jar">
             <manifest>
@@ -42,7 +80,7 @@
         </jar>
     </target>
 	
-    <target name="create_source_tar" description="Création du tar des dources JTomtom">
+    <target name="jtomtom.sourcepack" description="Create jTomtom sources pack file">
     	<delete file="..${file.separator}jTomtom-src.tar.gz"/>
         <tar destfile="..${file.separator}jTomtom-src.tar.gz" compression="gzip">
             <fileset dir=".">
@@ -53,7 +91,7 @@
         </tar>
     </target>
 	
-    <target name="create_language_tar" description="Création du tar contenant les fichiers de traduction">
+    <target name="jtomtom.languagepack" description="Create jTomtom language pack file">
     	<delete file="..${file.separator}jTomtom-lang.tar.gz"/>
         <tar destfile="..${file.separator}jTomtom-lang.tar.gz" compression="gzip">
             <fileset dir=".">
