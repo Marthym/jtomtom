@@ -1,3 +1,6 @@
+** jTomtom build 93 (12-11-2011) **
+- Fix: SF Tracker 3445483 - Problem at start with Caminat Live
+
 ** jTomtom build 90 (06-30-2011) **
 - Improve: Reduce the network access for send feedback information
 - Improve: Update JIIC library (iso9660.jar) to the lastest version (1.1.2)
