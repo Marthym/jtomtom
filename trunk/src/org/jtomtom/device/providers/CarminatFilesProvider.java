@@ -46,7 +46,7 @@ public class CarminatFilesProvider extends TomtomFilesProvider {
 	public static final String FILE_CARMINAT_LOOPBACK = "ext3_loopback";
 	public static final String DIR_CARMINAT_LOOPBACK = "loopdir";
 	private static final String TTGOBIF_START_TAG = "[TomTomGo]";
-	private static final String CURRENTMAP_START_TAG = "/mnt/movinand";
+	private static final String CURRENTMAP_START_TAG = "/mnt/movi";
 
 	private File loopback;
 	private File carminatInformations;
@@ -135,6 +135,11 @@ public class CarminatFilesProvider extends TomtomFilesProvider {
 		try {
 			is = new FileInputStream(loopback);
 			int ttgoBifStart = BoyerMoore.findBytes(is, CURRENTMAP_START_TAG.getBytes());
+			if (ttgoBifStart < 0) {
+				LOGGER.debug("ttgoBifStart < 0, unable to find \""+CURRENTMAP_START_TAG+"\" in the loopback file !");
+				throw new JTomtomException("org.jtomtom.errors.gps.readinformations");
+			}
+			
 			LOGGER.debug("find CurrentMap.dat at "+ttgoBifStart);
 			
 			tempCurrentMapFile = File.createTempFile("CurrentMap", ".dat");
