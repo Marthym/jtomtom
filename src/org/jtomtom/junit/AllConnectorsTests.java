@@ -29,7 +29,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses(value={
 	TestRadarsConnector.class,
 	TestTomtomax.class,
-	TestPdisDotEs.class
+	TestRobserDotEs.class
 })
 public class AllConnectorsTests{
 	@BeforeClass
