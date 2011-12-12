@@ -45,24 +45,24 @@ import org.jtomtom.tools.HttpUtils;
  * @author Frédéric Combes
  *
  */
-public class PdisDotEs extends RadarsConnector {
-	private static final Logger LOGGER = Logger.getLogger(PdisDotEs.class);
+public class RobserEs extends RadarsConnector {
+	private static final Logger LOGGER = Logger.getLogger(RobserEs.class);
 
-	public  static final String PDISES_DATE_FORMAT = "dd/MM/yyyy";
-	private static final String PDISES_WEBSITE = "http://www.pdis.es/";
-	private static final String PDISES_LOGIN_URL = PDISES_WEBSITE+"paginas/login.php";
-	private static final String PDISES_UPDATE_URL = PDISES_WEBSITE+"paginas/terminos_packs.php?fich=2";
-	private static final String PDISES_UPDATE_POST = "fichero=actualizacion_radares_tomtom.zip";
-	private static final String PDISES_INSTALL_URL = PDISES_WEBSITE+"paginas/terminos_packs.php?fich=9";
-	private static final String PDISES_INSTALL_POST = "fichero=pack_radares_tomtom_v6.zip";
-	private static final String PDISES_DOWN_PACKS = PDISES_WEBSITE+"paginas/down_packs.php";
-	private static final String PDISES_WHATS_NEW_FILE = "ES_R_AA_Que_hay_de_nuevo.txt";
+	public  static final String PDISES_DATE_FORMAT = "yyyy-MM-dd";
+	private static final String PDISES_WEBSITE = "http://www.robser.es/";
+	private static final String PDISES_LOGIN_URL = PDISES_WEBSITE+"/foros/login.php?do=login";
+	private static final String PDISES_INSTALL_URL = PDISES_WEBSITE+"paginas/descargas/terminos_packs.php";
+	private static final String PDISES_DOWN_PACKS = PDISES_WEBSITE+"paginas/descargas/descargas_packs.php?nav=1";
+	private static final String PDISES_WHATS_NEW_FILE = "ES_R_AA_Que_hay_de_nuevo_free.txt";
 	
-	private static final String PDISES_START_DATE = "<span class=\"textobase5\">&Uacute;ltima actualizaci&oacute;n: </span><span class=\"textobase6\">";
+	private static final String PDISES_START_DATE = "<span class=\"textobase5\">Fecha de actualización:</span> <span class=\"textobase6\">";
+	private static final String PDISES_START_FILEID = "href='terminos_packs.php?fich=";
+	private static final String PDISES_END_FILEID = "' title=";
 	
 	private static final Locale PDISES_COUNTRY = new Locale("es", "ES");
 	
 	private List<HttpCookie> connexionCookies;
+	private String downloadFileId = null;
 	
 	private Proxy proxy = Proxy.NO_PROXY;
 	
@@ -109,7 +109,7 @@ public class PdisDotEs extends RadarsConnector {
 		}
 		
 		// Initiate connexion
-		HttpURLConnection conn = initDownloadConnection(PDISES_DOWN_PACKS, "");
+		HttpURLConnection conn = initDownloadConnection(PDISES_DOWN_PACKS);
 		
 		// Test connexion response code
 		int connResponse = -1;
@@ -131,21 +131,29 @@ public class PdisDotEs extends RadarsConnector {
 	}
 	
 	private String parseLastUpdateDate(HttpURLConnection conn) {
+		String updateDate = null;
 		InputStream is = null;
 		BufferedReader rd = null;
+		String contentEncoding = conn.getContentEncoding();
+		if (contentEncoding == null) contentEncoding = "ISO-8859-1";
 		try {
 			is = conn.getInputStream();
-			rd = new BufferedReader(new InputStreamReader(is));
+			rd = new BufferedReader(new InputStreamReader(is, contentEncoding));
 			String line;
-			boolean nextLine = false;
+
 			while((line = rd.readLine()) != null) {
-				if (line.trim().startsWith(PDISES_START_DATE)) {
-					nextLine = true;
+				String trimedLine = line.trim();
+				int start = trimedLine.indexOf(PDISES_START_DATE);
+				if (start >= 0) {
+					updateDate = trimedLine.substring(start+PDISES_START_DATE.length()).replaceAll("\\<.*?>","").replaceAll("\\&.*?;","").trim();
 					continue;
 				}
-				if (nextLine) {
-					return line.replaceAll("\\<.*?>","").replaceAll("\\&.*?;","").trim();
+				start = trimedLine.indexOf(PDISES_START_FILEID);
+				if (start >= 0) {
+					downloadFileId = trimedLine.substring(start+PDISES_START_FILEID.length(), trimedLine.indexOf(PDISES_END_FILEID));
+					continue;
 				}
+				if (updateDate != null && downloadFileId != null) break;
 			}
 			
 		} catch (IOException e) {
@@ -157,12 +165,13 @@ public class PdisDotEs extends RadarsConnector {
 			try {rd.close();} catch (Exception e){};
 		}
 		
-		return null;
+		return updateDate;
 	}
 
 	@Override
 	public boolean connexion(Proxy p_proxy, String p_user, String p_password) {
 		proxy = p_proxy;
+		boolean isConnected = false;
 		
 		if (p_user == null || p_password == null ||
 				p_user.isEmpty() || p_password.isEmpty()) {
@@ -183,12 +192,12 @@ public class PdisDotEs extends RadarsConnector {
 	        }
 	        conn.disconnect();
 	        
-			if (connexionCookies != null && 
-					connexionCookies.size() > 1) {
-				return true;
-			}
-			
-			return false;
+	        for (HttpCookie myCookie : connexionCookies) {
+	        	if ("PHPSESSID".equals(myCookie.getName())) {
+	        		isConnected = true;
+	        	}
+	        }
+			return isConnected;
 			
 		} catch (IOException e) {
 			throw new JTomtomException(e);
@@ -198,9 +207,8 @@ public class PdisDotEs extends RadarsConnector {
 	private final static String createPdisdotesLoginPostData(String user, String password) {
 		try {
 			StringBuffer urlParameters = new StringBuffer();
-			urlParameters.append("recordar=on&usuario=").append(URLEncoder.encode(user, "UTF-8"));
-			urlParameters.append("&pass=").append(URLEncoder.encode(password, "UTF-8"));
-			urlParameters.append("&submit=Login");
+			urlParameters.append("do=login&vb_login_username=").append(URLEncoder.encode(user, "UTF-8"));
+			urlParameters.append("&vb_login_password=").append(URLEncoder.encode(password, "UTF-8"));
 			
 			return urlParameters.toString();
 			
@@ -221,24 +229,34 @@ public class PdisDotEs extends RadarsConnector {
 	
 	@Override
 	public HttpURLConnection getConnectionForUpdate() {
-		return initDownloadConnection(PDISES_UPDATE_URL, PDISES_UPDATE_POST);
+		if (downloadFileId == null) {
+			getRemoteDbInfos(proxy);
+		}
+
+		return initDownloadConnection(PDISES_INSTALL_URL);
 	}
 	
 	@Override
 	public HttpURLConnection getConnectionForInstall() {
-		return initDownloadConnection(PDISES_INSTALL_URL, PDISES_INSTALL_POST);
+		if (downloadFileId == null) {
+			getRemoteDbInfos(proxy);
+		}
+
+		return initDownloadConnection(PDISES_INSTALL_URL);
 	}
 	
-	private HttpURLConnection initDownloadConnection(String p_url, String p_post) {
+	private HttpURLConnection initDownloadConnection(String fileUrl) {
 		if (connexionCookies == null) {
 			throw new JTomtomException("You must connect before !!");
 		}
 		
 		try {
-			HttpURLConnection conn = HttpUtils.createDefaultConnection(p_url, proxy);
+			HttpURLConnection conn = HttpUtils.createDefaultConnection(fileUrl+"?fich="+downloadFileId, proxy);
 	        conn.setRequestProperty ("Cookie", createCookieString());
 	        conn.setInstanceFollowRedirects(false);
-	        HttpUtils.addPostData(conn, p_post);
+	        
+	        String postData = "fich="+downloadFileId+"&fichero="+downloadFileId+"&aceptar=aceptar";
+	        HttpUtils.addPostData(conn, postData);
 	        
 			return conn;
 			

@@ -1,5 +1,6 @@
-** jTomtom build 93 (12-11-2011) **
+** jTomtom build 94 (12-12-2011) **
 - Fix: SF Tracker 3445483 - Problem at start with Caminat Live
+- Fix: PdisES connector updated to the new site robser.es
 
 ** jTomtom build 90 (06-30-2011) **
 - Improve: Reduce the network access for send feedback information
