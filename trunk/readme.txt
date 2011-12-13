@@ -1,3 +1,8 @@
+** jTomtom build 97 (12-13-2011) **
+- Improve: Refactor Robser plugin code for best reading
+- Improve: Robser unit test
+- Fix: Ant script for exclude junit test class of cleanning step
+
 ** jTomtom build 94 (12-12-2011) **
 - Fix: SF Tracker 3445483 - Problem at start with Caminat Live
 - Fix: PdisES connector updated to the new site robser.es
