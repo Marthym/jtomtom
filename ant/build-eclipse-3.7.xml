@@ -20,7 +20,9 @@
     </path>
     
     <target name="clean">
-        <delete dir="${dir.build}"/>
+        <delete dir="${dir.build}">
+        	<exclude name="org/jtomtom/junit/**"/>
+        </delete>
     	<delete file="..${file.separator}jTomtom.jar"/>
     	<delete file="..${file.separator}jTomtom-src.tar.gz"/>
     	<delete file="..${file.separator}jTomtom-lang.tar.gz"/>

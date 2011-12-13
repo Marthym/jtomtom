@@ -28,7 +28,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URLEncoder;
 import java.util.Date;
@@ -48,18 +47,21 @@ import org.jtomtom.tools.HttpUtils;
 public class RobserEs extends RadarsConnector {
 	private static final Logger LOGGER = Logger.getLogger(RobserEs.class);
 
-	public  static final String PDISES_DATE_FORMAT = "yyyy-MM-dd";
-	private static final String PDISES_WEBSITE = "http://www.robser.es/";
-	private static final String PDISES_LOGIN_URL = PDISES_WEBSITE+"/foros/login.php?do=login";
-	private static final String PDISES_INSTALL_URL = PDISES_WEBSITE+"paginas/descargas/terminos_packs.php";
-	private static final String PDISES_DOWN_PACKS = PDISES_WEBSITE+"paginas/descargas/descargas_packs.php?nav=1";
-	private static final String PDISES_WHATS_NEW_FILE = "ES_R_AA_Que_hay_de_nuevo_free.txt";
+	public  static final String ROBSER_DATE_FORMAT = "yyyy-MM-dd";
+	private static final String ROBSER_WEBSITE = "http://www.robser.es/";
+	private static final String ROBSER_LOGIN_URL = ROBSER_WEBSITE+"/foros/login.php?do=login";
+	private static final String ROBSER_INSTALL_URL = ROBSER_WEBSITE+"paginas/descargas/terminos_packs.php";
+	private static final String ROBSER_DOWN_PACKS = ROBSER_WEBSITE+"paginas/descargas/descargas_packs.php?nav=1";
+	private static final String ROBSER_WHATS_NEW_FILE = "ES_R_AA_Que_hay_de_nuevo_free.txt";
 	
-	private static final String PDISES_START_DATE = "<span class=\"textobase5\">Fecha de actualización:</span> <span class=\"textobase6\">";
-	private static final String PDISES_START_FILEID = "href='terminos_packs.php?fich=";
-	private static final String PDISES_END_FILEID = "' title=";
+	private static final String ROBSER_START_DATE = "<span class=\"textobase5\">Fecha de actualización:</span> <span class=\"textobase6\">";
+	private static final String ROBSER_START_FILEID = "href='terminos_packs.php?fich=";
+	private static final String ROBSER_END_FILEID = "' title=";
 	
-	private static final Locale PDISES_COUNTRY = new Locale("es", "ES");
+	private static final Locale ROBSER_COUNTRY = new Locale("es", "ES");
+	private static final String COOKIE_SESSION_NAME = "PHPSESSID";
+	private static final String ROBSER_ENCODING = "ISO-8859-1";
+
 	
 	private List<HttpCookie> connexionCookies;
 	private String downloadFileId = null;
@@ -78,7 +80,7 @@ public class RobserEs extends RadarsConnector {
 		}
 		
 		// We looking for the Pdis.es what's new file
-		File pdisesWhatsNewFile = new File(mapDirectory, PDISES_WHATS_NEW_FILE);
+		File pdisesWhatsNewFile = new File(mapDirectory, ROBSER_WHATS_NEW_FILE);
 		if (!pdisesWhatsNewFile.exists()) {
 			LOGGER.info("POIs from "+toString()+" has never been installed !");
 			infos.setDatabaseVersion(POIsDbInfos.NA);
@@ -109,7 +111,7 @@ public class RobserEs extends RadarsConnector {
 		}
 		
 		// Initiate connexion
-		HttpURLConnection conn = initDownloadConnection(PDISES_DOWN_PACKS);
+		HttpURLConnection conn = initRobserConnection(ROBSER_DOWN_PACKS);
 		
 		// Test connexion response code
 		int connResponse = -1;
@@ -123,7 +125,7 @@ public class RobserEs extends RadarsConnector {
 			return infos;
 		}
 		
-		infos.setLastUpdateDate(PDISES_DATE_FORMAT, parseLastUpdateDate(conn));
+		infos.setLastUpdateDate(ROBSER_DATE_FORMAT, parseLastUpdateDate(conn));
 		infos.setDatabaseVersion(Long.toString(infos.getLastUpdateDate().getTime()));
 		infos.setNumberOfPOIs(0);
 		
@@ -135,7 +137,7 @@ public class RobserEs extends RadarsConnector {
 		InputStream is = null;
 		BufferedReader rd = null;
 		String contentEncoding = conn.getContentEncoding();
-		if (contentEncoding == null) contentEncoding = "ISO-8859-1";
+		if (contentEncoding == null) contentEncoding = ROBSER_ENCODING;
 		try {
 			is = conn.getInputStream();
 			rd = new BufferedReader(new InputStreamReader(is, contentEncoding));
@@ -143,14 +145,14 @@ public class RobserEs extends RadarsConnector {
 
 			while((line = rd.readLine()) != null) {
 				String trimedLine = line.trim();
-				int start = trimedLine.indexOf(PDISES_START_DATE);
+				int start = trimedLine.indexOf(ROBSER_START_DATE);
 				if (start >= 0) {
-					updateDate = trimedLine.substring(start+PDISES_START_DATE.length()).replaceAll("\\<.*?>","").replaceAll("\\&.*?;","").trim();
+					updateDate = trimedLine.substring(start+ROBSER_START_DATE.length()).replaceAll("\\<.*?>","").replaceAll("\\&.*?;","").trim();
 					continue;
 				}
-				start = trimedLine.indexOf(PDISES_START_FILEID);
+				start = trimedLine.indexOf(ROBSER_START_FILEID);
 				if (start >= 0) {
-					downloadFileId = trimedLine.substring(start+PDISES_START_FILEID.length(), trimedLine.indexOf(PDISES_END_FILEID));
+					downloadFileId = trimedLine.substring(start+ROBSER_START_FILEID.length(), trimedLine.indexOf(ROBSER_END_FILEID));
 					continue;
 				}
 				if (updateDate != null && downloadFileId != null) break;
@@ -179,8 +181,8 @@ public class RobserEs extends RadarsConnector {
 		}
 		
 		try {
-			String urlParameters = createPdisdotesLoginPostData(p_user, p_password);
-			HttpURLConnection conn = HttpUtils.createConnectionWithPostData(PDISES_LOGIN_URL, urlParameters, proxy);			
+			String urlParameters = createRobserLoginPostData(p_user, p_password);
+			HttpURLConnection conn = HttpUtils.createConnectionWithPostData(ROBSER_LOGIN_URL, urlParameters, proxy);			
 	        conn.setInstanceFollowRedirects(false);
 	        
 	        conn.connect();
@@ -193,7 +195,7 @@ public class RobserEs extends RadarsConnector {
 	        conn.disconnect();
 	        
 	        for (HttpCookie myCookie : connexionCookies) {
-	        	if ("PHPSESSID".equals(myCookie.getName())) {
+	        	if (COOKIE_SESSION_NAME.equals(myCookie.getName())) {
 	        		isConnected = true;
 	        	}
 	        }
@@ -204,7 +206,7 @@ public class RobserEs extends RadarsConnector {
 		}
 	}
 	
-	private final static String createPdisdotesLoginPostData(String user, String password) {
+	private final static String createRobserLoginPostData(String user, String password) {
 		try {
 			StringBuffer urlParameters = new StringBuffer();
 			urlParameters.append("do=login&vb_login_username=").append(URLEncoder.encode(user, "UTF-8"));
@@ -217,6 +219,52 @@ public class RobserEs extends RadarsConnector {
 		}
 	}
 
+	@Override
+	public HttpURLConnection getConnectionForUpdate() {
+		return getConnectionForInstall();
+	}
+	
+	@Override
+	public HttpURLConnection getConnectionForInstall() {
+		if (downloadFileId == null) {
+			getRemoteDbInfos(proxy);
+		}
+		HttpURLConnection conn = null;
+		
+		try {
+			conn = initRobserConnection(ROBSER_INSTALL_URL+"?fich="+downloadFileId);
+	        String postData = "fich="+downloadFileId+"&fichero="+downloadFileId+"&aceptar=aceptar";
+	        HttpUtils.addPostData(conn, postData);
+	        
+		} catch (Exception e) {
+			throw new JTomtomException(e);
+		}
+		
+		return conn;
+	}
+		
+	/**
+	 * Create connexion with necessary session cookies
+	 * @param fileUrl	URL for the connexion
+	 * @return			Created connexion
+	 */
+	private final HttpURLConnection initRobserConnection(String fileUrl) {
+		if (connexionCookies == null) {
+			throw new JTomtomException("You must connect before !!");
+		}
+
+		try {
+			HttpURLConnection conn = HttpUtils.createDefaultConnection(fileUrl, proxy);
+	        conn.setRequestProperty ("Cookie", createCookieString());
+	        conn.setInstanceFollowRedirects(false);
+	        
+			return conn;
+			
+		} catch (Exception e) {
+			throw new JTomtomException(e);
+		}
+	}
+	
 	private final String createCookieString() {
         StringBuffer cookiesString = new StringBuffer();
         for (HttpCookie cookie : connexionCookies) {
@@ -228,60 +276,18 @@ public class RobserEs extends RadarsConnector {
 	}
 	
 	@Override
-	public HttpURLConnection getConnectionForUpdate() {
-		if (downloadFileId == null) {
-			getRemoteDbInfos(proxy);
-		}
-
-		return initDownloadConnection(PDISES_INSTALL_URL);
-	}
-	
-	@Override
-	public HttpURLConnection getConnectionForInstall() {
-		if (downloadFileId == null) {
-			getRemoteDbInfos(proxy);
-		}
-
-		return initDownloadConnection(PDISES_INSTALL_URL);
-	}
-	
-	private HttpURLConnection initDownloadConnection(String fileUrl) {
-		if (connexionCookies == null) {
-			throw new JTomtomException("You must connect before !!");
-		}
-		
-		try {
-			HttpURLConnection conn = HttpUtils.createDefaultConnection(fileUrl+"?fich="+downloadFileId, proxy);
-	        conn.setRequestProperty ("Cookie", createCookieString());
-	        conn.setInstanceFollowRedirects(false);
-	        
-	        String postData = "fich="+downloadFileId+"&fichero="+downloadFileId+"&aceptar=aceptar";
-	        HttpUtils.addPostData(conn, postData);
-	        
-			return conn;
-			
-		} catch (MalformedURLException e) {
-			throw new JTomtomException(e);
-			
-		} catch (IOException e) {
-			throw new JTomtomException(e);
-			
-		}
-	}
-	
-	@Override
 	public String toString() {
-		return this.getClass().getSimpleName()+" ["+PDISES_COUNTRY.getCountry()+"]";
+		return this.getClass().getSimpleName()+" ["+ROBSER_COUNTRY.getCountry()+"]";
 	}
 
 	@Override
 	public String getConnectorWebsite() {
-		return PDISES_WEBSITE;
+		return ROBSER_WEBSITE;
 	}
 
 	@Override
 	public String getLocale() {
-		return PDISES_COUNTRY.toString();
+		return ROBSER_COUNTRY.toString();
 	}
 
 }

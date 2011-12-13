@@ -107,15 +107,18 @@ public class TestRobserDotEs {
 		
 		int http_code = 0;
 		int http_size = 0;
+		String httpContentDisposition = "";
 		try {
 			conn.connect();
 			http_code = conn.getResponseCode();
 			http_size = conn.getContentLength();
+			httpContentDisposition = conn.getHeaderField("Content-Disposition");
 		} catch (IOException e) {
 			fail(e.getLocalizedMessage());
 		}
 		assertEquals(HttpURLConnection.HTTP_OK, http_code);
 		assertTrue(http_size > 0);
+		assertTrue(httpContentDisposition.trim().startsWith("attachment"));
 	}
 	
 	@Test
@@ -135,15 +138,18 @@ public class TestRobserDotEs {
 		
 		int http_code = 0;
 		int http_size = 0;
+		String httpContentDisposition = "";
 		try {
 			conn.connect();
 			http_code = conn.getResponseCode();
 			http_size = conn.getContentLength();
+			httpContentDisposition = conn.getHeaderField("Content-Disposition");
 		} catch (IOException e) {
 			fail(e.getLocalizedMessage());
 		}
 		assertEquals(HttpURLConnection.HTTP_OK, http_code);
 		assertTrue(http_size > 0);
+		assertTrue(httpContentDisposition.trim().startsWith("attachment"));
 	}
 	
 	@Test
