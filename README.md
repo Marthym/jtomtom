@@ -98,3 +98,11 @@ I just move source from Sourceforge to Github and change build from ant to Maven
 * Fix: Some translations were no longer needed
 * Fix: Java Exception when proxy was set to HTTP or SOCKS without server and port
 * Fix: Inconsistent text in the tab "Radars" when no POIs are installed
+
+## TODO
+ * Fix charset of translation files
+ * Refactor Tests to allow testing without GPS Device connected ...
+ * Switch to SLF4J
+ * Use TypeSafe as configuration
+ * Use Guice as dependency injection
+ * ...
