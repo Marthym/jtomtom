@@ -9,6 +9,7 @@
     <modules>
         <module>jcablib</module>
         <module>jtomtom</module>
+        <module>jtomtom-assembly</module>
     </modules>
 
     <dependencyManagement>
@@ -36,6 +37,16 @@
                 <groupId>com.github.stephenc.java-iso-tools</groupId>
                 <artifactId>iso9660-writer</artifactId>
                 <version>2.0.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-lang</groupId>
+                        <artifactId>commons-lang</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
         </dependencies>
