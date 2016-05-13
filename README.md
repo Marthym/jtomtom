@@ -1,4 +1,6 @@
 # jTomtom
+[![Build Status](https://travis-ci.org/Marthym/jtomtom.svg?branch=develop)](https://travis-ci.org/Marthym/jtomtom)
+
 jTomtom is et Java GPS updater. With jTomtom you can update the QuickFix et Radar POI in your Tomtom GPS
 
 Develop few years ago to allow me to update my Tomtom GPS from Linux, I not maintain the source anymore because of
